@@ -1,1 +1,0 @@
-print("mmd befres")
