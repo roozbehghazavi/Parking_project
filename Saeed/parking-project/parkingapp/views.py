@@ -15,14 +15,6 @@ class CarCreate(generics.CreateAPIView):
     queryset = Car.objects.all()
     serializer_class = CarSerializer
 
-    def create(self, request, *args, **kwargs):
-        serializer = self.get_serializer(data=request.data)
-        serializer.is_valid(raise_exception=True)
-        serializer.save()
-        headers = self.get_success_headers(serializer.data)
-        return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
-
-
 class CarList(generics.ListAPIView):
     # API endpoint that allows customer to be viewed.
     queryset = Car.objects.all()
@@ -47,5 +39,3 @@ class ParkingOwnerCreate(generics.CreateAPIView):
     queryset = ParkingOwner.objects.all()
     serializer_class = ParkingOwnerSerializer
     
-    def create(self, request, *args, **kwargs):
-        return super().create(request, *args, **kwargs)
