@@ -1,15 +1,22 @@
+from django.db.models import fields
 from rest_framework import serializers
-from .models import Car , CustomUser
+from .models import Car , User , ParkingOwner
 
 class CarSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Car 
-        fields = ['pk','name','driverName', 'pelak', 'color']
+        fields = ['id','name','email','password1','password2', 'pelak', 'color']
 
 
 class UserSerializer(serializers.ModelSerializer):
 
     class Meta:
-        model = CustomUser
-        fields = ['id', 'email', 'first_name', 'last_name', 'spouse_name', 'date_of_birth']
+        model = User
+        fields = ['id', 'email', 'name', 'phoneNumber']
+
+class ParkingOwnerSerializer(serializers.ModelSerializer):
+    
+    class Meta:
+        model = ParkingOwner
+        fields = ['id', 'user', 'parkingName', 'location', 'parkingPhoneNumber', 'capacity']
