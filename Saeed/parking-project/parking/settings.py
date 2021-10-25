@@ -45,6 +45,7 @@ INSTALLED_APPS = [
     'allauth.account',
     'rest_auth.registration',
     'parkingapp',
+    'users',
 ]
 
 MIDDLEWARE = [
@@ -136,7 +137,7 @@ STATIC_URL = '/static/'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-AUTH_USER_MODEL = 'parkingapp.CustomUser'
+AUTH_USER_MODEL = 'users.CustomUser'
 
 ACCOUNT_USER_MODEL_USERNAME_FIELD = None
 ACCOUNT_EMAIL_REQUIRED = True
@@ -152,10 +153,10 @@ SITE_ID = 1
 EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 
 REST_AUTH_SERIALIZERS = {
-    'USER_DETAILS_SERIALIZER': 'parkingapp.serializers.CustomUserSerializer',
+    'USER_DETAILS_SERIALIZER': 'users.serializers.CustomUserSerializer',
 }
 REST_AUTH_REGISTER_SERIALIZERS = {
-    'REGISTER_SERIALIZER': 'parkingapp.serializers.MyCustomUserRegistrationSerializer',
+    'REGISTER_SERIALIZER': 'users.serializers.MyCustomUserRegistrationSerializer',
 }
 # REST_FRAMEWORK = {
 #     'DEFAULT_AUTHENTICATION_CLASSES': [

@@ -2,9 +2,9 @@ from django.db.models.query import QuerySet
 from django.shortcuts import render
 from django.http import HttpResponse
 from rest_framework.response import Response
-from .models import Car, ParkingOwner
+from .models import Car
 from rest_framework import generics, status
-from .serializers import CarSerializer, ParkingOwnerSerializer
+from .serializers import CarSerializer
 import json
 import requests
 # Create your views here.
@@ -35,7 +35,4 @@ class CarDelete(generics.RetrieveDestroyAPIView):
     queryset = Car.objects.all()
     serializer_class = CarSerializer
 
-class ParkingOwnerCreate(generics.CreateAPIView):
-    queryset = ParkingOwner.objects.all()
-    serializer_class = ParkingOwnerSerializer
     
