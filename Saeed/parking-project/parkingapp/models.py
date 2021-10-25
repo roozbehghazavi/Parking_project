@@ -1,13 +1,13 @@
 from django.utils import timezone
 from django.db import models
-from django.contrib.auth.models import AbstractBaseUser
+from django.contrib.auth.models import AbstractBaseUser, PermissionsMixin
 from django.utils.translation import ugettext_lazy as _
 from .managers import CustomUserManager
 
 
 # User Authentication Model
 
-class CustomUser(AbstractBaseUser):
+class CustomUser(AbstractBaseUser, PermissionsMixin):
 	CHOICES = (
 		('C', 'CarOwner'),
 		('P', 'ParkingOwner'),
@@ -18,6 +18,9 @@ class CustomUser(AbstractBaseUser):
 	lastName = models.CharField(max_length=100,null=True)
 	email = models.EmailField(_('email address'), unique=True)
 	date_joined = models.DateTimeField(default=timezone.now)
+	is_staff = models.BooleanField(default=False)
+	is_superuser = models.BooleanField(default=False)
+	is_active = models.BooleanField(default=False)
 
 	USERNAME_FIELD = 'email'
 	REQUIRED_FIELDS = []

@@ -48,6 +48,7 @@ class MyCustomUserRegistrationSerializer(RegisterSerializer):
 	def save(self, request):
 		user = super().save(request)
 		user.role = self.data.get('role')
+		print(user.role)
 		user.phoneNumber = self.data.get('phoneNumber')
 		user.firstName = self.data.get('firstName')
 		user.lastName = self.data.get('lastName')
