@@ -87,7 +87,7 @@ DATABASES = {
         'ENGINE': 'django.db.backends.postgresql',
         'NAME': 'Parking',
         'USER': 'postgres',
-        'PASSWORD': 'Xperianeo12',
+        'PASSWORD': 'hichetorid',
         'HOST': 'localhost',
         'PORT': '5432'
     }
