@@ -1,6 +1,8 @@
-from django.db.models import fields
 from rest_framework import serializers
-from .models import CustomUser , ParkingOwner, CarOwner
+
+from parkingowner.models import ParkingOwner
+from carowner.models import CarOwner
+from .models import CustomUser
 from rest_auth.registration.serializers import RegisterSerializer
 
 #Serializer for CustomUser Model
@@ -13,29 +15,6 @@ class CustomUserSerializer(serializers.ModelSerializer):
 
 
 
-
-#Seriliazer for ParkingOwner Model
-
-class ParkingOwnerSerializer(serializers.ModelSerializer):
-	
-	class Meta:
-		model = ParkingOwner
-		fields = ['id', 'user', 'parkingName', 'location', 'parkingPhoneNumber', 'capacity']
-
-
-
-
-#Serializer for CarOwner Model        
-
-class CarOwnerSerializer(serializers.ModelSerializer):
-
-    class Meta:
-        model = CarOwner
-        fields = ['id', 'user', 'favoriteLocations', 'profilePhoto', 'cash']
-
-
-
-
 #Register Serializer for registering our users
 
 class MyCustomUserRegistrationSerializer(RegisterSerializer):
@@ -44,9 +23,9 @@ class MyCustomUserRegistrationSerializer(RegisterSerializer):
 		('P', 'ParkingOwner'),
 	)
 	role = serializers.ChoiceField(choices=CHOICES)
-	firstName = serializers.CharField()
-	lastName = serializers.CharField()
-	phoneNumber = serializers.CharField()
+	firstName = serializers.CharField(required = False)
+	lastName = serializers.CharField(required = False)
+	phoneNumber = serializers.CharField(required = False)
 	email = serializers.EmailField()
 
 	def get_cleaned_data(self):
@@ -69,12 +48,10 @@ class MyCustomUserRegistrationSerializer(RegisterSerializer):
 		user.lastName = self.data.get('lastName')
 		user.email = self.data.get('email')
 		if user.role == "P":
-			parkingOwner = ParkingOwner.objects.create()
-			parkingOwner.user = user
+			parkingOwner = ParkingOwner.objects.create(user = user)
 			parkingOwner.save()
 		elif user.role == "C":
-			carOwner = CarOwner.objects.create()
-			carOwner.user = user
+			carOwner = CarOwner.objects.create(user = user)
 			carOwner.save()
 		user.save()
 		return user

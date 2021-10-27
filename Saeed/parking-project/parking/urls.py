@@ -23,6 +23,8 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('car/',include('parkingapp.urls')),
     path('users/',include('users.urls')),
+    path('carowner/',include('carowner.urls')),
+    path('parkingowner/',include('parkingowner.urls')),
 ]
 
 # urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

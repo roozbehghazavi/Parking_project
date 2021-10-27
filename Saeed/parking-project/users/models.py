@@ -15,8 +15,8 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
 		('P', 'ParkingOwner'),
 	)
 	role = models.CharField(max_length=1, choices=CHOICES)
-	firstName = models.CharField(max_length=100,null=True)
-	lastName = models.CharField(max_length=100,null=True)
+	firstName = models.CharField(max_length=100,null=True,blank=True)
+	lastName = models.CharField(max_length=100,null=True,blank=True)
 	email = models.EmailField(_('email address'), unique=True)
 	date_joined = models.DateTimeField(default=timezone.now)
 	is_staff = models.BooleanField(default=False)
@@ -31,29 +31,3 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
 	def __str__(self):
 		return self.email
 
-
-
-#Parking Owner Model
-
-class ParkingOwner(models.Model):
-	user = models.OneToOneField(CustomUser,on_delete=models.CASCADE,null=True)
-	parkingName = models.CharField(max_length=200)
-	location = models.CharField(max_length=100)
-	parkingPhoneNumber = models.CharField(max_length=30)
-	capacity = models.IntegerField(default=0)
-
-	def __str__(self):
-		return self.user.firstName + self.user.lastName
-
-
-
-#Car Owner Model
-
-class CarOwner(models.Model):
-	user = models.OneToOneField(CustomUser,on_delete=models.CASCADE,null=True)
-	favoriteLocations = models.CharField(max_length=100)
-	profilePhoto = models.ImageField()
-	cash = models.IntegerField(default=0)
-
-	def __str__(self):
-		return self.user.firstName + self.user.lastName
