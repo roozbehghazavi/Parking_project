@@ -14,14 +14,15 @@ class ParkingOwner(models.Model):
 
 
 	def __str__(self):
-		return self.user.firstName + self.user.lastName
+		return self.user.email
 
-class Parking(models.Model):
-	P_Owner = models.ForeignKey(ParkingOwner,on_delete=models.CASCADE,null=True)
+class Parking(models.Model):	
+	ParkingOwner = models.ForeignKey(ParkingOwner,on_delete=models.CASCADE,null=True)
 	parkingName = models.CharField(max_length=200)
 	location = models.CharField(max_length=100)
 	parkingPhoneNumber = models.CharField(max_length=30)
 	capacity = models.IntegerField(default=0)
 
 	def __str__(self):
-		return self.P_Owner.user.firstName
+		if(self.ParkingOwner.user.role=='P'):
+			return self.ParkingOwner.user.email

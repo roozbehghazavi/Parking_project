@@ -1,13 +1,14 @@
 from django.shortcuts import render
 from rest_framework.views import APIView
 from .models import ParkingOwner,Parking
-from .serializers import ParkingOwnerSerializer
+from .serializers import ParkingOwnerSerializer,ParkingSerializer
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
 from rest_framework import generics
+from .permissions import IsPrivateAllowed
 #Add or delete parking
-class ParkingAV(APIView):
-    permission_classes = [IsAuthenticated]
+class addParking(APIView):
+    # permission_classes = [IsAuthenticated, IsPrivateAllowed]
     #Create a parking and add it to database
     def post(self,request):
         #Create a model object

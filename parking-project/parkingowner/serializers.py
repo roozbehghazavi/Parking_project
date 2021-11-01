@@ -13,11 +13,10 @@ class ParkingOwnerSerializer(serializers.ModelSerializer):
 		model = ParkingOwner
 		fields = ['id','role','email', 'firstName', 'lastName','profilePhoto','NationalCode']
 
-	def create(self, validated_data):
-		return models.ParkingOwner.objects.create(**validated_data)
+	# def create(self, validated_data):
+	# 	return models.ParkingOwner.objects.create(**validated_data)
 		
 	def update(self, instance, validated_data):
-
 	# ParkingOwner.user Info
 		try:
 			user_data = validated_data.pop('user')
@@ -35,11 +34,8 @@ class ParkingOwnerSerializer(serializers.ModelSerializer):
 		return instance
 		
 
-class ParkingSerializer:
-	role = serializers.CharField(source = 'user.role',required = False, read_only = True)
-	firstName = serializers.CharField(source = 'user.firstName',required = False)
-	lastName = serializers.CharField(source = 'user.lastName',required = False)
-	email = serializers.EmailField(source = 'user.email',required = False, read_only = False)
+class ParkingSerializer(serializers.ModelSerializer):
+
 	class Meta:
 		model = Parking
-		fields = ['id','role','email', 'firstName', 'lastName','parkingName','Location','parkingPhoneNumber','Capacity']
+		fields = ['id','parkingName','location','parkingPhoneNumber','capacity']
