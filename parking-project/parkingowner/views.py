@@ -1,6 +1,6 @@
 from django.shortcuts import render
 from rest_framework.views import APIView
-from .models import ParkingOwner
+from .models import ParkingOwner,Parking
 from .serializers import ParkingOwnerSerializer
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
@@ -11,10 +11,10 @@ class ParkingAV(APIView):
     #Create a parking and add it to database
     def post(self,request):
         #Create a model object
-        Parkings=ParkingOwner.objects.all()
+        Parkings=Parking.objects.all()
         #Call serializer
-        serializer=ParkingOwnerSerializer(data=request.data)
-
+        serializer=ParkingSerializer(data=request.data)
+        
         if(serializer.is_valid()):
             serializer.save()
             return Response(serializer.data)

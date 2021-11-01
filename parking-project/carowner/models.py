@@ -14,3 +14,4 @@ class CarOwner(models.Model):
 
 	def __str__(self):
 		return self.user.firstName + self.user.lastName
+

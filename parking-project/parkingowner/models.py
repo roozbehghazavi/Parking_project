@@ -9,10 +9,19 @@ from users.models import CustomUser
 
 class ParkingOwner(models.Model):
 	user = models.OneToOneField(CustomUser,on_delete=models.CASCADE,null=True)
+	profilePhoto = models.ImageField(blank=True)
+	NationalCode=models.IntegerField(default=0,blank=True)
+
+
+	def __str__(self):
+		return self.user.firstName + self.user.lastName
+
+class Parking(models.Model):
+	P_Owner = models.ForeignKey(ParkingOwner,on_delete=models.CASCADE,null=True)
 	parkingName = models.CharField(max_length=200)
 	location = models.CharField(max_length=100)
 	parkingPhoneNumber = models.CharField(max_length=30)
 	capacity = models.IntegerField(default=0)
 
 	def __str__(self):
-		return self.user.firstName + self.user.lastName
+		return self.P_Owner.user.firstName
