@@ -13,8 +13,6 @@ class ParkingOwnerSerializer(serializers.ModelSerializer):
 		model = ParkingOwner
 		fields = ['id','role','email', 'firstName', 'lastName','profilePhoto','NationalCode']
 
-	# def create(self, validated_data):
-	# 	return models.ParkingOwner.objects.create(**validated_data)
 		
 	def update(self, instance, validated_data):
 	# ParkingOwner.user Info

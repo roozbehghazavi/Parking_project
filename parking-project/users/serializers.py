@@ -5,9 +5,15 @@ from carowner.models import CarOwner
 from .models import CustomUser
 from rest_auth.registration.serializers import RegisterSerializer
 
-#Serializer for CustomUser Model
-
 class CustomUserSerializer(serializers.ModelSerializer):
+	CHOICES = (
+		('C', 'CarOwner'),
+		('P', 'ParkingOwner'),
+	)
+	role = serializers.ChoiceField(choices=CHOICES,required = False)
+	firstName = serializers.CharField(required = False)
+	lastName = serializers.CharField(required = False)
+	email = serializers.EmailField(required = False, read_only = True)
 
 	class Meta:
 		model = CustomUser
@@ -25,7 +31,6 @@ class MyCustomUserRegistrationSerializer(RegisterSerializer):
 	role = serializers.ChoiceField(choices=CHOICES)
 	firstName = serializers.CharField(required = False)
 	lastName = serializers.CharField(required = False)
-	phoneNumber = serializers.CharField(required = False)
 	email = serializers.EmailField()
 
 	def get_cleaned_data(self):
@@ -37,13 +42,11 @@ class MyCustomUserRegistrationSerializer(RegisterSerializer):
 			'firstName': self.validated_data.get('firstName', ''),
 			'lastName': self.validated_data.get('last_name', ''),
 			'role': self.validated_data.get('role',''),
-			'phoneNumber': self.validated_data.get('phoneNumber',''),
 		}
 
 	def save(self, request):
 		user = super().save(request)
 		user.role = self.data.get('role')
-		user.phoneNumber = self.data.get('phoneNumber')
 		user.firstName = self.data.get('firstName')
 		user.lastName = self.data.get('lastName')
 		user.email = self.data.get('email')
