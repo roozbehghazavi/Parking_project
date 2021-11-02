@@ -11,17 +11,33 @@ from django.shortcuts import get_object_or_404
 class addParking(APIView):
     # permission_classes = [IsAuthenticated, IsPrivateAllowed]
     #Create a parking and add it to database
-    def post(self,request):
+    queryset = Parking.objects.all()
+    serializer_class = ParkingSerializer
+
+    def post(self,request,*args, **kwargs):
         #Create a model object
-        Parkings=Parking.objects.all()
+        parking=Parking.objects.create(Owner=request.user)
         #Call serializer
-        serializer=ParkingSerializer(data=request.data)
+        serializer=ParkingSerializer(parking,data=request.data)
         
         if(serializer.is_valid()):
             serializer.save()
             return Response(serializer.data)
         else:
             return Response(serializer.errors)
+            
+class ParkingCreate(generics.CreateAPIView):
+    # API endpoint that allows creation of a new customer
+    queryset = Parking.objects.all()
+    serializer_class = ParkingSerializer
+
+    def create(self, request, *args, **kwargs):
+        parking = Parking.objects.create(Owner = request.user)
+        serializer = ParkingSerializer(parking,data=request.data)
+        serializer.is_valid(raise_exception=True)
+        self.perform_create(serializer)
+        headers = self.get_success_headers(serializer.data)
+        return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
 
 class ParkingOwnerCreate(generics.CreateAPIView):
     # API endpoint that allows creation of a new customer

@@ -1,5 +1,5 @@
 from django.urls import path , include
-from .views import addParking,ParkingOwnerCreate,ParkingOwnerDelete,ParkingOwnerDetail,ParkingOwnerUpdate,ParkingOwnerDelete,ParkingOwnerList
+from .views import addParking,ParkingOwnerCreate,ParkingOwnerDelete,ParkingOwnerDetail,ParkingOwnerUpdate,ParkingOwnerDelete,ParkingOwnerList,ParkingCreate
 
 
 urlpatterns = [
