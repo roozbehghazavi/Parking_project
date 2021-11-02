@@ -17,7 +17,7 @@ class ParkingOwner(models.Model):
 		return self.user.email
 
 class Parking(models.Model):	
-	ParkingOwner = models.ForeignKey(ParkingOwner,on_delete=models.CASCADE,null=True)
+	parkingOwner = models.OneToOneField(ParkingOwner,on_delete=models.CASCADE,null=True)
 	parkingName = models.CharField(max_length=200)
 	location = models.CharField(max_length=100)
 	parkingPhoneNumber = models.CharField(max_length=30)

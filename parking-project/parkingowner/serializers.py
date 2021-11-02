@@ -32,10 +32,14 @@ class ParkingOwnerSerializer(serializers.ModelSerializer):
 		super().update(instance, validated_data)
 
 		return instance
+
+
 		
 
 class ParkingSerializer(serializers.ModelSerializer):
 
 	class Meta:
 		model = Parking
-		fields = ['id','parkingName','location','parkingPhoneNumber','capacity']
+		fields = ['id','parkingOwner','parkingName','location','parkingPhoneNumber','capacity']
+
+	
