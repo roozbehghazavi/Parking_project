@@ -1,9 +1,9 @@
 from django.urls import path , include
-from .views import addParking,ParkingOwnerCreate,ParkingOwnerDelete,ParkingOwnerDetail,ParkingOwnerUpdate,ParkingOwnerDelete,ParkingOwnerList,ParkingCreate
+from .views import ParkingOwnerCreate,ParkingOwnerDelete,ParkingOwnerDetail,ParkingOwnerUpdate,ParkingOwnerDelete,ParkingOwnerList,ParkingCreate
 
 
 urlpatterns = [
-    path('addparking/', addParking.as_view(), name='add-parking'),
+    path('addparking/', ParkingCreate.as_view()),
     path('create/', ParkingOwnerCreate.as_view()),
     path('', ParkingOwnerList.as_view()),
     path('<int:pk>/', ParkingOwnerDetail.as_view()),

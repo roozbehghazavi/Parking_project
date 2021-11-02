@@ -1,7 +1,11 @@
+from django.db.models import query
 from django.db.models.query import QuerySet
 from django.shortcuts import get_object_or_404, render
 from django.http import HttpResponse
 from rest_framework.response import Response
+
+from parkingowner.models import Parking
+from parkingowner.serializers import ParkingSerializer
 from .models import  Car, CarOwner
 from rest_framework import generics, status
 from .serializers import CarOwnerSerializer, CarSerializer
@@ -45,6 +49,7 @@ class CarOwnerUpdate(generics.RetrieveUpdateAPIView):
             instance._prefetched_objects_cache = {}
 
         return Response(serializer.data)
+    
 
 class CarOwnerDelete(generics.RetrieveDestroyAPIView):
     # API endpoint that allows a customer record to be deleted.
@@ -64,9 +69,6 @@ class CarCreate(generics.CreateAPIView):
 
     def create(self, request, *args, **kwargs):
         car = Car.objects.create(owner = request.user)
-        car.carName = request.data['carName']
-        car.pelak = request.data['pelak']
-        car.color = request.data['color']
         serializer = CarSerializer(car,data=request.data)
         serializer.is_valid(raise_exception=True)
         self.perform_create(serializer)
@@ -74,10 +76,23 @@ class CarCreate(generics.CreateAPIView):
         return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
 
 
+
+
 class CarList(generics.ListAPIView):
     # API endpoint that allows customer to be viewed.
     queryset = Car.objects.all()
     serializer_class = CarSerializer
+
+    def get(self, request, *args, **kwargs):
+        queryset = Car.objects.all().filter(owner = request.user).order_by('carName')
+
+        page = self.paginate_queryset(queryset)
+        if page is not None:
+            serializer = self.get_serializer(page, many=True)
+            return self.get_paginated_response(serializer.data)
+
+        serializer = self.get_serializer(queryset, many=True)
+        return Response(serializer.data)
 
 class CarDetail(generics.RetrieveAPIView):
     # API endpoint that returns a single customer by pk.
@@ -94,3 +109,22 @@ class CarDelete(generics.RetrieveDestroyAPIView):
     # API endpoint that allows a customer record to be deleted.
     queryset = Car.objects.all()
     serializer_class = CarSerializer
+
+
+# Parking
+
+class ParkingList(generics.ListAPIView):
+    queryset = Parking.objects.all()
+    serializer_class = ParkingSerializer
+
+    def get(self, request, *args, **kwargs):
+        queryset = Parking.objects.all().order_by('parkingName')
+
+        page = self.paginate_queryset(queryset)
+        if page is not None:
+            serializer = self.get_serializer(page, many=True)
+            return self.get_paginated_response(serializer.data)
+
+        serializer = self.get_serializer(queryset, many=True)
+        return Response(serializer.data)
+

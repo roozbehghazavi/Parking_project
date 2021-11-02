@@ -5,6 +5,8 @@ from carowner.models import CarOwner
 from .models import CustomUser
 from rest_auth.registration.serializers import RegisterSerializer
 
+#Serializer for CustomUser Model
+
 class CustomUserSerializer(serializers.ModelSerializer):
 	CHOICES = (
 		('C', 'CarOwner'),

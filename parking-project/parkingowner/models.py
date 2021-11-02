@@ -10,14 +10,14 @@ from users.models import CustomUser
 class ParkingOwner(models.Model):
 	user = models.OneToOneField(CustomUser,on_delete=models.CASCADE,null=True)
 	profilePhoto = models.ImageField(blank=True)
-	NationalCode=models.IntegerField(default=0,blank=True)
+	nationalCode=models.IntegerField(default=0,blank=True)
 
 
 	def __str__(self):
 		return self.user.email
 
 class Parking(models.Model):	
-	Owner = models.ForeignKey(ParkingOwner,on_delete=models.CASCADE,null=True)
+	owner = models.ForeignKey(CustomUser,on_delete=models.CASCADE,null=True)
 	parkingName = models.CharField(max_length=200)
 	location = models.CharField(max_length=100)
 	parkingPhoneNumber = models.CharField(max_length=30)
