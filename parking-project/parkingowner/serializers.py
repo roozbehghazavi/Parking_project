@@ -13,9 +13,7 @@ class ParkingOwnerSerializer(serializers.ModelSerializer):
 		model = ParkingOwner
 		fields = ['id','role','email', 'firstName', 'lastName','profilePhoto','NationalCode']
 
-		
 	def update(self, instance, validated_data):
-	# ParkingOwner.user Info
 		try:
 			user_data = validated_data.pop('user')
 			user = instance.user
@@ -25,14 +23,9 @@ class ParkingOwnerSerializer(serializers.ModelSerializer):
 			user.save()
 		except:
 			pass
-
-		# ParkingOwner Info
 		super().update(instance, validated_data)
 
-		return instance
-
-
-		
+		return instance		
 
 class ParkingSerializer(serializers.ModelSerializer):
 
