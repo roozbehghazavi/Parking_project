@@ -18,7 +18,7 @@ class CarOwner(models.Model):
 
 
 class Car(models.Model):
-	owner = models.ForeignKey(CustomUser,on_delete=models.CASCADE,null=True)
+	owner = models.ForeignKey(CarOwner,on_delete=models.CASCADE,null=True)
 	carName = models.CharField(max_length=100)
 	pelak = models.CharField(max_length=30)
 	color = models.CharField(max_length=100)

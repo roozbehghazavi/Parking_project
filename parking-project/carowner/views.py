@@ -68,7 +68,8 @@ class CarCreate(generics.CreateAPIView):
     serializer_class = CarSerializer
 
     def create(self, request, *args, **kwargs):
-        car = Car.objects.create(owner = request.user)
+        owner = get_object_or_404(CarOwner, user = request.user)
+        car = Car.objects.create(owner = owner)
         serializer = CarSerializer(car,data=request.data)
         serializer.is_valid(raise_exception=True)
         self.perform_create(serializer)
