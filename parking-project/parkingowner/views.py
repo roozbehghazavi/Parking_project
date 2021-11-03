@@ -40,6 +40,18 @@ class ParkingList(generics.ListAPIView):
 	# API endpoint that allows customer to be viewed.
 	queryset = Parking.objects.all()
 	serializer_class = ParkingSerializer
+	
+	def get(self, request, *args, **kwargs):
+		owner = get_object_or_404(ParkingOwner, user = request.user)
+		queryset = Parking.objects.all().filter(owner = owner)
+
+		page = self.paginate_queryset(queryset)
+		if page is not None:
+			serializer = self.get_serializer(page, many=True)
+			return self.get_paginated_response(serializer.data)
+
+		serializer = self.get_serializer(queryset, many=True)
+		return Response(serializer.data)
 
 class ParkingDetail(generics.RetrieveAPIView):
 	# API endpoint that returns a single customer by pk.
