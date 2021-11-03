@@ -84,7 +84,8 @@ class CarList(generics.ListAPIView):
     serializer_class = CarSerializer
 
     def get(self, request, *args, **kwargs):
-        queryset = Car.objects.all().filter(owner = request.user).order_by('carName')
+        owner = get_object_or_404(CarOwner, user = request.user)
+        queryset = Car.objects.all().filter(owner = owner).order_by('carName')
 
         page = self.paginate_queryset(queryset)
         if page is not None:
