@@ -31,6 +31,7 @@ class CarOwnerSerializer(serializers.ModelSerializer):
 		super().update(instance, validated_data)
 
 		return instance
+    
 		
 
 
@@ -48,4 +49,5 @@ class CarSerializer(serializers.ModelSerializer):
 	class Meta:
 		model = Car 
 		fields = ['id','ownerRole','ownerFirstName','ownerLastName','ownerEmail','carName', 'pelak', 'color']
-	
+    
+        

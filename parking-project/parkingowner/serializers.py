@@ -10,7 +10,7 @@ class ParkingOwnerSerializer(serializers.ModelSerializer):
 	email = serializers.EmailField(source = 'user.email',required = False, read_only = False)
 	class Meta:
 		model = ParkingOwner
-		fields = ['id','role','email', 'firstName', 'lastName','profilePhoto','NationalCode']
+		fields = ['id','role','email', 'firstName', 'lastName','profilePhoto','nationalCode']
 
 	def update(self, instance, validated_data):
 		try:
