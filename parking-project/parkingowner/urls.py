@@ -1,12 +1,19 @@
 from django.urls import path , include
-from .views import addParking,ParkingOwnerCreate,ParkingOwnerDelete,ParkingOwnerDetail,ParkingOwnerUpdate,ParkingOwnerDelete,ParkingOwnerList,ParkingCreate
+from .views import ParkingCreate,ParkingDelete,ParkingList,ParkingDetail,ParkingOwnerCreate,ParkingOwnerDelete,ParkingOwnerDetail,ParkingOwnerUpdate,ParkingOwnerList
 
 
 urlpatterns = [
-    path('addparking/', addParking.as_view(), name='add-parking'),
-    path('create/', ParkingOwnerCreate.as_view()),
-    path('', ParkingOwnerList.as_view()),
+    #Parking URLs
+    path('createparking/', ParkingCreate.as_view()),
+    path('parkinglist', ParkingList.as_view()),
+    path('<int:pk>/', ParkingDetail.as_view()),
+    path('deleteparking/', ParkingDelete.as_view()),
+    
+
+    #ParkingOwner URLs
+    path('createparkingowner/', ParkingOwnerCreate.as_view()),
+    path('parkingownerlist', ParkingOwnerList.as_view()),
     path('<int:pk>/', ParkingOwnerDetail.as_view()),
-    path('update/', ParkingOwnerUpdate.as_view()),
-    path('delete/<int:pk>/', ParkingOwnerDelete.as_view()),
+    path('updateparkingowner/', ParkingOwnerUpdate.as_view()),
+    path('deleteparkingowner/', ParkingOwnerDelete.as_view()),
 ]
