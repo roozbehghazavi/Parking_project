@@ -1,6 +1,6 @@
 from django.urls import path , include
 
-from carowner.views import CarCreate, CarList, CarOwnerCreate, CarOwnerDetail, CarOwnerUpdate, CarOwnerDelete, CarOwnerList, ParkingList
+from carowner.views import CarCreate, CarDelete, CarList, CarOwnerCreate, CarOwnerDetail, CarOwnerUpdate, CarOwnerDelete, CarOwnerList, ParkingList
 
 
 urlpatterns = [
@@ -12,6 +12,7 @@ urlpatterns = [
     ###Car Views Functions
     path('carcreate/', CarCreate.as_view()),
     path('carlist/',CarList.as_view()),
+    path('cardelete/', CarDelete.as_view()),
     ###Parking List
     path('parkinglist/',ParkingList.as_view()),
 ]

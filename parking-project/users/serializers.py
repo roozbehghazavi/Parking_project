@@ -16,10 +16,11 @@ class CustomUserSerializer(serializers.ModelSerializer):
 	firstName = serializers.CharField(required = False)
 	lastName = serializers.CharField(required = False)
 	email = serializers.EmailField(required = False, read_only = True)
+	profilePhoto = serializers.ImageField(required = False)
 
 	class Meta:
 		model = CustomUser
-		fields = ['id', 'role', 'firstName','lastName','email']
+		fields = ['id', 'role', 'firstName','lastName','email','profilePhoto']
 
 
 
@@ -34,6 +35,7 @@ class MyCustomUserRegistrationSerializer(RegisterSerializer):
 	firstName = serializers.CharField(required = False)
 	lastName = serializers.CharField(required = False)
 	email = serializers.EmailField()
+	profilePhoto = serializers.ImageField(required = False)
 
 	def get_cleaned_data(self):
 		super(MyCustomUserRegistrationSerializer, self).get_cleaned_data()
@@ -44,6 +46,7 @@ class MyCustomUserRegistrationSerializer(RegisterSerializer):
 			'firstName': self.validated_data.get('firstName', ''),
 			'lastName': self.validated_data.get('last_name', ''),
 			'role': self.validated_data.get('role',''),
+			'profilePhoto' : self.validated_data.get('profilePhoto',''),
 		}
 
 	def save(self, request):
@@ -52,6 +55,7 @@ class MyCustomUserRegistrationSerializer(RegisterSerializer):
 		user.firstName = self.data.get('firstName')
 		user.lastName = self.data.get('lastName')
 		user.email = self.data.get('email')
+		user.profilePhoto = self.data.get('profilePhoto')
 		if user.role == "P":
 			parkingOwner = ParkingOwner.objects.create(user = user)
 			parkingOwner.save()

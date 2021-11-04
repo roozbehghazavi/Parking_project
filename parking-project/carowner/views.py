@@ -112,6 +112,12 @@ class CarDelete(generics.RetrieveDestroyAPIView):
     queryset = Car.objects.all()
     serializer_class = CarSerializer
 
+    def delete(self, request, *args, **kwargs):
+        owner = get_object_or_404(CarOwner, user = request.user)
+        instance = get_object_or_404(Car, id = request.data['id'], owner = owner)
+        self.perform_destroy(instance)
+        return Response({"message" : "Car deleted successfully"},status=status.HTTP_204_NO_CONTENT)
+
 
 # Parking
 
