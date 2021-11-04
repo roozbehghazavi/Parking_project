@@ -39,8 +39,10 @@ class ParkingDelete(generics.RetrieveDestroyAPIView):
 
 	def delete(self, request,format=None):
 		#Get object by it's id and destroy it.
-		instance = get_object_or_404(Parking, id=request.data['id']).delete()
-		return Response(response,status=status.HTTP_204_NO_CONTENT)
+		owner = get_object_or_404(ParkingOwner, user = request.user)
+		instance = get_object_or_404(Parking, id=request.data['id'],owner=owner).delete()
+		
+		return Response(status=status.HTTP_204_NO_CONTENT)
 
 
 
