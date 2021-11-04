@@ -43,13 +43,14 @@ class CarOwnerSerializer(serializers.ModelSerializer):
 
 class CarSerializer(serializers.ModelSerializer):
 
-	ownerRole = serializers.CharField(source = 'owner.role',required = False, read_only = True)
-	ownerFirstName = serializers.CharField(source = 'owner.firstName',required = False)
-	ownerLastName = serializers.CharField(source = 'owner.lastName',required = False)
-	ownerEmail = serializers.EmailField(source = 'owner.email',required = False, read_only = True)
+	ownerRole = serializers.CharField(source = 'owner.user.role',required = False, read_only = True)
+	ownerFirstName = serializers.CharField(source = 'owner.user.firstName',required = False)
+	ownerLastName = serializers.CharField(source = 'owner.user.lastName',required = False)
+	ownerEmail = serializers.EmailField(source = 'owner.user.email',required = False, read_only = True)
+	ownerProfilePhoto = serializers.ImageField(source = 'owner.user.profilePhoto', required = False)
 
 	class Meta:
 		model = Car 
-		fields = ['id','ownerRole','ownerFirstName','ownerLastName','ownerEmail','carName', 'pelak', 'color']
+		fields = ['id','ownerRole','ownerFirstName','ownerLastName','ownerEmail','ownerProfilePhoto','carName', 'pelak', 'color']
     
         
