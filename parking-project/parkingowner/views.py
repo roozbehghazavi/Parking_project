@@ -8,36 +8,44 @@ from rest_framework import generics,status
 from .permissions import IsPrivateAllowed
 from django.shortcuts import get_object_or_404
 
-#####Parking related views#####
+#########################################################################
+#------------------------ Parking related views ------------------------#
+#########################################################################
+
+#Create a parking and add it to database
 class ParkingCreate(APIView):
-	#Create a parking and add it to database
 	queryset = Parking.objects.all()
 	serializer_class = ParkingSerializer
 
 	def post(self,request,*args, **kwargs):
-		#Create a model object and filter it 
+		#Create a ParkingOwner model object and filter it by the user whom sent the request.
 		owner = ParkingOwner.objects.filter(user=request.user).first()
 		#Call serializer
 		serializer=ParkingSerializer(data=request.data)
-		
+
+		#Save data if it's valid
 		if(serializer.is_valid()):
 			serializer.save(owner=owner)
 			return Response(serializer.data)
+
+		#Shows error if it's not valid
 		else:
 			return Response(serializer.errors)
-			
-class ParkingDelete(APIView):
-	# API endpoint that allows a customer record to be deleted.
+
+#This view delete a parking by its id(in body)
+class ParkingDelete(generics.RetrieveDestroyAPIView):
 	queryset = Parking.objects.all()
 	serializer_class = ParkingSerializer
 
-	def delete(self,request):
-		owner = Parking.objects.filter(id=request.user.id).first()
-		owner.delete()
-		return Response(status=status.HTTP_204_NO_CONTENT)
+	def delete(self, request,format=None):
+		#Get object by it's id and destroy it.
+		instance = get_object_or_404(Parking, id=request.data['id']).delete()
+		return Response(response,status=status.HTTP_204_NO_CONTENT)
 
+
+
+#This view shows registered parking for a parking owner.
 class ParkingList(generics.ListAPIView):
-	# API endpoint that allows customer to be viewed.
 	queryset = Parking.objects.all()
 	serializer_class = ParkingSerializer
 	
@@ -53,29 +61,27 @@ class ParkingList(generics.ListAPIView):
 		serializer = self.get_serializer(queryset, many=True)
 		return Response(serializer.data)
 
+#Shows a parking details by its id(in url)
 class ParkingDetail(generics.RetrieveAPIView):
-	# API endpoint that returns a single customer by pk.
 	queryset = Parking.objects.all()
 	serializer_class = ParkingSerializer
 
-#####ParkingOwner related views#####
-class ParkingOwnerCreate(generics.CreateAPIView):
-	# API endpoint that allows creation of a new customer
-	queryset = ParkingOwner.objects.all()
-	serializer_class = ParkingOwnerSerializer
+#########################################################################
+#--------------------- ParkingOwner related views ----------------------#
+#########################################################################
 
+#Shows list of registered parkings
 class ParkingOwnerList(generics.ListAPIView):
-	# API endpoint that allows customer to be viewed.
 	queryset = ParkingOwner.objects.all()
 	serializer_class = ParkingOwnerSerializer
+
+#Shows parking owner details by its id(in url)
 class ParkingOwnerDetail(generics.RetrieveAPIView):
-	# API endpoint that returns a single customer by pk.
 	queryset = ParkingOwner.objects.all()
 	serializer_class = ParkingOwnerSerializer
 
-
+#Edit parking owners profile
 class ParkingOwnerUpdate(generics.RetrieveUpdateAPIView):
-	# API endpoint that allows a customer record to be updated.
 	queryset = ParkingOwner.objects.all()
 	serializer_class = ParkingOwnerSerializer
 
@@ -93,15 +99,7 @@ class ParkingOwnerUpdate(generics.RetrieveUpdateAPIView):
 
 		return Response(serializer.data)
 
-class ParkingOwnerDelete(generics.RetrieveDestroyAPIView):
-	# API endpoint that allows a customer record to be deleted.
-	queryset = ParkingOwner.objects.all()
-	serializer_class = ParkingOwnerSerializer
 
-	def delete(self,request):
-		owner = ParkingOwner.objects.filter(user=request.user).first()
-		owner.delete()
-		return Response(status=status.HTTP_204_NO_CONTENT)
 
 
 
