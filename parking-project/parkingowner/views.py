@@ -5,8 +5,8 @@ from .serializers import ParkingOwnerSerializer, ParkingSerializer
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
 from rest_framework import generics,status
-from .permissions import IsPrivateAllowed
 from django.shortcuts import get_object_or_404
+from .pagination import ParkingListPagination
 
 #########################################################################
 #------------------------ Parking related views ------------------------#
@@ -48,6 +48,7 @@ class ParkingDelete(generics.RetrieveDestroyAPIView):
 
 #This view shows registered parking for a parking owner.
 class ParkingList(generics.ListAPIView):
+	pagination_class=ParkingListPagination
 	queryset = Parking.objects.all()
 	serializer_class = ParkingSerializer
 	
