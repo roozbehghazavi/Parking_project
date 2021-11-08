@@ -3,11 +3,11 @@ from django.db.models.query import QuerySet
 from django.shortcuts import get_object_or_404, render
 from django.http import HttpResponse
 from rest_framework.response import Response
-
 from parkingowner.models import Parking
 from parkingowner.serializers import ParkingSerializer
 from .models import  Car, CarOwner
-from rest_framework import generics, status
+from .pagination import CarOwnerPagination
+from rest_framework import generics, pagination, status
 from .serializers import CarOwnerSerializer, CarSerializer
 import json
 import requests
@@ -83,6 +83,7 @@ class CarList(generics.ListAPIView):
     # API endpoint that allows customer to be viewed.
     queryset = Car.objects.all()
     serializer_class = CarSerializer
+    pagination_class = CarOwnerPagination
 
     def get(self, request, *args, **kwargs):
         owner = get_object_or_404(CarOwner, user = request.user)
@@ -124,6 +125,7 @@ class CarDelete(generics.RetrieveDestroyAPIView):
 class ParkingList(generics.ListAPIView):
     queryset = Parking.objects.all()
     serializer_class = ParkingSerializer
+    pagination_class = CarOwnerPagination
 
     def get(self, request, *args, **kwargs):
         queryset = Parking.objects.all().order_by('parkingName')
