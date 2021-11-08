@@ -44,7 +44,7 @@ class MyCustomUserRegistrationSerializer(RegisterSerializer):
 			'password2': self.validated_data.get('password2', ''),
 			'email': self.validated_data.get('email', ''),
 			'firstName': self.validated_data.get('firstName', ''),
-			'lastName': self.validated_data.get('last_name', ''),
+			'lastName': self.validated_data.get('lastName', ''),
 			'role': self.validated_data.get('role',''),
 			'profilePhoto' : self.validated_data.get('profilePhoto',''),
 		}
