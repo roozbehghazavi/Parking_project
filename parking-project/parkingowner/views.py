@@ -19,7 +19,7 @@ class ParkingCreate(APIView):
 
 	def post(self,request,*args, **kwargs):
 		#Create a ParkingOwner model object and filter it by the user whom sent the request.
-		owner = ParkingOwner.objects.filter(user=request.user).first()
+		owner = get_object_or_404(ParkingOwner, user = request.user)
 		#Call serializer
 		serializer=ParkingSerializer(data=request.data)
 
