@@ -19,9 +19,10 @@ class CarOwner(models.Model):
 class Car(models.Model):
 	owner = models.ForeignKey(CarOwner,on_delete=models.CASCADE,null=True)
 	carName = models.CharField(max_length=100)
-	pelak = models.CharField(max_length=30)
+	pelak = models.CharField(max_length=8)
 	color = models.CharField(max_length=100)
 	
 
 	def __str__(self):
 		return self.pelak
+

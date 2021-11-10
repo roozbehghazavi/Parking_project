@@ -8,7 +8,7 @@ class CarOwnerSerializer(serializers.ModelSerializer):
 	role = serializers.CharField(source = 'user.role',required = False, read_only = True)
 	firstName = serializers.CharField(source = 'user.firstName',required = False)
 	lastName = serializers.CharField(source = 'user.lastName',required = False)
-	email = serializers.EmailField(source = 'user.email',required = False, read_only = True)
+	email = serializers.EmailField(source = 'user.email',required = False)
 	profilePhoto = serializers.ImageField(source = 'user.profilePhoto', required = False)
 
 	class Meta:
@@ -46,11 +46,13 @@ class CarSerializer(serializers.ModelSerializer):
 	ownerRole = serializers.CharField(source = 'owner.user.role',required = False, read_only = True)
 	ownerFirstName = serializers.CharField(source = 'owner.user.firstName',required = False)
 	ownerLastName = serializers.CharField(source = 'owner.user.lastName',required = False)
-	ownerEmail = serializers.EmailField(source = 'owner.user.email',required = False, read_only = True)
+	ownerEmail = serializers.EmailField(source = 'owner.user.email',required = False)
 	ownerProfilePhoto = serializers.ImageField(source = 'owner.user.profilePhoto', required = False)
+	pelak = serializers.CharField(min_length = 8,max_length=8)
 
 	class Meta:
 		model = Car 
 		fields = ['id','ownerRole','ownerFirstName','ownerLastName','ownerEmail','ownerProfilePhoto','carName', 'pelak', 'color']
+	
     
         
