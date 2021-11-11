@@ -7,7 +7,7 @@ from users.models import CustomUser
 #Car Owner Model
 
 class CarOwner(models.Model):
-	user = models.OneToOneField(CustomUser,on_delete=models.CASCADE,null=True)
+	user = models.OneToOneField(CustomUser,on_delete=models.CASCADE)
 	favoriteLocations = models.CharField(max_length=100,blank=True)
 	cash = models.IntegerField(default=0,blank=True)
 
@@ -17,9 +17,9 @@ class CarOwner(models.Model):
 
 
 class Car(models.Model):
-	owner = models.ForeignKey(CarOwner,on_delete=models.CASCADE,null=True)
+	owner = models.ForeignKey(CarOwner,on_delete=models.CASCADE)
 	carName = models.CharField(max_length=100)
-	pelak = models.CharField(max_length=8)
+	pelak = models.CharField(max_length=8,unique=True)
 	color = models.CharField(max_length=100)
 	
 
