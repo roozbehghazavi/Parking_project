@@ -31,6 +31,6 @@ class ParkingOwnerSerializer(serializers.ModelSerializer):
 class ParkingSerializer(serializers.ModelSerializer):
 	class Meta:
 		model = Parking
-		fields = ['id','owner','parkingType','parkingName','location','parkingPhoneNumber','capacity']
+		fields = ['id','owner','isPrivate','parkingName','location','parkingPhoneNumber','capacity']
 
 	
