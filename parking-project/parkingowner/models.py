@@ -7,14 +7,14 @@ from users.models import CustomUser
 #Parking Owner Model
 
 class ParkingOwner(models.Model):
-	user = models.OneToOneField(CustomUser,on_delete=models.CASCADE)
+	user = models.OneToOneField(CustomUser,on_delete=models.CASCADE,null=True)
 	NationalCode=models.IntegerField(default=0,blank=True)
 
 	def __str__(self):
 		return self.user.email
 
 class Parking(models.Model):	
-	owner = models.ForeignKey(ParkingOwner,on_delete=models.CASCADE)
+	owner = models.ForeignKey(ParkingOwner,on_delete=models.CASCADE,null=True)
 	#True=Private,False=Public
 	isPrivate=models.BooleanField(default=False)
 	parkingName = models.CharField(max_length=200)
