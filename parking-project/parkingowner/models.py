@@ -7,20 +7,21 @@ from users.models import CustomUser
 #Parking Owner Model
 
 class ParkingOwner(models.Model):
-	user = models.OneToOneField(CustomUser,on_delete=models.CASCADE,null=True)
+	user = models.OneToOneField(CustomUser,on_delete=models.CASCADE)
 	NationalCode=models.IntegerField(default=0,blank=True)
 
 	def __str__(self):
 		return self.user.email
 
 class Parking(models.Model):	
-	owner = models.ForeignKey(ParkingOwner,on_delete=models.CASCADE,null=True)
+	owner = models.ForeignKey(ParkingOwner,on_delete=models.CASCADE)
 	#True=Private,False=Public
 	isPrivate=models.BooleanField(default=False)
 	parkingName = models.CharField(max_length=200)
 	location = models.CharField(max_length=100)
 	parkingPhoneNumber = models.CharField(max_length=30)
 	capacity = models.IntegerField(default=0)
+	parkingPicture=models.ImageField(blank=True)
 
 	def __str__(self):
 		return self.parkingName
