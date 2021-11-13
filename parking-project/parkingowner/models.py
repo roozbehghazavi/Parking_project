@@ -21,7 +21,7 @@ class Parking(models.Model):
 	location = models.CharField(max_length=100)
 	parkingPhoneNumber = models.CharField(max_length=30)
 	capacity = models.IntegerField(default=0)
-	parkingPicture=models.ImageField(blank=True)
+	parkingPicture=models.ImageField(upload_to='parkingpictures/',blank=True)
 
 	def __str__(self):
 		return self.parkingName
