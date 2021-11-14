@@ -15,7 +15,7 @@ class CustomUserSerializer(serializers.ModelSerializer):
 	role = serializers.ChoiceField(choices=CHOICES,required = False)
 	firstName = serializers.CharField(required = False)
 	lastName = serializers.CharField(required = False)
-	email = serializers.EmailField(required = False, read_only = True)
+	email = serializers.EmailField(required = False)
 	profilePhoto = serializers.ImageField(required = False)
 
 	class Meta:

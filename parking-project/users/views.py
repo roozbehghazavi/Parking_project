@@ -40,7 +40,7 @@ class UserRole(generics.RetrieveAPIView):
 		serializer=CustomUserSerializer(user)
 		return Response(serializer.data['role'])
 		
-
+#Return user role alongside with token 
 class CustomLoginView(LoginView):
 	def get_response(self):
 		data = {
