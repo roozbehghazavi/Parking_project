@@ -8,6 +8,8 @@ from .serializers import CustomUserSerializer
 import json
 import requests
 from rest_auth.views import LoginView
+from rest_framework.views import APIView
+from django.conf import settings
 
 # Create your views here.
 
@@ -31,11 +33,19 @@ class CustomUserUpdate(generics.RetrieveUpdateAPIView):
 
 		return Response(serializer.data)
 
-#Return user info by token
-class UserInfo(generics.RetrieveAPIView):
+#Return user Role by token
+class UserRole(generics.RetrieveAPIView):
 	def get(self, request, *args, **kwargs):
 		user = get_object_or_404(CustomUser, auth_token = request.auth)
 		serializer=CustomUserSerializer(user)
-		return Response(serializer.data)
+		return Response(serializer.data['role'])
 		
 
+class CustomLoginView(LoginView):
+	def get_response(self):
+		data = {
+				'role': self.user.role,
+			}
+		orginal_response = super().get_response()
+		orginal_response.data.update(data)
+		return orginal_response
