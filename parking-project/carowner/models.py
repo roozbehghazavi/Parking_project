@@ -1,4 +1,5 @@
 from django.db import models
+from parkingowner.models import Parking
 from users.models import CustomUser
 
 # Create your models here.
@@ -25,4 +26,14 @@ class Car(models.Model):
 
 	def __str__(self):
 		return self.pelak
+
+
+class Comment(models.Model):
+	parking = models.ForeignKey(Parking, on_delete=models.CASCADE)
+	owner = models.ForeignKey(CarOwner, on_delete=models.CASCADE)
+	content = models.TextField()
+	dateAdded = models.DateTimeField(auto_now_add=True)
+
+	def __str__(self):
+		return self.content
 

@@ -5,11 +5,11 @@ from django.http import HttpResponse
 from rest_framework.response import Response
 from parkingowner.models import Parking
 from parkingowner.serializers import ParkingSerializer
-from .models import  Car, CarOwner
+from .models import  Car, CarOwner, Comment
 from users.models import CustomUser
 from .pagination import CarOwnerPagination
 from rest_framework import generics, pagination, status
-from .serializers import CarOwnerSerializer, CarSerializer
+from .serializers import CarOwnerSerializer, CarSerializer, CommentSerializer
 import json
 import requests
 # Create your views here.
@@ -80,6 +80,7 @@ class CarOwnerDelete(generics.RetrieveDestroyAPIView):
 
 
 ### Car Views 
+
 
 
 #Creates a car for the logged in CarOwner
@@ -177,7 +178,7 @@ class ParkingList(generics.ListAPIView):
     pagination_class = CarOwnerPagination
 
     def get(self, request, *args, **kwargs):
-        queryset = Parking.objects.all().order_by('parkingName')
+        queryset = Parking.objects.all().filter(isValid = True).order_by('parkingName')
 
         page = self.paginate_queryset(queryset)
         if page is not None:
@@ -187,3 +188,61 @@ class ParkingList(generics.ListAPIView):
         serializer = self.get_serializer(queryset, many=True)
         return Response(serializer.data)
 
+
+
+
+#Comment views for CarOwner
+
+
+
+#Create a comment for a parking with id in body owned by the logged in Car Owner
+class CommentCreate(generics.CreateAPIView):
+    queryset = Comment.objects.all()
+    serializer_class = CommentSerializer
+
+    def create(self, request, *args, **kwargs):
+        owner = get_object_or_404(CarOwner, user = request.user)
+        parking = get_object_or_404(Parking, id = request.data['id'])
+        serializer = CommentSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        serializer.save(owner=owner, parking = parking)
+        headers = self.get_success_headers(serializer.data)
+        return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
+
+#Shows list of comments for a parking with id
+class CommentList(generics.ListAPIView):
+    queryset = Comment.objects.all()
+    serializer_class = CommentSerializer
+
+    def get(self, request, *args, **kwargs):
+        parking = get_object_or_404(Parking, id = request.data['id'])
+        queryset = Comment.objects.all().filter(parking = parking).order_by('dateAdded')
+
+        page = self.paginate_queryset(queryset)
+        if page is not None:
+            serializer = self.get_serializer(page, many=True)
+            return self.get_paginated_response(serializer.data)
+
+        serializer = self.get_serializer(queryset, many=True)
+        return Response(serializer.data)
+
+
+#Add a like for a parking by id
+class AddLike(generics.UpdateAPIView):
+    queryset = Parking.objects.all()
+    serializer_class = ParkingSerializer
+
+    def put(self, request, *args, **kwargs):
+        partial = kwargs.pop('partial', False)
+        instance = get_object_or_404(Parking, id = request.data['id'])
+        instance.likes += 1
+        serializer = self.get_serializer(instance, data=request.data, partial=partial)
+        serializer.is_valid(raise_exception=True)
+        self.perform_update(serializer)
+
+        if getattr(instance, '_prefetched_objects_cache', None):
+            # If 'prefetch_related' has been applied to a queryset, we need to
+            # forcibly invalidate the prefetch cache on the instance.
+            instance._prefetched_objects_cache = {}
+
+        return Response(serializer.data)
