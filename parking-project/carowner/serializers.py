@@ -1,5 +1,6 @@
+from django.db.models import fields
 from rest_framework import serializers
-from .models import Car, CarOwner
+from .models import Car, CarOwner, Comment
 
 
 #Serializer for CarOwner Model        
@@ -56,3 +57,14 @@ class CarSerializer(serializers.ModelSerializer):
 	
     
         
+
+#Serializer for Comment model
+
+class CommentSerializer(serializers.ModelSerializer):
+
+	email = serializers.EmailField(source = 'owner.user.email',required = False)
+	parkingName = serializers.CharField(source = 'parking.ParkingName',required = False)
+
+	class Meta:
+		model = Comment
+		fields = ['id','content','dateAdded','email','parkingName']
