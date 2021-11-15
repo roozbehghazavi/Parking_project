@@ -25,3 +25,7 @@ class Parking(models.Model):
 
 	def __str__(self):
 		return self.parkingName
+
+class validation(models.Model):
+	parking=models.OneToOneField(Parking,on_delete=models.CASCADE)
+	

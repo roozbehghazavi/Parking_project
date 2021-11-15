@@ -69,7 +69,7 @@ class ParkingDelete(generics.RetrieveDestroyAPIView):
 		owner = get_object_or_404(ParkingOwner, user = request.user)
 		instance = get_object_or_404(Parking, id=request.data['id'],owner=owner).delete()
 		
-		return Response(status=status.HTTP_204_NO_CONTENT)
+		return Response({"message" : "Parking deleted successfully"},status=status.HTTP_204_NO_CONTENT)
 
 
 
@@ -95,6 +95,12 @@ class ParkingList(generics.ListAPIView):
 class ParkingDetail(generics.RetrieveAPIView):
 	queryset = Parking.objects.all()
 	serializer_class = ParkingSerializer
+	
+	def get(self, request, *args, **kwargs):
+		owner = get_object_or_404(ParkingOwner, user = request.user)
+		instance = get_object_or_404(Parking, id = request.data['id'], owner = owner)
+		serializer = self.get_serializer(instance)
+		return Response(serializer.data)
 
 #########################################################################
 #--------------------- ParkingOwner related views ----------------------#
