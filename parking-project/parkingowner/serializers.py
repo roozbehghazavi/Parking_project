@@ -29,8 +29,13 @@ class ParkingOwnerSerializer(serializers.ModelSerializer):
 		return instance		
 
 class ParkingSerializer(serializers.ModelSerializer):
+
+	parkingName = serializers.CharField(required = False)
+	location = serializers.CharField(required = False)
+	parkingPhoneNumber = serializers.CharField(required = False)
+
 	class Meta:
 		model = Parking
-		fields = ['id','owner','isPrivate','parkingName','location','parkingPhoneNumber','capacity','parkingPicture']
+		fields = ['id','owner','isPrivate','parkingName','location','parkingPhoneNumber','capacity','parkingPicture','likesCount']
 
 	

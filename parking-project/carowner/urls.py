@@ -1,6 +1,6 @@
 from django.urls import path , include
 
-from carowner.views import AddLike, CarCreate, CarDelete, CarList, CarOwnerCreate, CarOwnerDetail, CarOwnerUpdate, CarOwnerDelete, CarOwnerList, CommentCreate, ParkingList
+from carowner.views import AddLike, CarCreate, CarDelete, CarList, CarOwnerCreate, CarOwnerDetail, CarOwnerUpdate, CarOwnerDelete, CarOwnerList,CommentChildCreate, CommentList, CommentParentCreate, IsLiked, ParkingList
 
 
 urlpatterns = [
@@ -32,9 +32,15 @@ urlpatterns = [
     ###Comment Urls
 
     #Add a comment
-    path('addcomment/',CommentCreate.as_view()),
+    path('addcomment/',CommentParentCreate.as_view()),
+    #Add a reply to a comment
+    path('addreply/',CommentChildCreate.as_view()),
+    #list of all parking's comments
+    path('commentlist/',CommentList.as_view()),
 
+    ###Like Urls
 
     ###Add like to a parking
     path('addlike/', AddLike.as_view()),
+    path('isliked/', IsLiked.as_view()),
 ]

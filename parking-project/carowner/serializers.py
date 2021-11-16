@@ -1,5 +1,6 @@
 from django.db.models import fields
 from rest_framework import serializers
+from rest_framework.fields import SerializerMethodField
 from .models import Car, CarOwner, Comment
 
 
@@ -34,7 +35,7 @@ class CarOwnerSerializer(serializers.ModelSerializer):
 		super().update(instance, validated_data)
 
 		return instance
-    
+	
 		
 
 
@@ -55,16 +56,43 @@ class CarSerializer(serializers.ModelSerializer):
 		model = Car 
 		fields = ['id','ownerRole','ownerFirstName','ownerLastName','ownerEmail','ownerProfilePhoto','carName', 'pelak', 'color']
 	
-    
-        
+	
+		
 
 #Serializer for Comment model
 
 class CommentSerializer(serializers.ModelSerializer):
-
-	email = serializers.EmailField(source = 'owner.user.email',required = False)
+	reply_count = SerializerMethodField()
+	replies = SerializerMethodField()
+	author = serializers.EmailField(source = 'author.user.email',required = False)
 	parkingName = serializers.CharField(source = 'parking.ParkingName',required = False)
+
 
 	class Meta:
 		model = Comment
-		fields = ['id','content','dateAdded','email','parkingName']
+		fields = ['id','content','dateAdded','author','parkingName','reply_count','replies']
+
+	def get_reply_count(self, obj):
+		if obj.is_parent:
+			return obj.children.count()
+		return 0
+
+	def get_replies(self, obj):
+		if obj.is_parent:
+			return CommentChildSerializer(obj.children, many=True).data
+		return None
+
+
+#Serializer for children of a parent comment
+
+class CommentChildSerializer(serializers.ModelSerializer):
+    author = SerializerMethodField()
+    class Meta:
+        model = Comment
+        fields = ('author', 'content', 'id','parent')
+
+    def get_author(self, obj):
+        return obj.author.user.email
+
+	
+	
