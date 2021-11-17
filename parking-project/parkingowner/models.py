@@ -28,7 +28,7 @@ class Parking(models.Model):
 		return self.parkingName
 
 class Validation(models.Model):
-	parking=models.OneToOneField(Parking,on_delete=models.CASCADE)
+	parking=models.OneToOneField(Parking,on_delete=models.CASCADE,null=True)
 	nationalCode=models.CharField(max_length=10)
 	validationFiles=models.FileField(upload_to='validationfiles/')
 	postalCode=models.CharField(max_length=10)

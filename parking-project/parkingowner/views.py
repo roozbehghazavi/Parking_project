@@ -145,14 +145,14 @@ class Validator(generics.CreateAPIView):
 
 	def post(self,request,*args, **kwargs):		
 		owner = get_object_or_404(ParkingOwner, user = request.user)
-		parking = get_object_or_404(Parking,owner=owner)
-
+		parking = get_object_or_404(Parking,id=request.data['id'],owner=owner)
+		
 		#Call serializer
 		serializer=ValidationSerializer(data=request.data)
 
 		#Save data if it's valid
 		if(serializer.is_valid()):
-			serializer.save(owner=owner)
+			serializer.save(parking=parking)
 			return Response(serializer.data)
 
 		#Shows error if it's not valid
