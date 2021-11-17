@@ -139,6 +139,7 @@ class ParkingOwnerUpdate(generics.RetrieveUpdateAPIView):
 #--------------------- Validations related views -----------------------#
 #########################################################################
 
+#This view validate a parking information.
 class Validator(generics.CreateAPIView):
 	queryset=Validation.objects.all()
 	serializer_class=ValidationSerializer
@@ -146,15 +147,18 @@ class Validator(generics.CreateAPIView):
 	def post(self,request,*args, **kwargs):		
 		owner = get_object_or_404(ParkingOwner, user = request.user)
 		parking = get_object_or_404(Parking,id=request.data['id'],owner=owner)
-		
 		#Call serializer
 		serializer=ValidationSerializer(data=request.data)
 
 		#Save data if it's valid
 		if(serializer.is_valid()):
 			serializer.save(parking=parking)
+			parking.isValid=True
+			parking.save()
 			return Response(serializer.data)
 
 		#Shows error if it's not valid
 		else:
 			return Response(serializer.errors)
+
+	# def partial_update(self,request):
