@@ -3,13 +3,14 @@ from django.db.models.query import QuerySet
 from django.shortcuts import get_object_or_404, render
 from django.http import HttpResponse
 from rest_framework.response import Response
+import parking
 from parkingowner.models import Parking
 from parkingowner.serializers import ParkingSerializer
-from .models import  Car, CarOwner, Comment
+from .models import  Car, CarOwner, Comment, Like
 from users.models import CustomUser
 from .pagination import CarOwnerPagination
-from rest_framework import generics, pagination, status
-from .serializers import CarOwnerSerializer, CarSerializer, CommentSerializer
+from rest_framework import generics, pagination, serializers, status
+from .serializers import CarOwnerSerializer, CarSerializer, CommentChildSerializer, CommentSerializer
 import json
 import requests
 # Create your views here.
@@ -196,18 +197,35 @@ class ParkingList(generics.ListAPIView):
 
 
 #Create a comment for a parking with id in body owned by the logged in Car Owner
-class CommentCreate(generics.CreateAPIView):
+class CommentParentCreate(generics.CreateAPIView):
     queryset = Comment.objects.all()
     serializer_class = CommentSerializer
 
     def create(self, request, *args, **kwargs):
-        owner = get_object_or_404(CarOwner, user = request.user)
-        parking = get_object_or_404(Parking, id = request.data['id'])
+        author = get_object_or_404(CarOwner, user = request.user)
+        parking = get_object_or_404(Parking, id = request.data['parkingId'])
         serializer = CommentSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
-        serializer.save(owner=owner, parking = parking)
+        serializer.save(author=author, parking = parking)
         headers = self.get_success_headers(serializer.data)
         return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
+
+
+#Add a reply to a comment by passing parking id and parent id
+class CommentChildCreate(generics.CreateAPIView):
+    queryset = Comment.objects.all()
+    serializer_class = CommentChildSerializer
+
+    def create(self, request, *args, **kwargs):
+        author = get_object_or_404(CarOwner, user = request.user)
+        parking = get_object_or_404(Parking, id = request.data['parkingId'])
+        parent = get_object_or_404(Comment, id = request.data['parentId'])
+        serializer = CommentChildSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        serializer.save(author=author, parking = parking, parent = parent)
+        headers = self.get_success_headers(serializer.data)
+        return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
+
 
 #Shows list of comments for a parking with id
 class CommentList(generics.ListAPIView):
@@ -215,8 +233,8 @@ class CommentList(generics.ListAPIView):
     serializer_class = CommentSerializer
 
     def get(self, request, *args, **kwargs):
-        parking = get_object_or_404(Parking, id = request.data['id'])
-        queryset = Comment.objects.all().filter(parking = parking).order_by('dateAdded')
+        parking = get_object_or_404(Parking, id = request.data['parkingId'])
+        queryset = Comment.objects.all().filter(parking = parking,parent = None).order_by('dateAdded')
 
         page = self.paginate_queryset(queryset)
         if page is not None:
@@ -227,6 +245,10 @@ class CommentList(generics.ListAPIView):
         return Response(serializer.data)
 
 
+
+### LIKE methods
+
+
 #Add a like for a parking by id
 class AddLike(generics.UpdateAPIView):
     queryset = Parking.objects.all()
@@ -235,7 +257,16 @@ class AddLike(generics.UpdateAPIView):
     def put(self, request, *args, **kwargs):
         partial = kwargs.pop('partial', False)
         instance = get_object_or_404(Parking, id = request.data['id'])
-        instance.likes += 1
+        owner = get_object_or_404(CarOwner, user = request.user)
+        like = Like.objects.all().filter(parking = instance, owner = owner).first()
+        if like == None :
+            like = Like.objects.create(parking = instance , owner = owner)
+            like.save()
+        else:
+            like.delete()
+        likesCount = Like.objects.all().filter(parking = instance).count()
+        instance.likesCount = likesCount
+
         serializer = self.get_serializer(instance, data=request.data, partial=partial)
         serializer.is_valid(raise_exception=True)
         self.perform_update(serializer)
@@ -246,3 +277,20 @@ class AddLike(generics.UpdateAPIView):
             instance._prefetched_objects_cache = {}
 
         return Response(serializer.data)
+
+
+#Shows whether the user liked a parking or not
+class IsLiked(generics.RetrieveAPIView):
+    queryset = Like.objects.all()
+
+    def get(self, request, *args, **kwargs):
+        parking = get_object_or_404(Parking, id = request.data['id'])
+        owner = get_object_or_404(CarOwner, user = request.user)
+        instance = Like.objects.all().filter(parking = parking, owner = owner).first()
+
+        if instance != None :
+            return Response({'isLiked':True},status=status.HTTP_200_OK)
+        elif instance == None :
+            return Response({'isLiked':False},status=status.HTTP_200_OK)
+
+        return Response({'message':'error'},status=status.HTTP_400_BAD_REQUEST)
