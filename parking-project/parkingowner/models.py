@@ -8,7 +8,6 @@ from users.models import CustomUser
 
 class ParkingOwner(models.Model):
 	user = models.OneToOneField(CustomUser,on_delete=models.CASCADE,null=True)
-	NationalCode=models.IntegerField(default=0,blank=True)
 
 	def __str__(self):
 		return self.user.email
@@ -23,10 +22,18 @@ class Parking(models.Model):
 	capacity = models.IntegerField(default=0)
 	parkingPicture=models.ImageField(upload_to='parkingpictures/',blank=True)
 	likes = models.IntegerField(default=0)
+	isValid=models.BooleanField(default=False)
 
 	def __str__(self):
 		return self.parkingName
 
-class validation(models.Model):
+class Validation(models.Model):
 	parking=models.OneToOneField(Parking,on_delete=models.CASCADE)
+	nationalCode=models.CharField(max_length=10)
+	validationFiles=models.FileField(upload_to='validationfiles/')
+	postalCode=models.CharField(max_length=10)
+	validationCode=models.IntegerField()
+
+	def __str__(self):
+		return self.parking
 	

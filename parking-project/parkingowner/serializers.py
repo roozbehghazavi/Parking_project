@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import ParkingOwner,Parking
+from .models import ParkingOwner,Parking,Validation
 
 
 #Seriliazer for ParkingOwner Model
@@ -33,4 +33,9 @@ class ParkingSerializer(serializers.ModelSerializer):
 		model = Parking
 		fields = ['id','owner','isPrivate','parkingName','location','parkingPhoneNumber','capacity','parkingPicture']
 
-	
+class ValidationSerializer(serializers.ModelSerializer):
+	parkingName = serializers.CharField(source = 'parking.Parking.parkingName',required = False, read_only = True)
+	location = serializers.CharField(source = 'parking.Parking.location',required = False, read_only = True)
+	class Meta:
+		model =Validation
+		fields = ['id','parking','nationalCode','validationFiles','postalCode','validationCode','location']

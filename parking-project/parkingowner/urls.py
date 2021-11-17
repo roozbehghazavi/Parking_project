@@ -1,5 +1,5 @@
 from django.urls import path , include
-from .views import ParkingCreate,ParkingDelete,ParkingList,ParkingDetail,ParkingOwnerDetail,ParkingOwnerUpdate,ParkingOwnerList,ParkingUpdate
+from .views import ParkingCreate,ParkingDelete,ParkingList,ParkingDetail,ParkingOwnerDetail,ParkingOwnerUpdate,ParkingOwnerList,ParkingUpdate,Validator
 
 
 urlpatterns = [
@@ -14,5 +14,8 @@ urlpatterns = [
     #ParkingOwner URLs
     path('parkingownerlist', ParkingOwnerList.as_view()),
     path('<int:pk>/', ParkingOwnerDetail.as_view()),
-    path('updateparkingowner/', ParkingOwnerUpdate.as_view())
+    path('updateparkingowner/', ParkingOwnerUpdate.as_view()),
+
+    #Validation URLs
+    path('validation/',Validator.as_view()),
 ]

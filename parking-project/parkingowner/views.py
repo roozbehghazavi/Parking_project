@@ -1,7 +1,7 @@
 from django.shortcuts import render
 from rest_framework.views import APIView
-from .models import ParkingOwner,Parking
-from .serializers import ParkingOwnerSerializer, ParkingSerializer
+from .models import ParkingOwner,Parking,Validation
+from .serializers import ParkingOwnerSerializer, ParkingSerializer,ValidationSerializer
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
 from rest_framework import generics,status
@@ -135,7 +135,26 @@ class ParkingOwnerUpdate(generics.RetrieveUpdateAPIView):
 
 		return Response(serializer.data)
 
+#########################################################################
+#--------------------- Validations related views -----------------------#
+#########################################################################
 
+class Validator(generics.CreateAPIView):
+	queryset=Validation.objects.all()
+	serializer_class=ValidationSerializer
 
+	def post(self,request,*args, **kwargs):		
+		owner = get_object_or_404(ParkingOwner, user = request.user)
+		parking = get_object_or_404(Parking,owner=owner)
 
+		#Call serializer
+		serializer=ValidationSerializer(data=request.data)
 
+		#Save data if it's valid
+		if(serializer.is_valid()):
+			serializer.save(owner=owner)
+			return Response(serializer.data)
+
+		#Shows error if it's not valid
+		else:
+			return Response(serializer.errors)
