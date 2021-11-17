@@ -22,6 +22,7 @@ class Parking(models.Model):
 	capacity = models.IntegerField(default=0)
 	parkingPicture=models.ImageField(upload_to='parkingpictures/',blank=True)
 	likesCount = models.IntegerField(default=0)
+	isValid=models.BooleanField(default=False)
 
 	def __str__(self):
 		return self.parkingName
