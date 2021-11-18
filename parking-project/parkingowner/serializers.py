@@ -36,7 +36,7 @@ class ParkingSerializer(serializers.ModelSerializer):
 
 	class Meta:
 		model = Parking
-		fields = ['id','owner','isPrivate','parkingName','location','parkingPhoneNumber','capacity','parkingPicture','likesCount','isValid']
+		fields = ['id','owner','isPrivate','parkingName','location','parkingPhoneNumber','capacity','parkingPicture','rating','isValid']
 
 class ValidationSerializer(serializers.ModelSerializer):
 	parkingName = serializers.CharField(source = 'parking.parkingName',required = False, read_only = True)
