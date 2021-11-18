@@ -41,7 +41,7 @@ class ParkingSerializer(serializers.ModelSerializer):
 class ValidationSerializer(serializers.ModelSerializer):
 	parkingName = serializers.CharField(source = 'parking.parkingName',required = False, read_only = True)
 	location = serializers.CharField(source = 'parking.location',required = False, read_only = True)
-	isValid = serializers.CharField(source = 'parking.isValid',required = False, read_only = True)
+	validationStatus = serializers.CharField(source = 'parking.validationStatus',required = False, read_only = True)
 	class Meta:
 		model =Validation
-		fields = ['id','parkingName','location','nationalCode','postalCode','validationCode','validationFiles','isValid']
+		fields = ['id','parkingName','location','nationalCode','postalCode','validationCode','validationFiles','validationStatus']

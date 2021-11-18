@@ -41,6 +41,7 @@ class ParkingUpdate(generics.RetrieveUpdateAPIView):
 		owner = get_object_or_404(ParkingOwner, user = request.user)
 		partial = kwargs.pop('partial', False)
 		instance = get_object_or_404(Parking, id=request.data['id'],owner=owner)
+		instance.isvalid=False
 		serializer = self.get_serializer(instance, data=request.data, partial=partial)
 		serializer.is_valid(raise_exception=True)
 		self.perform_update(serializer)
@@ -153,7 +154,6 @@ class Validator(generics.CreateAPIView):
 		#Save data if it's valid
 		if(serializer.is_valid()):
 			serializer.save(parking=parking)
-			parking.isValid=True
 			parking.save()
 			return Response(serializer.data)
 

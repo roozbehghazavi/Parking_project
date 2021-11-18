@@ -28,11 +28,18 @@ class Parking(models.Model):
 		return self.parkingName
 
 class Validation(models.Model):
+	CHOICES = (
+		('V', 'Valid'),
+		('I', 'Invalid'),
+		('P', 'Pending'),
+	)
+	validationStatus = models.CharField(max_length=1, choices=CHOICES)
 	parking=models.OneToOneField(Parking,on_delete=models.CASCADE,null=True)
 	nationalCode=models.CharField(max_length=10)
 	validationFiles=models.FileField(upload_to='validationfiles/')
 	postalCode=models.CharField(max_length=10)
 	validationCode=models.IntegerField()
+	Time_added = models.TimeField(default=timezone.now)
 
 	def __str__(self):
 		return self.parking
