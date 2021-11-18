@@ -6,11 +6,12 @@ from rest_framework.response import Response
 import parking
 from parkingowner.models import Parking
 from parkingowner.serializers import ParkingSerializer
-from .models import  Car, CarOwner, Comment, Like
+from .models import  Car, CarOwner, Comment, Rate
 from users.models import CustomUser
 from .pagination import CarOwnerPagination
 from rest_framework import generics, pagination, serializers, status
 from .serializers import CarOwnerSerializer, CarSerializer, CommentChildSerializer, CommentSerializer
+from django.db.models import Avg
 import json
 import requests
 # Create your views here.
@@ -246,26 +247,31 @@ class CommentList(generics.ListAPIView):
 
 
 
-### LIKE methods
+### Rating methods
 
 
-#Add a like for a parking by id
-class AddLike(generics.UpdateAPIView):
+#Add a rating for a parking by id
+class AddRate(generics.UpdateAPIView):
     queryset = Parking.objects.all()
     serializer_class = ParkingSerializer
 
     def put(self, request, *args, **kwargs):
         partial = kwargs.pop('partial', False)
+        value = request.data['value']
+        if value > 4 :
+            return Response({"message" : "value must be equal or less than 4"}, status=status.HTTP_400_BAD_REQUEST)
         instance = get_object_or_404(Parking, id = request.data['id'])
         owner = get_object_or_404(CarOwner, user = request.user)
-        like = Like.objects.all().filter(parking = instance, owner = owner).first()
-        if like == None :
-            like = Like.objects.create(parking = instance , owner = owner)
-            like.save()
+        newRate = Rate.objects.all().filter(parking = instance, owner = owner).first()
+        if newRate == None :
+            newRate = Rate.objects.create(parking = instance , owner = owner, value = value)
+            newRate.save()
         else:
-            like.delete()
-        likesCount = Like.objects.all().filter(parking = instance).count()
-        instance.likesCount = likesCount
+            newRate.delete()
+            newRate = Rate.objects.create(parking = instance , owner = owner, value = value)
+            newRate.save()
+        rating = Rate.objects.all().filter(parking = instance).aggregate(Avg('value'))['value__avg']
+        instance.rating = round(rating,1)
 
         serializer = self.get_serializer(instance, data=request.data, partial=partial)
         serializer.is_valid(raise_exception=True)
@@ -279,18 +285,18 @@ class AddLike(generics.UpdateAPIView):
         return Response(serializer.data)
 
 
-#Shows whether the user liked a parking or not
-class IsLiked(generics.RetrieveAPIView):
-    queryset = Like.objects.all()
+#Shows whether the user rated a parking or not
+class IsRated(generics.RetrieveAPIView):
+    queryset = Rate.objects.all()
 
     def get(self, request, *args, **kwargs):
         parking = get_object_or_404(Parking, id = request.data['id'])
         owner = get_object_or_404(CarOwner, user = request.user)
-        instance = Like.objects.all().filter(parking = parking, owner = owner).first()
+        instance = Rate.objects.all().filter(parking = parking, owner = owner).first()
 
         if instance != None :
-            return Response({'isLiked':True},status=status.HTTP_200_OK)
+            return Response({'isRated':True},status=status.HTTP_200_OK)
         elif instance == None :
-            return Response({'isLiked':False},status=status.HTTP_200_OK)
+            return Response({'isRated':False},status=status.HTTP_200_OK)
 
         return Response({'message':'error'},status=status.HTTP_400_BAD_REQUEST)

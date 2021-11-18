@@ -50,7 +50,8 @@ class Comment(models.Model):
 		return self.content
 
 
-class Like(models.Model):
+class Rate(models.Model):
 	parking = models.ForeignKey(Parking, on_delete=models.CASCADE)
 	owner = models.ForeignKey(CarOwner, on_delete=models.CASCADE)
+	value = models.PositiveIntegerField(default=0)
 
