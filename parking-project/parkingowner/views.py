@@ -7,6 +7,8 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework import generics,status
 from django.shortcuts import get_object_or_404,get_list_or_404
 from .pagination import ParkingListPagination
+from django.utils import timezone
+import datetime
 
 #########################################################################
 #------------------------ Parking related views ------------------------#
@@ -154,6 +156,7 @@ class Validator(generics.CreateAPIView):
 		#Save data if it's valid
 		if(serializer.is_valid()):
 			serializer.save(parking=parking)
+			parking.validationStatus="P"
 			parking.save()
 			return Response(serializer.data)
 
@@ -161,4 +164,17 @@ class Validator(generics.CreateAPIView):
 		else:
 			return Response(serializer.errors)
 
-	# def partial_update(self,request):
+	def get(self, request, *args, **kwargs):
+		owner = get_object_or_404(ParkingOwner, user = request.user)
+		parking = get_object_or_404(Parking, id = request.data['id'], owner = owner)
+		validation=get_object_or_404(Validation,parking=parking)
+		time=datetime.datetime.now(timezone.utc)-validation.time_Added
+
+		if(time.total_seconds()>30): 
+			parking.validationStatus="V"
+			parking.save()
+			serializer = self.get_serializer(validation)
+			return Response(serializer.data)
+
+		else:
+			return Response(serializer.errors)

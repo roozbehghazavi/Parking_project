@@ -11,7 +11,7 @@ class ParkingOwnerSerializer(serializers.ModelSerializer):
 	profilePhoto = serializers.ImageField(source = 'user.profilePhoto', required = False)
 	class Meta:
 		model = ParkingOwner
-		fields = ['id','role','email', 'firstName', 'lastName','profilePhoto','NationalCode']
+		fields = ['id','role','email', 'firstName', 'lastName','profilePhoto']
 
 	def update(self, instance, validated_data):
 		try:
@@ -36,7 +36,7 @@ class ParkingSerializer(serializers.ModelSerializer):
 
 	class Meta:
 		model = Parking
-		fields = ['id','owner','isPrivate','parkingName','location','parkingPhoneNumber','capacity','parkingPicture','rating','isValid']
+		fields = ['id','owner','isPrivate','parkingName','location','parkingPhoneNumber','capacity','parkingPicture','rating','validationStatus']
 
 class ValidationSerializer(serializers.ModelSerializer):
 	parkingName = serializers.CharField(source = 'parking.parkingName',required = False, read_only = True)
