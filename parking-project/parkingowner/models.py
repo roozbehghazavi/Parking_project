@@ -41,8 +41,6 @@ class Validation(models.Model):
 	validationCode=models.IntegerField()
 	time_Added = models.DateTimeField(default=datetime.datetime.now(timezone.utc))
 
-	def ends_within_50_days(self):
-		return (date.today() - self.Time_added).days 
 
 	def __str__(self):
 		return self.parking
