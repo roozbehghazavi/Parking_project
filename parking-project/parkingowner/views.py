@@ -150,8 +150,13 @@ class Validator(generics.CreateAPIView):
 	def post(self,request,*args, **kwargs):		
 		owner = get_object_or_404(ParkingOwner, user = request.user)
 		parking = get_object_or_404(Parking,id=request.data['id'],owner=owner)
+		nationalCode_blacklist=['985']
 		#Call serializer
 		serializer=ValidationSerializer(data=request.data)
+
+		
+		if(request.data['nationalCode'] in nationalCode_blacklist):
+			return Response({"message" : "This national code is restricted"})
 
 		#Save data if it's valid
 		if(serializer.is_valid()):
