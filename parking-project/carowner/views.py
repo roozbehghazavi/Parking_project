@@ -180,7 +180,7 @@ class ParkingList(generics.ListAPIView):
     pagination_class = CarOwnerPagination
 
     def get(self, request, *args, **kwargs):
-        queryset = Parking.objects.all().filter(isValid = True).order_by('parkingName')
+        queryset = Parking.objects.all().filter(validationStatus = "V").order_by('parkingName')
 
         page = self.paginate_queryset(queryset)
         if page is not None:
