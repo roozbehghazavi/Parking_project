@@ -219,8 +219,8 @@ class CommentChildCreate(generics.CreateAPIView):
 
     def create(self, request, *args, **kwargs):
         author = get_object_or_404(CarOwner, user = request.user)
-        parking = get_object_or_404(Parking, id = request.data['parkingId'])
         parent = get_object_or_404(Comment, id = request.data['parentId'])
+        parking = get_object_or_404(Parking, id = parent.parking.id)
         serializer = CommentChildSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         serializer.save(author=author, parking = parking, parent = parent)
