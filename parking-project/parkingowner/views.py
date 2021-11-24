@@ -92,7 +92,6 @@ class ParkingList(generics.ListAPIView):
 			if(prk.validationStatus=="P"):
 				validation=get_object_or_404(Validation,parking=prk)
 				time=datetime.datetime.now(timezone.utc)-validation.time_Added
-				print(time.total_seconds())
 				
 				if(time.total_seconds()>30):
 					prk.validationStatus="V"
