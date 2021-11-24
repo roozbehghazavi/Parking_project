@@ -81,18 +81,28 @@ class ParkingList(generics.ListAPIView):
 	pagination_class=ParkingListPagination
 	queryset = Parking.objects.all()
 	serializer_class = ParkingSerializer
-	
-	def get(self, request, *args, **kwargs):
+
+	def get(self,request):
 		owner = get_object_or_404(ParkingOwner, user = request.user)
-		queryset = Parking.objects.all().filter(owner = owner)
-
-		page = self.paginate_queryset(queryset)
-		if page is not None:
-			serializer = self.get_serializer(page, many=True)
-			return self.get_paginated_response(serializer.data)
-
-		serializer = self.get_serializer(queryset, many=True)
+		parking = Parking.objects.all().filter(owner=owner)
+		serializer = self.get_serializer(parking,many=True)
+		
+		
+		for prk in parking:
+			if(prk.validationStatus=="P"):
+				validation=get_object_or_404(Validation,parking=prk)
+				time=datetime.datetime.now(timezone.utc)-validation.time_Added
+				print(time.total_seconds())
+				
+				if(time.total_seconds()>30):
+					prk.validationStatus="V"
+					prk.save()
+			else:
+				pass
+		
 		return Response(serializer.data)
+
+
 
 #Shows a parking details by its id(in url)
 class ParkingDetail(generics.RetrieveAPIView):
