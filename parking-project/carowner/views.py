@@ -1,4 +1,5 @@
 from django.db.models import query
+from django.db.models import F
 from django.db.models.query import QuerySet
 from django.shortcuts import get_object_or_404, render
 from django.http import HttpResponse
@@ -6,14 +7,15 @@ from rest_framework.response import Response
 import parking
 from parkingowner.models import Parking
 from parkingowner.serializers import ParkingSerializer
-from .models import  Car, CarOwner, Comment, Rate
+from .models import  Car, CarOwner, Comment, Period, Rate, Reservation
 from users.models import CustomUser
 from .pagination import CarOwnerPagination
 from rest_framework import generics, pagination, serializers, status
-from .serializers import CarOwnerSerializer, CarSerializer, CommentChildSerializer, CommentSerializer
+from .serializers import CarOwnerSerializer, CarSerializer, CommentChildSerializer, CommentSerializer, ReservationSerializer
 from django.db.models import Avg
 import json
 import requests
+from datetime import date, datetime
 # Create your views here.
 
 
@@ -212,6 +214,41 @@ class CommentParentCreate(generics.CreateAPIView):
         return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
 
 
+#Edit a comment by its id owned by the logged in user
+class CommentUpdate(generics.RetrieveUpdateAPIView):
+    queryset = Comment.objects.all()
+    serializer_class = CommentSerializer
+
+    def put(self, request, *args, **kwargs):
+        partial = kwargs.pop('partial', False)
+        author = get_object_or_404(CarOwner, user = request.user)
+        instance = get_object_or_404(Comment, id = request.data['id'], author = author)
+        serializer = self.get_serializer(instance, data=request.data, partial=partial)
+        serializer.is_valid(raise_exception=True)
+        self.perform_update(serializer)
+
+        if getattr(instance, '_prefetched_objects_cache', None):
+            # If 'prefetch_related' has been applied to a queryset, we need to
+            # forcibly invalidate the prefetch cache on the instance.
+            instance._prefetched_objects_cache = {}
+
+        return Response(serializer.data)
+
+
+
+#Delete a comment by its id owned by the logged in user
+class CommentDelete(generics.DestroyAPIView):
+    queryset = Comment.objects.all()
+    serializer_class = CommentSerializer
+
+    def delete(self, request, *args, **kwargs):
+        author = get_object_or_404(CarOwner, user = request.user)
+        instance = get_object_or_404(Comment, id = request.data['id'], author = author)
+        self.perform_destroy(instance)
+        return Response({"message" : "Comment deleted successfully"},status=status.HTTP_204_NO_CONTENT)
+
+
+
 #Add a reply to a comment by passing parking id and parent id
 class CommentChildCreate(generics.CreateAPIView):
     queryset = Comment.objects.all()
@@ -235,7 +272,7 @@ class CommentList(generics.ListAPIView):
 
     def get(self, request, *args, **kwargs):
         parking = get_object_or_404(Parking, id = request.data['parkingId'])
-        queryset = Comment.objects.all().filter(parking = parking,parent = None).order_by('dateAdded')
+        queryset = Comment.objects.all().filter(parking = parking).order_by('-dateAdded')
 
         page = self.paginate_queryset(queryset)
         if page is not None:
@@ -300,3 +337,54 @@ class IsRated(generics.RetrieveAPIView):
             return Response({'isRated':False},status=status.HTTP_200_OK)
 
         return Response({'message':'error'},status=status.HTTP_400_BAD_REQUEST)
+
+
+
+class ReservationCreate(generics.CreateAPIView):
+    queryset = Reservation.objects.all()
+    serializer_class = ReservationSerializer
+
+    def create(self, request, *args, **kwargs):
+        owner = get_object_or_404(CarOwner, user = request.user)
+        parking = get_object_or_404(Parking, id = request.data['parkingId'])
+        startTime = datetime.strptime(request.data['startTime'],"%Y/%m/%d %H:%M:%S")
+        endTime = datetime.strptime(request.data['startTime'],"%Y/%m/%d %H:%M:%S")
+        periods = self.getPeriods(startTime,endTime,parking)
+        isValid = self.checkValidation(periods)
+        if isValid == True:
+            periods.update(capacity = F('capacity') - 1)
+            periods.save()
+            serializer = ReservationSerializer(data=request.data)
+            serializer.is_valid(raise_exception=True)
+            serializer.save(owner = owner,parking=parking,startTime=startTime,endTime=endTime,cost = 1000)
+            headers = self.get_success_headers(serializer.data)
+            return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
+        else:
+            pass
+
+    
+    def getPeriods(self,startTime,endTime,parking):
+        if startTime.minute >= 30 and endTime.minute == 30:
+            periods = Period.objects.all().filter(parking = parking,startTime__day=startTime.day,startTime__hour=startTime.hour,startTime__minute=30
+                                                    ,endTime__day=endTime.day,endTime__hour=endTime.hour,endTime__minute=30)
+            return periods
+
+        elif startTime.minute < 30 and endTime.minute == 30:
+            periods = Period.objects.all().filter(parking = parking,startTime__day=startTime.day,startTime__hour=startTime.hour,startTime__minute=0
+                                                    ,endTime__day=endTime.day,endTime__hour=endTime.hour,endTime__minute=30)
+            return periods
+        elif startTime.minute >= 30 and endTime.minute == 0:
+            periods = Period.objects.all().filter(parking = parking,startTime__day=startTime.day,startTime__hour=startTime.hour,startTime__minute=30
+                                                    ,endTime__day=endTime.day,endTime__hour=endTime.hour,endTime__minute=0)
+            return periods
+        else:
+            periods = Period.objects.all().filter(parking = parking,startTime__day=startTime.day,startTime__hour=startTime.hour,startTime__minute=0
+                                                    ,endTime__day=endTime.day,endTime__hour=endTime.hour,endTime__minute=0)
+            return periods
+    
+    def checkValidation(self,periods):
+        filledPeriods = periods.objects.filter(capacity = 0)
+        if filledPeriods == None :
+            return True
+        else:
+            return filledPeriods

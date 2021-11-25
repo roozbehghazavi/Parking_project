@@ -1,7 +1,7 @@
 from django.db.models import fields
 from rest_framework import serializers
 from rest_framework.fields import SerializerMethodField
-from .models import Car, CarOwner, Comment
+from .models import Car, CarOwner, Comment, Reservation
 
 
 #Serializer for CarOwner Model        
@@ -63,24 +63,24 @@ class CarSerializer(serializers.ModelSerializer):
 
 class CommentSerializer(serializers.ModelSerializer):
 	reply_count = SerializerMethodField()
-	replies = SerializerMethodField()
+	# replies = SerializerMethodField()
 	author = serializers.EmailField(source = 'author.user.email',required = False)
 	parkingName = serializers.CharField(source = 'parking.ParkingName',required = False)
 
 
 	class Meta:
 		model = Comment
-		fields = ['id','content','dateAdded','author','parkingName','reply_count','replies']
+		fields = ['id','content','dateAdded','author','parkingName','reply_count','parent']
 
 	def get_reply_count(self, obj):
 		if obj.is_parent:
 			return obj.children.count()
 		return 0
 
-	def get_replies(self, obj):
-		if obj.is_parent:
-			return CommentChildSerializer(obj.children, many=True).data
-		return None
+	# def get_replies(self, obj):
+	# 	if obj.is_parent:
+	# 		return CommentChildSerializer(obj.children, many=True).data
+	# 	return None
 
 
 #Serializer for children of a parent comment
@@ -94,3 +94,10 @@ class CommentChildSerializer(serializers.ModelSerializer):
     def get_author(self, obj):
         return obj.author.user.email
 
+
+
+class ReservationSerializer(serializers.ModelSerializer):
+
+	class Meta:
+		model = Reservation
+		fields = ('owner', 'parking', 'startTime', 'endTime', 'cost')
