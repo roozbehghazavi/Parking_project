@@ -7,7 +7,7 @@ urlpatterns = [
     path('createparking/', ParkingCreate.as_view()),
     path('updateparking/', ParkingUpdate.as_view()),
     path('parkinglist', ParkingList.as_view()),
-    path('<int:pk>/', ParkingDetail.as_view()),
+    path('parkingdetail/', ParkingDetail.as_view()),
     path('deleteparking/', ParkingDelete.as_view()),
     
 
