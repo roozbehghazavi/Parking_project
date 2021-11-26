@@ -1,6 +1,7 @@
 from django.db import models
 from parkingowner.models import Parking
 from users.models import CustomUser
+from datetime import datetime, timedelta
 
 # Create your models here.
 
@@ -54,4 +55,27 @@ class Rate(models.Model):
 	parking = models.ForeignKey(Parking, on_delete=models.CASCADE)
 	owner = models.ForeignKey(CarOwner, on_delete=models.CASCADE)
 	value = models.PositiveIntegerField(default=0)
+
+
+
+
+class Period(models.Model):
+	capacity = models.IntegerField(default=0)
+	parking = models.ForeignKey(Parking, on_delete=models.CASCADE)
+	duration = models.DurationField(default=timedelta(hours=0.5))
+	startTime = models.DateTimeField()
+	endTime = models.DateTimeField()
+
+
+
+
+
+class Reservation(models.Model):
+	owner = models.ForeignKey(CarOwner, on_delete=models.CASCADE)
+	parking = models.ForeignKey(Parking, on_delete=models.CASCADE)
+	startTime = models.DateTimeField()
+	endTime = models.DateTimeField()
+	cost = models.IntegerField(default=0)
+
+
 
