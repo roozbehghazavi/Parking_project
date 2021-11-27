@@ -22,12 +22,13 @@ class ParkingCreate(APIView):
 	def post(self,request,*args, **kwargs):
 		#Create a ParkingOwner model object and filter it by the user whom sent the request.
 		owner = get_object_or_404(ParkingOwner, user = request.user)
+		template = [[1 for i in range(48)] for j in range(7)]
 		#Call serializer
 		serializer=ParkingSerializer(data=request.data)
 
 		#Save data if it's valid
 		if(serializer.is_valid()):
-			serializer.save(owner=owner)
+			serializer.save(owner=owner,template = template)
 			return Response(serializer.data)
 
 		#Shows error if it's not valid
