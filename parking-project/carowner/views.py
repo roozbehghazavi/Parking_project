@@ -3,11 +3,12 @@ from django.db.models import F
 from django.db.models.query import QuerySet
 from django.shortcuts import get_object_or_404, render
 from django.http import HttpResponse
+import pytz
 from rest_framework.response import Response
 import parking
-from parkingowner.models import Parking
-from parkingowner.serializers import ParkingSerializer
-from .models import  Car, CarOwner, Comment, Period, Rate, Reservation
+from parkingowner.models import Parking, ParkingOwner, Period
+from parkingowner.serializers import ParkingSerializer, PeriodSerializer
+from .models import  Car, CarOwner, Comment, Rate, Reservation
 from users.models import CustomUser
 from .pagination import CarOwnerPagination
 from rest_framework import generics, pagination, serializers, status
@@ -295,8 +296,8 @@ class AddRate(generics.UpdateAPIView):
     def put(self, request, *args, **kwargs):
         partial = kwargs.pop('partial', False)
         value = request.data['value']
-        if value > 4 :
-            return Response({"message" : "value must be equal or less than 4"}, status=status.HTTP_400_BAD_REQUEST)
+        if value > 5 :
+            return Response({"message" : "value must be less than or equal to 5"}, status=status.HTTP_400_BAD_REQUEST)
         instance = get_object_or_404(Parking, id = request.data['id'])
         owner = get_object_or_404(CarOwner, user = request.user)
         newRate = Rate.objects.all().filter(parking = instance, owner = owner).first()
@@ -332,11 +333,12 @@ class IsRated(generics.RetrieveAPIView):
         instance = Rate.objects.all().filter(parking = parking, owner = owner).first()
 
         if instance != None :
-            return Response({'isRated':True},status=status.HTTP_200_OK)
+            return Response({'isRated':instance.value},status=status.HTTP_200_OK)
         elif instance == None :
             return Response({'isRated':False},status=status.HTTP_200_OK)
 
         return Response({'message':'error'},status=status.HTTP_400_BAD_REQUEST)
+
 
 
 
@@ -347,44 +349,40 @@ class ReservationCreate(generics.CreateAPIView):
     def create(self, request, *args, **kwargs):
         owner = get_object_or_404(CarOwner, user = request.user)
         parking = get_object_or_404(Parking, id = request.data['parkingId'])
-        startTime = datetime.strptime(request.data['startTime'],"%Y/%m/%d %H:%M:%S")
-        endTime = datetime.strptime(request.data['startTime'],"%Y/%m/%d %H:%M:%S")
+        startTime = datetime.strptime(request.data['enter'],"%Y/%m/%d %H:%M:%S")
+        endTime = datetime.strptime(request.data['exit'],"%Y/%m/%d %H:%M:%S")
         periods = self.getPeriods(startTime,endTime,parking)
         isValid = self.checkValidation(periods)
         if isValid == True:
             periods.update(capacity = F('capacity') - 1)
-            periods.save()
             serializer = ReservationSerializer(data=request.data)
             serializer.is_valid(raise_exception=True)
             serializer.save(owner = owner,parking=parking,startTime=startTime,endTime=endTime,cost = 1000)
             headers = self.get_success_headers(serializer.data)
             return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
         else:
-            pass
+            queryset = isValid
+            serializer = PeriodSerializer(queryset,many = True)
+            return Response(serializer.data)
 
     
     def getPeriods(self,startTime,endTime,parking):
-        if startTime.minute >= 30 and endTime.minute == 30:
-            periods = Period.objects.all().filter(parking = parking,startTime__day=startTime.day,startTime__hour=startTime.hour,startTime__minute=30
-                                                    ,endTime__day=endTime.day,endTime__hour=endTime.hour,endTime__minute=30)
-            return periods
-
-        elif startTime.minute < 30 and endTime.minute == 30:
-            periods = Period.objects.all().filter(parking = parking,startTime__day=startTime.day,startTime__hour=startTime.hour,startTime__minute=0
-                                                    ,endTime__day=endTime.day,endTime__hour=endTime.hour,endTime__minute=30)
-            return periods
-        elif startTime.minute >= 30 and endTime.minute == 0:
-            periods = Period.objects.all().filter(parking = parking,startTime__day=startTime.day,startTime__hour=startTime.hour,startTime__minute=30
-                                                    ,endTime__day=endTime.day,endTime__hour=endTime.hour,endTime__minute=0)
-            return periods
+        
+        if startTime.minute >= 30:
+            startPeriod = get_object_or_404(Period, parking = parking,startTime__hour = startTime.hour, startTime__minute = 30)
         else:
-            periods = Period.objects.all().filter(parking = parking,startTime__day=startTime.day,startTime__hour=startTime.hour,startTime__minute=0
-                                                    ,endTime__day=endTime.day,endTime__hour=endTime.hour,endTime__minute=0)
-            return periods
-    
+            startPeriod = get_object_or_404(Period, parking = parking,startTime__hour = startTime.hour, startTime__minute = 0)
+
+        endPeriod = get_object_or_404(Period, parking = parking,endTime__hour = endTime.hour, endTime__minute = endTime.minute)
+
+        periods = Period.objects.all().filter(parking = parking, index__gte = startPeriod.index, index__lte = endPeriod.index)
+
+        return periods
+        
+
     def checkValidation(self,periods):
-        filledPeriods = periods.objects.filter(capacity = 0)
-        if filledPeriods == None :
+        filledPeriods = periods.filter(capacity = 0)
+        if filledPeriods.count() == 0 :
             return True
         else:
             return filledPeriods

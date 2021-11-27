@@ -1,5 +1,4 @@
 from django.urls import path , include
-
 from carowner.views import AddRate, CarCreate, CarDelete, CarList, CarOwnerCreate, CarOwnerDetail, CarOwnerUpdate, CarOwnerDelete, CarOwnerList,CommentChildCreate, CommentDelete, CommentList, CommentParentCreate, CommentUpdate, IsRated, ParkingList, ReservationCreate
 
 
@@ -58,4 +57,6 @@ urlpatterns = [
     path('israted/', IsRated.as_view()),
 
     path('reserve/', ReservationCreate.as_view()),
+
+
 ]

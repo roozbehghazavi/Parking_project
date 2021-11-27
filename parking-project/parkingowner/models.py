@@ -2,6 +2,8 @@ from django.db import models
 from users.models import CustomUser
 import datetime,time
 from django.utils import timezone
+from datetime import timedelta
+from django.contrib.postgres.fields import ArrayField
 
 # Create your models here.
 
@@ -12,6 +14,10 @@ class ParkingOwner(models.Model):
 
 	def __str__(self):
 		return self.user.email
+
+
+
+
 
 class Parking(models.Model):	
 	CHOICES = (
@@ -30,8 +36,17 @@ class Parking(models.Model):
 	rating = models.FloatField(default=0)
 	validationStatus = models.CharField(max_length=1, choices=CHOICES,default="I")
 
+
+	template = ArrayField(
+		ArrayField(
+			base_field=models.IntegerField(default=1)
+		),
+		size=7,blank=True,default=list
+	)
+
 	def __str__(self):
 		return self.parkingName
+
 
 class Validation(models.Model):
 	parking=models.OneToOneField(Parking,on_delete=models.CASCADE,null=True)
@@ -45,3 +60,17 @@ class Validation(models.Model):
 	def __str__(self):
 		return self.parking
 	
+
+
+
+class Period(models.Model):
+	capacity = models.IntegerField(default=0)
+	index = models.IntegerField(default=0)
+	parking = models.ForeignKey(Parking, on_delete=models.CASCADE)
+	duration = models.DurationField(default=timedelta(hours=0.5))
+	startTime = models.DateTimeField()
+	endTime = models.DateTimeField()
+
+	is_active = models.BooleanField(default=True)
+
+

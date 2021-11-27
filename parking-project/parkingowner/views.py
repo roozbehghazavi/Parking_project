@@ -1,7 +1,7 @@
 from django.shortcuts import render
 from rest_framework.views import APIView
-from .models import ParkingOwner,Parking,Validation
-from .serializers import ParkingOwnerSerializer, ParkingSerializer,ValidationSerializer
+from .models import ParkingOwner,Parking, Period,Validation
+from .serializers import ParkingOwnerSerializer, ParkingSerializer, PeriodSerializer,ValidationSerializer
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
 from rest_framework import generics,status
@@ -198,3 +198,56 @@ class Validator(generics.CreateAPIView):
 
 		else:
 			return Response(serializer.data)
+
+
+
+class PeriodsList(generics.ListAPIView):
+	queryset = Period.objects.all()
+	serializer_class = PeriodSerializer
+
+	def get(self, request, *args, **kwargs):
+		parking = get_object_or_404(Parking, id = request.data['parkingId'])
+		today = datetime.today().weekday()
+		periods = Period.objects.all().filter(parking = parking).order_by('index')
+		
+		if today == 5 : #Shanbe
+			self.setPeriodsOfWeekDay(parking,parking.template[0],periods)
+		elif today == 6 : #1shanbe
+			self.setPeriodsOfWeekDay(parking,parking.template[1],periods)
+		elif today == 0 : #2shanbe
+			self.setPeriodsOfWeekDay(parking,parking.template[2],periods)
+		elif today == 1 : #3shanbe
+			self.setPeriodsOfWeekDay(parking,parking.template[3],periods)
+		elif today == 2 : #4shanbe
+			self.setPeriodsOfWeekDay(parking,parking.template[4],periods)
+		elif today == 3 : #5shanbe
+			self.setPeriodsOfWeekDay(parking,parking.template[5],periods)
+		else: #jome
+			self.setPeriodsOfWeekDay(parking,parking.template[6],periods)
+
+		queryset = periods.filter(is_active = True)
+
+		page = self.paginate_queryset(queryset)
+		if page is not None:
+			serializer = self.get_serializer(page, many=True)
+			return self.get_paginated_response(serializer.data)
+
+		serializer = self.get_serializer(queryset, many=True)
+		return Response(serializer.data)
+
+	def setPeriodsOfWeekDay(self,parking,template,periods):
+		for i in range(len(template)):
+			period = periods.get(index = i+1)
+			if template[i] == 0:
+				period.is_active = False
+			else:
+				period.is_active = True
+			period.save()
+		now = datetime.now()
+		if now.minute >= 30:
+			currentPeriod = get_object_or_404(Period, parking = parking,startTime__hour = now.hour, startTime__minute = 30)
+		else:
+			currentPeriod = get_object_or_404(Period, parking = parking,startTime__hour = now.hour, startTime__minute = 0)
+		
+		passedPeriods = periods.filter(index__lt = currentPeriod.index)
+		passedPeriods.update(capacity = currentPeriod.capacity)

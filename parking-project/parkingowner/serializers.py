@@ -1,5 +1,7 @@
+from datetime import date, datetime, timedelta
 from rest_framework import serializers
-from .models import ParkingOwner,Parking,Validation
+from .models import ParkingOwner,Parking, Period,Validation
+import pytz
 
 
 #Seriliazer for ParkingOwner Model
@@ -36,7 +38,22 @@ class ParkingSerializer(serializers.ModelSerializer):
 
 	class Meta:
 		model = Parking
-		fields = ['id','owner','isPrivate','parkingName','location','parkingPhoneNumber','capacity','parkingPicture','rating','validationStatus']
+		fields = ['id','owner','isPrivate','parkingName','location','parkingPhoneNumber','capacity','parkingPicture','rating','validationStatus','template']
+
+	def create(self, validated_data):
+		parking = super().create(validated_data)
+		for i in range(48):
+			now = datetime.now()
+			if i % 2 == 0:
+				hour = int(i/2)
+				minute = 0
+			else:
+				hour = int((i-1)/2)
+				minute = 30
+			startTime = datetime(year=now.year,month=now.month,day=now.day,hour=hour,minute=minute)
+			endTime = startTime + timedelta(minutes=30)
+			Period.objects.create(capacity = parking.capacity,index = i+1,parking=parking,startTime = startTime,endTime = endTime).save()
+		return parking
 
 class ValidationSerializer(serializers.ModelSerializer):
 	parkingId=serializers.CharField(source='parking.id',required=False,read_only=True)
@@ -46,3 +63,13 @@ class ValidationSerializer(serializers.ModelSerializer):
 	class Meta:
 		model =Validation
 		fields = ['id','parkingId','parkingName','location','nationalCode','postalCode','validationCode','validationFiles','validationStatus']
+
+
+
+class PeriodSerializer(serializers.ModelSerializer):
+	capacity = serializers.IntegerField()
+	parking_id = serializers.IntegerField(source = "parking.id",required = False)
+
+	class Meta:
+		model = Period
+		fields = ('capacity','index','parking_id','duration','startTime','endTime','is_active')

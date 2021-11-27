@@ -14,7 +14,7 @@ class CarOwner(models.Model):
 	cash = models.IntegerField(default=0,blank=True)
 
 	def __str__(self):
-		return self.user.firstName + self.user.lastName
+		return self.user.email
 
 
 
@@ -59,15 +59,6 @@ class Rate(models.Model):
 
 
 
-class Period(models.Model):
-	capacity = models.IntegerField(default=0)
-	parking = models.ForeignKey(Parking, on_delete=models.CASCADE)
-	duration = models.DurationField(default=timedelta(hours=0.5))
-	startTime = models.DateTimeField()
-	endTime = models.DateTimeField()
-
-
-
 
 
 class Reservation(models.Model):
@@ -76,6 +67,3 @@ class Reservation(models.Model):
 	startTime = models.DateTimeField()
 	endTime = models.DateTimeField()
 	cost = models.IntegerField(default=0)
-
-
-

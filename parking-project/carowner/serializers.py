@@ -1,4 +1,6 @@
+from re import search
 from django.db.models import fields
+from django.http import request
 from rest_framework import serializers
 from rest_framework.fields import SerializerMethodField
 from .models import Car, CarOwner, Comment, Reservation
@@ -98,6 +100,14 @@ class CommentChildSerializer(serializers.ModelSerializer):
 
 class ReservationSerializer(serializers.ModelSerializer):
 
+	owner_id = serializers.IntegerField(source = "owner.id",required = False)
+	parking_id = serializers.IntegerField(source = "parking.id",required = False)
+	startTime = serializers.DateTimeField(required = False)
+	endTime = serializers.DateTimeField(required = False)
+
+
 	class Meta:
 		model = Reservation
-		fields = ('owner', 'parking', 'startTime', 'endTime', 'cost')
+		fields = ('owner_id', 'parking_id', 'startTime', 'endTime', 'cost')
+
+
