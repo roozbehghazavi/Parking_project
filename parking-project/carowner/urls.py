@@ -45,7 +45,7 @@ urlpatterns = [
     #Add a reply to a comment
     path('addreply/',CommentChildCreate.as_view()),
     #list of all parking's comments
-    path('commentlist/',CommentList.as_view()),
+    path('commentlist/<int:id>/',CommentList.as_view()),
 
 
     ###Rating Urls
@@ -54,7 +54,7 @@ urlpatterns = [
     #Add rating to a parking
     path('addrate/', AddRate.as_view()),
     #Show if the user rated or not
-    path('israted/', IsRated.as_view()),
+    path('israted/<int:id>/', IsRated.as_view()),
 
     path('reserve/', ReservationCreate.as_view()),
 

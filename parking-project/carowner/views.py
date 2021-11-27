@@ -271,8 +271,8 @@ class CommentList(generics.ListAPIView):
     queryset = Comment.objects.all()
     serializer_class = CommentSerializer
 
-    def get(self, request, *args, **kwargs):
-        parking = get_object_or_404(Parking, id = request.data['parkingId'])
+    def get(self, request, id,*args, **kwargs):
+        parking = get_object_or_404(Parking, id = id)
         queryset = Comment.objects.all().filter(parking = parking).order_by('-dateAdded')
 
         page = self.paginate_queryset(queryset)
@@ -327,8 +327,8 @@ class AddRate(generics.UpdateAPIView):
 class IsRated(generics.RetrieveAPIView):
     queryset = Rate.objects.all()
 
-    def get(self, request, *args, **kwargs):
-        parking = get_object_or_404(Parking, id = request.data['id'])
+    def get(self, request, id,*args, **kwargs):
+        parking = get_object_or_404(Parking, id = id)
         owner = get_object_or_404(CarOwner, user = request.user)
         instance = Rate.objects.all().filter(parking = parking, owner = owner).first()
 
