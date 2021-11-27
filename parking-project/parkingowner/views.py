@@ -1,5 +1,9 @@
 from django.shortcuts import render
+import pytz
 from rest_framework.views import APIView
+
+import parking
+from users.models import CustomUser
 from .models import ParkingOwner,Parking, Period,Validation
 from .serializers import ParkingOwnerSerializer, ParkingSerializer, PeriodSerializer,ValidationSerializer
 from rest_framework.response import Response
@@ -8,7 +12,9 @@ from rest_framework import generics,status
 from django.shortcuts import get_object_or_404,get_list_or_404
 from .pagination import ParkingListPagination
 from django.utils import timezone
-import datetime
+from datetime import date, datetime
+from django.db.models import F
+from rest_framework import viewsets
 
 #########################################################################
 #------------------------ Parking related views ------------------------#
@@ -46,7 +52,6 @@ class ParkingUpdate(generics.RetrieveUpdateAPIView):
 		instance = get_object_or_404(Parking, id=request.data['id'],owner=owner)
 		instance.isvalid=False
 
-
 		#Updating template
 		startTime = datetime.strptime(request.data['openAt'],"%Y/%m/%d %H:%M:%S")
 		endTime = datetime.strptime(request.data['closeAt'],"%Y/%m/%d %H:%M:%S")
@@ -61,6 +66,7 @@ class ParkingUpdate(generics.RetrieveUpdateAPIView):
 				instance.template[request.data['date']][i] = 0
 			else:
 				instance.template[request.data['date']][i] = 1
+
 
 
 		serializer = self.get_serializer(instance, data=request.data, partial=partial)
@@ -100,43 +106,28 @@ class ParkingList(generics.ListAPIView):
 	pagination_class=ParkingListPagination
 	queryset = Parking.objects.all()
 	serializer_class = ParkingSerializer
-
-	def get(self,request):
+	
+	def get(self, request, *args, **kwargs):
 		owner = get_object_or_404(ParkingOwner, user = request.user)
-		parking = Parking.objects.all().filter(owner=owner)
-		serializer = self.get_serializer(parking,many=True)
-		
-		
-		for prk in parking:
-			if(prk.validationStatus=="P"):
-				validation=get_object_or_404(Validation,parking=prk)
-				time=datetime.datetime.now(timezone.utc)-validation.time_Added
-				
-				if(time.total_seconds()>30):
-					prk.validationStatus="V"
-					prk.save()
-			else:
-				pass
-		
+		queryset = Parking.objects.all().filter(owner = owner)
+
+		page = self.paginate_queryset(queryset)
+		if page is not None:
+			serializer = self.get_serializer(page, many=True)
+			return self.get_paginated_response(serializer.data)
+
+		serializer = self.get_serializer(queryset, many=True)
 		return Response(serializer.data)
 
-
-
 #Shows a parking details by its id(in url)
-class ParkingDetail(APIView):
+class ParkingDetail(generics.RetrieveAPIView):
 	queryset = Parking.objects.all()
 	serializer_class = ParkingSerializer
 	
 	def get(self, request, *args, **kwargs):
 		owner = get_object_or_404(ParkingOwner, user = request.user)
 		instance = get_object_or_404(Parking, id = request.data['id'], owner = owner)
-		serializer = ParkingSerializer(instance)
-		return Response(serializer.data)
-
-	def post(self,request):
-		owner = get_object_or_404(ParkingOwner, user = request.user)
-		instance = get_object_or_404(Parking, id = request.data['id'], owner = owner)
-		serializer = ParkingSerializer(instance)
+		serializer = self.get_serializer(instance)
 		return Response(serializer.data)
 
 #########################################################################
@@ -207,7 +198,7 @@ class Validator(generics.CreateAPIView):
 		owner = get_object_or_404(ParkingOwner, user = request.user)
 		parking = get_object_or_404(Parking, id = request.data['id'], owner = owner)
 		validation=get_object_or_404(Validation,parking=parking)
-		time=datetime.datetime.now(timezone.utc)-validation.time_Added
+		time=datetime.now(timezone.utc)-validation.time_Added
 		serializer = self.get_serializer(validation)
 
 		if(time.total_seconds()>30): 
@@ -270,3 +261,32 @@ class PeriodsList(generics.ListAPIView):
 		
 		passedPeriods = periods.filter(index__lt = currentPeriod.index)
 		passedPeriods.update(capacity = currentPeriod.capacity)
+
+
+class ManualEnterOrExit(generics.UpdateAPIView):
+	queryset = Period.objects.all()
+	serializer_class = PeriodSerializer
+
+	def put(self, request, *args, **kwargs):
+		owner = get_object_or_404(ParkingOwner, user = request.user)
+		parking = get_object_or_404(Parking, owner = owner,id = request.data['parkingId'])
+		now = datetime.now()
+		if now.minute >= 30:
+			currentPeriod = get_object_or_404(Period, parking = parking,is_active=True,startTime__hour = now.hour, startTime__minute = 30)
+		else:
+			currentPeriod = get_object_or_404(Period, parking = parking,is_active=True,startTime__hour = now.hour, startTime__minute = 0)
+		nextPeriods = Period.objects.all().filter(index__gte = currentPeriod.index,parking = parking).order_by('index')
+		if request.data['status'] == 'enter':
+			nextPeriods.update(capacity = F('capacity') - 1)
+		elif request.data['status'] == 'exit':
+			nextPeriods.update(capacity = F('capacity') + 1)
+		
+		partial = kwargs.pop('partial', False)
+		serializer = PeriodSerializer(nextPeriods,many = True)
+
+		if getattr(nextPeriods, '_prefetched_objects_cache', None):
+			# If 'prefetch_related' has been applied to a queryset, we need to
+			# forcibly invalidate the prefetch cache on the instance.
+			nextPeriods._prefetched_objects_cache = {}
+
+		return Response(serializer.data)

@@ -67,8 +67,10 @@ class ValidationSerializer(serializers.ModelSerializer):
 
 
 class PeriodSerializer(serializers.ModelSerializer):
-	capacity = serializers.IntegerField()
+	capacity = serializers.IntegerField(required = False)
 	parking_id = serializers.IntegerField(source = "parking.id",required = False)
+	startTime = serializers.DateTimeField(required = False)
+	endTime = serializers.DateTimeField(required = False)
 
 	class Meta:
 		model = Period

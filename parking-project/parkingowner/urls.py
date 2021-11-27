@@ -1,5 +1,6 @@
 from django.urls import path , include
-from .views import ParkingCreate,ParkingDelete,ParkingList,ParkingDetail,ParkingOwnerDetail,ParkingOwnerUpdate,ParkingOwnerList,ParkingUpdate, PeriodsList,Validator
+
+from .views import ManualEnterOrExit, ParkingCreate,ParkingDelete,ParkingList,ParkingDetail,ParkingOwnerDetail,ParkingOwnerUpdate,ParkingOwnerList,ParkingUpdate, PeriodsList,Validator
 
 
 urlpatterns = [
@@ -7,7 +8,7 @@ urlpatterns = [
     path('createparking/', ParkingCreate.as_view()),
     path('updateparking/', ParkingUpdate.as_view()),
     path('parkinglist', ParkingList.as_view()),
-    path('parkingdetail/', ParkingDetail.as_view()),
+    path('<int:pk>/', ParkingDetail.as_view()),
     path('deleteparking/', ParkingDelete.as_view()),
     
 
@@ -22,4 +23,6 @@ urlpatterns = [
 
     #Shows all the periods of parking by id
     path('periodlist/', PeriodsList.as_view()),
+    #manual exit or enter for parking operator
+    path('manualexitorenter/', ManualEnterOrExit.as_view()),
 ]
