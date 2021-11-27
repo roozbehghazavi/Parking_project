@@ -44,6 +44,24 @@ class ParkingUpdate(generics.RetrieveUpdateAPIView):
 		partial = kwargs.pop('partial', False)
 		instance = get_object_or_404(Parking, id=request.data['id'],owner=owner)
 		instance.isvalid=False
+
+
+		#Updating template
+		startTime = datetime.strptime(request.data['openAt'],"%Y/%m/%d %H:%M:%S")
+		endTime = datetime.strptime(request.data['closeAt'],"%Y/%m/%d %H:%M:%S")
+		if startTime.minute >= 30:
+			startPeriod = get_object_or_404(Period, parking = instance,startTime__hour = startTime.hour, startTime__minute = 30)
+		else:
+			startPeriod = get_object_or_404(Period, parking = instance,startTime__hour = startTime.hour, startTime__minute = 0)
+
+		endPeriod = get_object_or_404(Period, parking = instance,endTime__hour = endTime.hour, endTime__minute = endTime.minute)
+		for i in range(len(instance.template[request.data['date']])):
+			if i < startPeriod.index-1 or i > endPeriod.index-1:
+				instance.template[request.data['date']][i] = 0
+			else:
+				instance.template[request.data['date']][i] = 1
+
+
 		serializer = self.get_serializer(instance, data=request.data, partial=partial)
 		serializer.is_valid(raise_exception=True)
 		self.perform_update(serializer)
