@@ -360,6 +360,8 @@ class ReservationCreate(generics.CreateAPIView):
             serializer.save(owner = owner,parking=parking,startTime=startTime,endTime=endTime,cost = 1000)
             headers = self.get_success_headers(serializer.data)
             return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
+        elif isValid == "Error, Closed Periods Found !":
+            return Response({'message' : isValid})
         else:
             queryset = isValid
             serializer = PeriodSerializer(queryset,many = True)
@@ -382,7 +384,10 @@ class ReservationCreate(generics.CreateAPIView):
 
     def checkValidation(self,periods):
         filledPeriods = periods.filter(capacity = 0)
-        if filledPeriods.count() == 0 :
+        notActivePeriods = periods.filter(is_active = False)
+        if notActivePeriods.count() != 0:
+            return "Error, Closed Periods Found !"
+        elif filledPeriods.count() == 0 :
             return True
         else:
             return filledPeriods
