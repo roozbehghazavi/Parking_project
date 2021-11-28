@@ -27,7 +27,7 @@ urlpatterns = [
     path('carlist/',CarList.as_view()),
     #delete a car by id
     path('cardelete/', CarDelete.as_view()),
-
+    #edit a car by id
     path('carupdate/', CarUpdate.as_view()),
 
 
