@@ -49,7 +49,7 @@ urlpatterns = [
     #Add a reply to a comment
     path('addreply/',CommentChildCreate.as_view()),
     #list of all parking's comments
-    path('commentlist/<int:id>/',CommentList.as_view()),
+    path('commentlist/',CommentList.as_view()),
 
 
     ###Rating Urls

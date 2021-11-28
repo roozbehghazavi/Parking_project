@@ -17,6 +17,7 @@ from django.db.models import Avg
 import json
 import requests
 from datetime import date, datetime
+from rest_framework.views import APIView
 # Create your views here.
 
 
@@ -267,12 +268,24 @@ class CommentChildCreate(generics.CreateAPIView):
 
 
 #Shows list of comments for a parking with id
-class CommentList(generics.ListAPIView):
+class CommentList(generics.ListCreateAPIView):
     queryset = Comment.objects.all()
     serializer_class = CommentSerializer
 
-    def get(self, request, id,*args, **kwargs):
-        parking = get_object_or_404(Parking, id = id)
+    def get(self, request,*args, **kwargs):
+        parking = get_object_or_404(Parking, id = request.data['id'])
+        queryset = Comment.objects.all().filter(parking = parking).order_by('-dateAdded')
+
+        page = self.paginate_queryset(queryset)
+        if page is not None:
+            serializer = self.get_serializer(page, many=True)
+            return self.get_paginated_response(serializer.data)
+
+        serializer = self.get_serializer(queryset, many=True)
+        return Response(serializer.data)
+    
+    def post(self, request,*args, **kwargs):
+        parking = get_object_or_404(Parking, id = request.data['id'])
         queryset = Comment.objects.all().filter(parking = parking).order_by('-dateAdded')
 
         page = self.paginate_queryset(queryset)
