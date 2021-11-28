@@ -143,12 +143,7 @@ class CarUpdate(generics.RetrieveUpdateAPIView):
     serializer_class = CarSerializer
 
     def update(self, request, *args, **kwargs):
-<<<<<<< HEAD
-        kwargs['partial'] = True
-        partial = kwargs.pop('partial', False)
-=======
         partial = kwargs.pop('partial', True)
->>>>>>> 1ead6c1ea301ca568287ff0af48c8e86b5dcb2ba
         owner = get_object_or_404(CarOwner, user = request.user)
         instance = get_object_or_404(Car, id = request.data['id'], owner = owner)
         serializer = self.get_serializer(instance, data=request.data, partial=partial)
@@ -161,7 +156,6 @@ class CarUpdate(generics.RetrieveUpdateAPIView):
             instance._prefetched_objects_cache = {}
 
         return Response(serializer.data)
-    
 
 #Delete a Car by id owned by the logged in CarOwner
 class CarDelete(generics.RetrieveDestroyAPIView):
