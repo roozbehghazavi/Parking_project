@@ -178,13 +178,13 @@ class CarDelete(generics.RetrieveDestroyAPIView):
 
 
 #Shows List of all parkings ordering by parking name for CarOwner
-class ParkingList(generics.ListAPIView):
+class ParkingList(generics.ListCreateAPIView):
     queryset = Parking.objects.all()
     serializer_class = ParkingSerializer
     pagination_class = CarOwnerPagination
 
     def get(self, request, *args, **kwargs):
-        queryset = Parking.objects.all().filter(validationStatus = "V").order_by('parkingName')
+        queryset = Parking.objects.all().order_by('parkingName')
 
         page = self.paginate_queryset(queryset)
         if page is not None:
@@ -193,6 +193,10 @@ class ParkingList(generics.ListAPIView):
 
         serializer = self.get_serializer(queryset, many=True)
         return Response(serializer.data)
+    
+
+
+    
 
 
 
