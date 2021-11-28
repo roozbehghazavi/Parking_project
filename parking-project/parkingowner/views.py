@@ -121,14 +121,20 @@ class ParkingList(generics.ListAPIView):
 		return Response(serializer.data)
 
 #Shows a parking details by its id(in url)
-class ParkingDetail(generics.RetrieveAPIView):
+class ParkingDetail(APIView):
 	queryset = Parking.objects.all()
 	serializer_class = ParkingSerializer
 	
 	def get(self, request, *args, **kwargs):
 		owner = get_object_or_404(ParkingOwner, user = request.user)
 		instance = get_object_or_404(Parking, id = request.data['id'], owner = owner)
-		serializer = self.get_serializer(instance)
+		serializer = ParkingSerializer(instance)
+		return Response(serializer.data)
+
+	def post(self, request, *args, **kwargs):
+		owner = get_object_or_404(ParkingOwner, user = request.user)
+		instance = get_object_or_404(Parking, id = request.data['id'], owner = owner)
+		serializer = ParkingSerializer(instance)
 		return Response(serializer.data)
 
 #########################################################################
