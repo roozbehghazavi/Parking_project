@@ -58,7 +58,7 @@ urlpatterns = [
     #Add rating to a parking
     path('addrate/', AddRate.as_view()),
     #Show if the user rated or not
-    path('israted/<int:id>/', IsRated.as_view()),
+    path('israted/', IsRated.as_view()),
 
     path('reserve/', ReservationCreate.as_view()),
 
