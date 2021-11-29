@@ -1,6 +1,6 @@
 from django.urls import path , include
 
-from .views import ManualEnterOrExit,ParkingDetail,ParkingCreate,ParkingDelete,ParkingList,ParkingDetail,ParkingOwnerDetail,ParkingOwnerUpdate,ParkingOwnerList,ParkingUpdate, PeriodsList,Validator
+from .views import ValidatorGet,ManualEnterOrExit,ParkingDetail,ParkingCreate,ParkingDelete,ParkingList,ParkingDetail,ParkingOwnerDetail,ParkingOwnerUpdate,ParkingOwnerList,ParkingUpdate, PeriodsList,Validator
 
 
 urlpatterns = [
@@ -19,6 +19,7 @@ urlpatterns = [
 
     #Validation URLs
     path('validation/',Validator.as_view()),
+    path('validatorget/',ValidatorGet.as_view()),
 
 
     #Shows all the periods of parking by id
