@@ -178,13 +178,13 @@ class CarDelete(generics.RetrieveDestroyAPIView):
 
 
 #Shows List of all parkings ordering by parking name for CarOwner
-class ParkingList(generics.ListCreateAPIView):
+class ParkingList(generics.ListAPIView):
     queryset = Parking.objects.all()
     serializer_class = ParkingSerializer
     pagination_class = CarOwnerPagination
 
     def get(self, request, *args, **kwargs):
-        queryset = Parking.objects.all().order_by('parkingName')
+        queryset = Parking.objects.all().filter(validationStatus = "V").order_by('parkingName')
 
         page = self.paginate_queryset(queryset)
         if page is not None:
@@ -193,10 +193,6 @@ class ParkingList(generics.ListCreateAPIView):
 
         serializer = self.get_serializer(queryset, many=True)
         return Response(serializer.data)
-    
-
-
-    
 
 
 
@@ -408,3 +404,20 @@ class ReservationCreate(generics.CreateAPIView):
             return True
         else:
             return filledPeriods
+
+
+class ReservationList(generics.ListAPIView):
+    queryset = Reservation.objects.all()
+    serializer_class = ReservationSerializer
+
+    def get(self, request, *args, **kwargs):
+        owner = get_object_or_404(CarOwner, user = request.user)
+        queryset = Reservation.objects.all().filter(owner = owner)
+
+        page = self.paginate_queryset(queryset)
+        if page is not None:
+            serializer = self.get_serializer(page, many=True)
+            return self.get_paginated_response(serializer.data)
+
+        serializer = self.get_serializer(queryset, many=True)
+        return Response(serializer.data)
