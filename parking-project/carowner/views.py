@@ -354,7 +354,8 @@ class IsRated(generics.RetrieveAPIView):
 
 
 
-
+#reserves a parking with startTime and endTime 
+#returns a reservation if the parking has capacity available , otherwise it returns the list of periods that are filled
 class ReservationCreate(generics.CreateAPIView):
     queryset = Reservation.objects.all()
     serializer_class = ReservationSerializer
@@ -366,21 +367,24 @@ class ReservationCreate(generics.CreateAPIView):
         endTime = datetime.strptime(request.data['exit'],"%Y/%m/%d %H:%M:%S")
         periods = self.getPeriods(startTime,endTime,parking)
         isValid = self.checkValidation(periods)
-        if isValid == True:
+
+        if isValid == True: #creates the reservation if True
             periods.update(capacity = F('capacity') - 1)
             serializer = ReservationSerializer(data=request.data)
             serializer.is_valid(raise_exception=True)
             serializer.save(owner = owner,parking=parking,startTime=startTime,endTime=endTime,cost = 1000)
             headers = self.get_success_headers(serializer.data)
             return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
-        elif isValid == "Error, Closed Periods Found !":
+
+        elif isValid == "Error, Closed Periods Found !": #returns the list of closed periods
             return Response({'message' : isValid})
-        else:
+
+        else: #returns the list of filled periods
             queryset = isValid
             serializer = PeriodSerializer(queryset,many = True)
             return Response(serializer.data)
 
-    
+    #returns the list of periods with a startTime and endTime
     def getPeriods(self,startTime,endTime,parking):
         
         if startTime.minute >= 30:
@@ -394,7 +398,7 @@ class ReservationCreate(generics.CreateAPIView):
 
         return periods
         
-
+    #check if the periods are available
     def checkValidation(self,periods):
         filledPeriods = periods.filter(capacity = 0)
         notActivePeriods = periods.filter(is_active = False)
@@ -405,8 +409,8 @@ class ReservationCreate(generics.CreateAPIView):
         else:
             return filledPeriods
 
-
-class ReservationList(generics.ListAPIView):
+#returns the list of reservations for the logged in carowner
+class ReservationListCarOwner(generics.ListAPIView):
     queryset = Reservation.objects.all()
     serializer_class = ReservationSerializer
 

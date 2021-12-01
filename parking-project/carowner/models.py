@@ -18,6 +18,8 @@ class CarOwner(models.Model):
 
 
 
+# Car Model
+
 class Car(models.Model):
 	owner = models.ForeignKey(CarOwner,on_delete=models.CASCADE)
 	carName = models.CharField(max_length=100)
@@ -28,6 +30,8 @@ class Car(models.Model):
 	def __str__(self):
 		return self.pelak
 
+
+#Comment Model
 
 class Comment(models.Model):
 	parking = models.ForeignKey(Parking, on_delete=models.CASCADE)
@@ -51,6 +55,8 @@ class Comment(models.Model):
 		return self.content
 
 
+#Rating Model
+
 class Rate(models.Model):
 	parking = models.ForeignKey(Parking, on_delete=models.CASCADE)
 	owner = models.ForeignKey(CarOwner, on_delete=models.CASCADE)
@@ -58,8 +64,7 @@ class Rate(models.Model):
 
 
 
-
-
+#Reservation Model
 
 class Reservation(models.Model):
 	owner = models.ForeignKey(CarOwner, on_delete=models.CASCADE)

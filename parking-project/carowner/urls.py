@@ -1,5 +1,5 @@
 from django.urls import path , include
-from carowner.views import AddRate, CarCreate, CarDelete, CarList,CarUpdate,CarOwnerCreate, CarOwnerDetail, CarOwnerUpdate, CarOwnerDelete, CarOwnerList,CommentChildCreate, CommentDelete, CommentList, CommentParentCreate, CommentUpdate, IsRated, ParkingList, ReservationCreate, ReservationList
+from carowner.views import AddRate, CarCreate, CarDelete, CarList,CarUpdate,CarOwnerCreate, CarOwnerDetail, CarOwnerUpdate, CarOwnerDelete, CarOwnerList,CommentChildCreate, CommentDelete, CommentList, CommentParentCreate, CommentUpdate, IsRated, ParkingList, ReservationCreate, ReservationListCarOwner
 
 
 urlpatterns = [
@@ -64,8 +64,8 @@ urlpatterns = [
 
     #reserve a parking
     path('reserve/', ReservationCreate.as_view()),
-    path('reservelist/', ReservationList.as_view()),
-
+    #reserve list for carowner
+    path('reservelist/', ReservationListCarOwner.as_view()),
 
 
 ]

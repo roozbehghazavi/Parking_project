@@ -86,7 +86,6 @@ class CommentSerializer(serializers.ModelSerializer):
 
 
 #Serializer for children of a parent comment
-
 class CommentChildSerializer(serializers.ModelSerializer):
     author = SerializerMethodField()
     class Meta:
@@ -98,6 +97,7 @@ class CommentChildSerializer(serializers.ModelSerializer):
 
 
 
+#Serializer for reservation
 class ReservationSerializer(serializers.ModelSerializer):
 
 	owner_id = serializers.IntegerField(source = "owner.id",required = False)
