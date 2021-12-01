@@ -132,7 +132,7 @@ class CarDetail(generics.RetrieveAPIView):
 
     def get(self, request, *args, **kwargs):
         owner = get_object_or_404(CarOwner, user = request.user)
-        instance = get_object_or_404(Car, id = request.data['id'], owner = owner)
+        instance = get_object_or_404(Car, id = request.GET['id'], owner = owner)
         serializer = self.get_serializer(instance)
         return Response(serializer.data)
 
@@ -284,19 +284,6 @@ class CommentList(generics.ListCreateAPIView):
         serializer = self.get_serializer(queryset, many=True)
         return Response(serializer.data)
     
-    def post(self, request,*args, **kwargs):
-        parking = get_object_or_404(Parking, id = request.data['id'])
-        queryset = Comment.objects.all().filter(parking = parking).order_by('-dateAdded')
-
-        page = self.paginate_queryset(queryset)
-        if page is not None:
-            serializer = self.get_serializer(page, many=True)
-            return self.get_paginated_response(serializer.data)
-
-        serializer = self.get_serializer(queryset, many=True)
-        return Response(serializer.data)
-
-
 
 ### Rating methods
 

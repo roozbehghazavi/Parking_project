@@ -127,17 +127,12 @@ class ParkingDetail(APIView):
 	queryset = Parking.objects.all()
 	serializer_class = ParkingSerializer
 	
-	def get(self, request, *args, **kwargs):
+	def get(self, request,*args, **kwargs):
 		owner = get_object_or_404(ParkingOwner, user = request.user)
-		instance = get_object_or_404(Parking, id = request.data['id'], owner = owner)
+		instance = get_object_or_404(Parking, id = request.GET['id'], owner = owner)
 		serializer = ParkingSerializer(instance)
 		return Response(serializer.data)
 
-	def post(self, request, *args, **kwargs):
-		owner = get_object_or_404(ParkingOwner, user = request.user)
-		instance = get_object_or_404(Parking, id = request.data['id'], owner = owner)
-		serializer = ParkingSerializer(instance)
-		return Response(serializer.data)
 
 #########################################################################
 #--------------------- ParkingOwner related views ----------------------#
@@ -205,7 +200,7 @@ class Validator(generics.CreateAPIView):
 
 	def get(self, request, *args, **kwargs):
 		owner = get_object_or_404(ParkingOwner, user = request.user)
-		parking = get_object_or_404(Parking, id = request.data['id'], owner = owner)
+		parking = get_object_or_404(Parking, id = request.GET['id'], owner = owner)
 		validation=get_object_or_404(Validation,parking=parking)
 		time=datetime.now(timezone.utc)-validation.time_Added
 		serializer = self.get_serializer(validation)
@@ -218,31 +213,13 @@ class Validator(generics.CreateAPIView):
 		else:
 			return Response(serializer.data)
 
-class ValidatorGet(generics.CreateAPIView):
-	queryset=Validation.objects.all()
-	serializer_class=ValidationSerializer
-	
-	def post(self, request, *args, **kwargs):
-		owner = get_object_or_404(ParkingOwner, user = request.user)
-		parking = get_object_or_404(Parking, id = request.data['id'], owner = owner)
-		validation=get_object_or_404(Validation,parking=parking)
-		time=datetime.now(timezone.utc)-validation.time_Added
-		serializer = self.get_serializer(validation)
-
-		if(time.total_seconds()>30): 
-			parking.validationStatus="V"
-			parking.save()
-			return Response(serializer.data)
-
-		else:
-			return Response(serializer.data)
 
 class PeriodsList(generics.ListAPIView):
 	queryset = Period.objects.all()
 	serializer_class = PeriodSerializer
 
 	def get(self, request, *args, **kwargs):
-		parking = get_object_or_404(Parking, id = request.data['parkingId'])
+		parking = get_object_or_404(Parking, id = request.GET['parkingId'])
 		today = datetime.today().weekday()
 		periods = Period.objects.all().filter(parking = parking).order_by('index')
 		
