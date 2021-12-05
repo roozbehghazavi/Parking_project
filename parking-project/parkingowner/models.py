@@ -4,6 +4,7 @@ import datetime,time
 from django.utils import timezone
 from datetime import timedelta
 from django.contrib.postgres.fields import ArrayField
+import pytz
 
 # Create your models here.
 
@@ -54,7 +55,8 @@ class Validation(models.Model):
 	validationFiles=models.FileField(upload_to='validationfiles/')
 	postalCode=models.CharField(max_length=10)
 	validationCode=models.IntegerField()
-	time_Added = models.DateTimeField(default=datetime.datetime.now(timezone.utc))
+	time_Added = models.DateTimeField(default=timezone.now)
+
 
 
 	def __str__(self):

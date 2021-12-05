@@ -204,7 +204,8 @@ class Validator(generics.CreateAPIView):
 		validation=get_object_or_404(Validation,parking=parking)
 		time=datetime.now(timezone.utc)-validation.time_Added
 		serializer = self.get_serializer(validation)
-
+		print(time.total_seconds())
+		
 		if(time.total_seconds()>30): 
 			parking.validationStatus="V"
 			parking.save()
