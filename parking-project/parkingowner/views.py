@@ -30,13 +30,12 @@ class ParkingCreate(APIView):
 	def post(self,request,*args, **kwargs):
 		#Create a ParkingOwner model object and filter it by the user whom sent the request.
 		owner = get_object_or_404(ParkingOwner, user = request.user)
-		template = [[1 for i in range(48)] for j in range(7)]
 		#Call serializer
 		serializer=ParkingSerializer(data=request.data)
 
 		#Save data if it's valid
 		if(serializer.is_valid()):
-			serializer.save(owner=owner,template = template)
+			serializer.save(owner=owner)
 			return Response(serializer.data)
 
 		#Shows error if it's not valid
@@ -50,26 +49,41 @@ class ParkingUpdate(generics.RetrieveUpdateAPIView):
 
 	def update(self, request, *args, **kwargs):
 		owner = get_object_or_404(ParkingOwner, user = request.user)
-		partial = kwargs.pop('partial', False)
+		partial = kwargs.pop('partial', True)
 		instance = get_object_or_404(Parking, id=request.data['id'],owner=owner)
 		instance.isvalid=False
 
 		if request.data.get('openAt') != None:
 			#Updating template
-			startTime = datetime.strptime(request.data['openAt'],"%Y/%m/%d %H:%M:%S")
-			endTime = datetime.strptime(request.data['closeAt'],"%Y/%m/%d %H:%M:%S")
+			weekDay = request.data['date']
+			startTime = datetime.strptime(request.data['openAt'],"%H:%M:%S")
+			endTime = datetime.strptime(request.data['closeAt'],"%H:%M:%S")
 			if startTime.minute >= 30:
-				startPeriod = get_object_or_404(Period, parking = instance,startTime__hour = startTime.hour, startTime__minute = 30)
+				startPeriod = get_object_or_404(Period, parking = instance,startTime__hour = startTime.hour, startTime__minute = 30,weekDay = weekDay)
 			else:
-				startPeriod = get_object_or_404(Period, parking = instance,startTime__hour = startTime.hour, startTime__minute = 0)
+				startPeriod = get_object_or_404(Period, parking = instance,startTime__hour = startTime.hour, startTime__minute = 0,weekDay = weekDay)
 
-			endPeriod = get_object_or_404(Period, parking = instance,endTime__hour = endTime.hour, endTime__minute = endTime.minute)
-			for i in range(len(instance.template[request.data['date']])):
-				if i < startPeriod.index-1 or i > endPeriod.index-1:
-					instance.template[request.data['date']][i] = 0
+			endPeriod = get_object_or_404(Period, parking = instance,endTime__hour = endTime.hour, endTime__minute = endTime.minute,weekDay = weekDay)
+
+			startPeriod.is_active = True
+			startPeriod.save()
+			periods = Period.objects.all().filter(parking=instance,weekDay=weekDay)
+			for period in periods:
+				if period.startTime.hour >= startPeriod.endTime.hour and period.startTime.hour <= endPeriod.startTime.hour:
+					if period.startTime.hour == endPeriod.startTime.hour:
+						if period.startTime.minute > endPeriod.startTime.minute:
+							period.is_active = False
+							period.save()
+						else:
+							period.is_active = True
+							period.save()
+					else:
+						period.is_active = True
+						period.save()
 				else:
-					instance.template[request.data['date']][i] = 1
-
+					if not period == startPeriod:
+						period.is_active = False
+						period.save()
 
 
 		serializer = self.get_serializer(instance, data=request.data, partial=partial)
@@ -82,13 +96,6 @@ class ParkingUpdate(generics.RetrieveUpdateAPIView):
 			instance._prefetched_objects_cache = {}
 
 		return Response(serializer.data)
-
-	def perform_update(self, serializer):
-		serializer.save()
-
-	def partial_update(self, request, *args, **kwargs):
-		kwargs['partial'] = True
-		return self.update(request, *args, **kwargs)
 
 #This view delete a parking by its id(in body)
 class ParkingDelete(generics.RetrieveDestroyAPIView):
@@ -154,7 +161,7 @@ class ParkingOwnerUpdate(generics.RetrieveUpdateAPIView):
 	serializer_class = ParkingOwnerSerializer
 
 	def update(self, request, *args, **kwargs):
-		partial = kwargs.pop('partial', False)
+		partial = kwargs.pop('partial', True)
 		instance = get_object_or_404(ParkingOwner, user = request.user)
 		serializer = self.get_serializer(instance, data=request.data, partial=partial)
 		serializer.is_valid(raise_exception=True)
@@ -222,24 +229,19 @@ class PeriodsList(generics.ListAPIView):
 	def get(self, request, *args, **kwargs):
 		parking = get_object_or_404(Parking, id = request.GET['parkingId'])
 		today = datetime.today().weekday()
-		periods = Period.objects.all().filter(parking = parking).order_by('index')
-		
-		if today == 5 : #Shanbe
-			self.setPeriodsOfWeekDay(parking,parking.template[0],periods)
-		elif today == 6 : #1shanbe
-			self.setPeriodsOfWeekDay(parking,parking.template[1],periods)
-		elif today == 0 : #2shanbe
-			self.setPeriodsOfWeekDay(parking,parking.template[2],periods)
-		elif today == 1 : #3shanbe
-			self.setPeriodsOfWeekDay(parking,parking.template[3],periods)
-		elif today == 2 : #4shanbe
-			self.setPeriodsOfWeekDay(parking,parking.template[4],periods)
-		elif today == 3 : #5shanbe
-			self.setPeriodsOfWeekDay(parking,parking.template[5],periods)
-		else: #jome
-			self.setPeriodsOfWeekDay(parking,parking.template[6],periods)
+		periods = Period.objects.all().filter(parking = parking)
 
-		queryset = periods.filter(is_active = True)
+		now = datetime.now()
+
+		if now.minute >= 30:
+			currentPeriod = get_object_or_404(Period, parking = parking,startTime__hour = now.hour, startTime__minute = 30,weekDay=today)
+		else:
+			currentPeriod = get_object_or_404(Period, parking = parking,startTime__hour = now.hour, startTime__minute = 0,weekDay=today)
+		
+		passedPeriods = periods.filter(endTime__lte = currentPeriod.startTime)
+		passedPeriods.update(capacity = currentPeriod.capacity,startTime = F('startTime') + timedelta(days=7),endTime = F('endTime') + timedelta(days=7))
+
+		queryset = periods.filter(is_active = True, startTime__gte = currentPeriod.startTime).order_by('startTime')[:48]
 
 		page = self.paginate_queryset(queryset)
 		if page is not None:
@@ -249,23 +251,6 @@ class PeriodsList(generics.ListAPIView):
 		serializer = self.get_serializer(queryset, many=True)
 		return Response(serializer.data)
 
-	def setPeriodsOfWeekDay(self,parking,template,periods):
-		for i in range(len(template)):
-			period = periods.get(index = i+1)
-			if template[i] == 0:
-				period.is_active = False
-			else:
-				period.is_active = True
-			period.save()
-		now = datetime.now()
-		if now.minute >= 30:
-			currentPeriod = get_object_or_404(Period, parking = parking,startTime__hour = now.hour, startTime__minute = 30)
-		else:
-			currentPeriod = get_object_or_404(Period, parking = parking,startTime__hour = now.hour, startTime__minute = 0)
-		
-		passedPeriods = periods.filter(index__lt = currentPeriod.index)
-		passedPeriods.update(capacity = currentPeriod.capacity)
-
 
 class ManualEnterOrExit(generics.UpdateAPIView):
 	queryset = Period.objects.all()
@@ -274,24 +259,28 @@ class ManualEnterOrExit(generics.UpdateAPIView):
 	def put(self, request, *args, **kwargs):
 		owner = get_object_or_404(ParkingOwner, user = request.user)
 		parking = get_object_or_404(Parking, owner = owner,id = request.data['parkingId'])
+		today = datetime.today().weekday()
+
+		periods = Period.objects.all().filter(parking = parking)
+		if request.data['status'] == 'enter':
+			periods.update(capacity = F('capacity') - 1)
+		elif request.data['status'] == 'exit':
+			periods.update(capacity = F('capacity') + 1)
+
 		now = datetime.now()
 		if now.minute >= 30:
-			currentPeriod = get_object_or_404(Period, parking = parking,is_active=True,startTime__hour = now.hour, startTime__minute = 30)
+			currentPeriod = get_object_or_404(Period, parking = parking,is_active=True,startTime__hour = now.hour, startTime__minute = 30,weekDay=today)
 		else:
-			currentPeriod = get_object_or_404(Period, parking = parking,is_active=True,startTime__hour = now.hour, startTime__minute = 0)
-		nextPeriods = Period.objects.all().filter(index__gte = currentPeriod.index,parking = parking).order_by('index')
-		if request.data['status'] == 'enter':
-			nextPeriods.update(capacity = F('capacity') - 1)
-		elif request.data['status'] == 'exit':
-			nextPeriods.update(capacity = F('capacity') + 1)
+			currentPeriod = get_object_or_404(Period, parking = parking,is_active=True,startTime__hour = now.hour, startTime__minute = 0,weekDay=today)
 		
-		partial = kwargs.pop('partial', False)
-		serializer = PeriodSerializer(nextPeriods,many = True)
+		partial = kwargs.pop('partial', True)
+		serializer = self.get_serializer(currentPeriod, data=request.data, partial=partial)
+		serializer.is_valid(raise_exception=True)
 
-		if getattr(nextPeriods, '_prefetched_objects_cache', None):
+		if getattr(currentPeriod, '_prefetched_objects_cache', None):
 			# If 'prefetch_related' has been applied to a queryset, we need to
 			# forcibly invalidate the prefetch cache on the instance.
-			nextPeriods._prefetched_objects_cache = {}
+			currentPeriod._prefetched_objects_cache = {}
 
 		return Response(serializer.data)
 
@@ -304,7 +293,9 @@ class ReservationListParking(generics.ListAPIView):
 	def get(self, request, *args, **kwargs):
 		owner = get_object_or_404(ParkingOwner, user = request.user)
 		parking = get_object_or_404(Parking, owner = owner, id = request.GET['parkingId'])
-		queryset = Reservation.objects.all().filter(parking = parking)
+		now = datetime.now()
+		now = now.replace(hour=now.hour-1)
+		queryset = Reservation.objects.all().filter(parking = parking,startTime__gt = now)
 
 		page = self.paginate_queryset(queryset)
 		if page is not None:

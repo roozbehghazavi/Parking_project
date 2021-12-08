@@ -269,20 +269,20 @@ class CommentChildCreate(generics.CreateAPIView):
 
 #Shows list of comments for a parking with id
 class CommentList(generics.ListCreateAPIView):
-    queryset = Comment.objects.all()
-    serializer_class = CommentSerializer
+	queryset = Comment.objects.all()
+	serializer_class = CommentSerializer
 
-    def get(self, request,*args, **kwargs):
-        parking = get_object_or_404(Parking, id = request.GET['id'])
-        queryset = Comment.objects.all().filter(parking = parking).order_by('-dateAdded')
+	def get(self, request,*args, **kwargs):
+		parking = get_object_or_404(Parking, id = request.GET['id'])
+		queryset = Comment.objects.all().filter(parking = parking).order_by('-dateAdded')
 
-        page = self.paginate_queryset(queryset)
-        if page is not None:
-            serializer = self.get_serializer(page, many=True)
-            return self.get_paginated_response(serializer.data)
+		page = self.paginate_queryset(queryset)
+		if page is not None:
+			serializer = self.get_serializer(page, many=True)
+			return self.get_paginated_response(serializer.data)
 
-        serializer = self.get_serializer(queryset, many=True)
-        return Response(serializer.data)
+		serializer = self.get_serializer(queryset, many=True)
+		return Response(serializer.data)
     
 
 ### Rating methods
