@@ -69,6 +69,7 @@ class Rate(models.Model):
 class Reservation(models.Model):
 	owner = models.ForeignKey(CarOwner, on_delete=models.CASCADE)
 	parking = models.ForeignKey(Parking, on_delete=models.CASCADE)
+	car = models.ForeignKey(Car, on_delete=models.CASCADE)
 	startTime = models.DateTimeField()
 	endTime = models.DateTimeField()
-	cost = models.IntegerField(default=0)
+	cost = models.FloatField(default=0)

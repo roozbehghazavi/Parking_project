@@ -14,9 +14,10 @@ from rest_framework import generics,status
 from django.shortcuts import get_object_or_404,get_list_or_404
 from .pagination import ParkingListPagination
 from django.utils import timezone
-from datetime import date, datetime
-from django.db.models import F
+from datetime import date, datetime, timedelta
+from django.db.models import F, Q
 from rest_framework import viewsets
+
 
 #########################################################################
 #------------------------ Parking related views ------------------------#
@@ -140,7 +141,6 @@ class ParkingDetail(APIView):
 		serializer = ParkingSerializer(instance)
 		return Response(serializer.data)
 
-
 #########################################################################
 #--------------------- ParkingOwner related views ----------------------#
 #########################################################################
@@ -220,7 +220,6 @@ class Validator(generics.CreateAPIView):
 
 		else:
 			return Response(serializer.data)
-
 
 class PeriodsList(generics.ListAPIView):
 	queryset = Period.objects.all()

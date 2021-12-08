@@ -38,21 +38,25 @@ class ParkingSerializer(serializers.ModelSerializer):
 
 	class Meta:
 		model = Parking
-		fields = ['id','owner','isPrivate','parkingName','location','parkingPhoneNumber','capacity','parkingPicture','rating','validationStatus','template']
+		fields = ['id','owner','isPrivate','parkingName','location','parkingPhoneNumber','capacity','parkingPicture','rating','validationStatus']
 
 	def create(self, validated_data):
 		parking = super().create(validated_data)
-		for i in range(48):
-			now = datetime.now()
-			if i % 2 == 0:
-				hour = int(i/2)
-				minute = 0
-			else:
-				hour = int((i-1)/2)
-				minute = 30
-			startTime = datetime(year=now.year,month=now.month,day=now.day,hour=hour,minute=minute)
-			endTime = startTime + timedelta(minutes=30)
-			Period.objects.create(capacity = parking.capacity,index = i+1,parking=parking,startTime = startTime,endTime = endTime).save()
+		now = datetime.now()
+		today = datetime.today().weekday()
+
+		if now.minute < 30:
+			startTime = datetime(year=now.year,month=now.month,day=now.day,hour=now.hour,minute=0)
+		else:
+			startTime = datetime(year=now.year,month=now.month,day=now.day,hour=now.hour,minute=30)
+
+		endTime = startTime + timedelta(minutes=30)
+		Period.objects.create(capacity = parking.capacity,parking=parking,startTime = startTime,endTime = endTime,weekDay = today).save()
+
+		for i in range(335):
+				startTime = startTime + timedelta(minutes=30)
+				endTime = startTime + timedelta(minutes=30)
+				Period.objects.create(capacity = parking.capacity,parking=parking,startTime = startTime,endTime = endTime,weekDay = startTime.weekday()).save()
 		return parking
 
 class ValidationSerializer(serializers.ModelSerializer):
@@ -74,4 +78,4 @@ class PeriodSerializer(serializers.ModelSerializer):
 
 	class Meta:
 		model = Period
-		fields = ('capacity','index','parking_id','duration','startTime','endTime','is_active')
+		fields = ('id','capacity','parking_id','duration','startTime','endTime','is_active','weekDay')

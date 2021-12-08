@@ -67,5 +67,4 @@ urlpatterns = [
     #reserve list for carowner
     path('reservelist/', ReservationListCarOwner.as_view()),
 
-
 ]
