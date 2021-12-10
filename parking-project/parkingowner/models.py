@@ -4,7 +4,6 @@ import datetime,time
 from django.utils import timezone
 from datetime import timedelta
 from django.contrib.postgres.fields import ArrayField
-import pytz
 
 # Create your models here.
 
@@ -36,14 +35,8 @@ class Parking(models.Model):
 	parkingPicture=models.ImageField(upload_to='parkingpictures/',blank=True)
 	rating = models.FloatField(default=0)
 	validationStatus = models.CharField(max_length=1, choices=CHOICES,default="I")
+	pricePerHour = models.IntegerField(default=0)
 
-
-	template = ArrayField(
-		ArrayField(
-			base_field=models.IntegerField(default=1)
-		),
-		size=7,blank=True,default=list
-	)
 
 	def __str__(self):
 		return self.parkingName
@@ -67,12 +60,12 @@ class Validation(models.Model):
 
 class Period(models.Model):
 	capacity = models.IntegerField(default=0)
-	index = models.IntegerField(default=0)
 	parking = models.ForeignKey(Parking, on_delete=models.CASCADE)
 	duration = models.DurationField(default=timedelta(hours=0.5))
 	startTime = models.DateTimeField()
 	endTime = models.DateTimeField()
+	weekDay = models.IntegerField(default=0)
 
-	is_active = models.BooleanField(default=True)
+	is_active = models.BooleanField(default=False)
 
 
