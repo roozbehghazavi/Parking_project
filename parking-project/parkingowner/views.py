@@ -43,16 +43,27 @@ class ParkingCreate(APIView):
 		else:
 			return Response(serializer.errors)
 
-#Edit parking information
+#Edit parking information & delete validation form if it's confirmed or pending.
 class ParkingUpdate(generics.RetrieveUpdateAPIView):
 	queryset = Parking.objects.all()
 	serializer_class = ParkingSerializer
 
 	def update(self, request, *args, **kwargs):
 		owner = get_object_or_404(ParkingOwner, user = request.user)
-		partial = kwargs.pop('partial', False)
+		partial = kwargs.pop('partial', True)
 		instance = get_object_or_404(Parking, id=request.data['id'],owner=owner)
 		instance.isvalid=False
+
+		if(instance.validationStatus=='V' or instance.validationStatus=='P'):
+			Pname=request.data['parkingName']
+			
+			if(Pname.strip().casefold()==instance.parkingName.casefold()):
+				pass
+			
+			else:
+				instance.validationStatus='I'
+				instance.save()
+				validation=get_object_or_404(Validation,parking=instance).delete()
 
 		if request.data.get('openAt') != None:
 			#Updating template
@@ -179,7 +190,7 @@ class Validator(generics.CreateAPIView):
 	def post(self,request,*args, **kwargs):		
 		owner = get_object_or_404(ParkingOwner, user = request.user)
 		parking = get_object_or_404(Parking,id=request.data['id'],owner=owner)
-		nationalCode_blacklist=['985']
+		nationalCode_blacklist=['0440833242','0228763243','01223454512']
 		#Call serializer
 		serializer=ValidationSerializer(data=request.data)
 
