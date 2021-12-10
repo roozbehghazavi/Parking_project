@@ -46,17 +46,12 @@ class CarOwnerSerializer(serializers.ModelSerializer):
 #Serializer For Car Model
 
 class CarSerializer(serializers.ModelSerializer):
-
-	ownerRole = serializers.CharField(source = 'owner.user.role',required = False, read_only = True)
-	ownerFirstName = serializers.CharField(source = 'owner.user.firstName',required = False)
-	ownerLastName = serializers.CharField(source = 'owner.user.lastName',required = False)
 	ownerEmail = serializers.EmailField(source = 'owner.user.email',required = False)
-	ownerProfilePhoto = serializers.ImageField(source = 'owner.user.profilePhoto', required = False)
 	pelak = serializers.CharField(min_length = 8,max_length=8)
 
 	class Meta:
 		model = Car 
-		fields = ['id','ownerRole','ownerFirstName','ownerLastName','ownerEmail','ownerProfilePhoto','carName', 'pelak', 'color']
+		fields = ['id','ownerEmail','carName', 'pelak', 'color']
 	
 	
 		
@@ -100,14 +95,16 @@ class CommentChildSerializer(serializers.ModelSerializer):
 #Serializer for reservation
 class ReservationSerializer(serializers.ModelSerializer):
 
-	owner_id = serializers.IntegerField(source = "owner.id",required = False)
-	parking_id = serializers.IntegerField(source = "parking.id",required = False)
+	owner_email = serializers.CharField(source = "owner.user.email",required = False)
+	parking_name = serializers.CharField(source = "parking.parkingName",required = False)
+	car_name = serializers.CharField(source = "car.carName",required = False)
+	car_color = serializers.CharField(source = "car.color",required = False)
 	startTime = serializers.DateTimeField(required = False)
 	endTime = serializers.DateTimeField(required = False)
 
 
 	class Meta:
 		model = Reservation
-		fields = ('id','owner_id', 'parking_id', 'car_id','startTime', 'endTime', 'cost')
+		fields = ('id','owner_email', 'parking_name', 'car_name','car_color','startTime', 'endTime', 'cost')
 
 
