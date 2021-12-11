@@ -233,6 +233,8 @@ class Validator(generics.CreateAPIView):
 		else:
 			return Response(serializer.data)
 
+#shows and updates period list of a parking
+#it should be called every 30 minutes !
 class PeriodsList(generics.ListAPIView):
 	queryset = Period.objects.all()
 	serializer_class = PeriodSerializer
@@ -263,6 +265,8 @@ class PeriodsList(generics.ListAPIView):
 		return Response(serializer.data)
 
 
+
+#changes the capacity of a parking manually with status in body
 class ManualEnterOrExit(generics.UpdateAPIView):
 	queryset = Period.objects.all()
 	serializer_class = PeriodSerializer
@@ -306,7 +310,27 @@ class ReservationListParking(generics.ListAPIView):
 		parking = get_object_or_404(Parking, owner = owner, id = request.GET['parkingId'])
 		now = datetime.now()
 		now = now.replace(hour=now.hour-1)
-		queryset = Reservation.objects.all().filter(parking = parking,startTime__gt = now)
+		queryset = Reservation.objects.all().filter(parking = parking,startTime__gte = now)
+
+		page = self.paginate_queryset(queryset)
+		if page is not None:
+			serializer = self.get_serializer(page, many=True)
+			return self.get_paginated_response(serializer.data)
+
+		serializer = self.get_serializer(queryset, many=True)
+		return Response(serializer.data)
+
+
+#returns the list of passed reservations of a parking for the logged in ParkingOwner
+class PassedReservationListParking(generics.ListAPIView):
+	queryset = Reservation.objects.all()
+	serializer_class = ReservationSerializer
+
+	def get(self, request, *args, **kwargs):
+		owner = get_object_or_404(ParkingOwner, user = request.user)
+		parking = get_object_or_404(Parking, owner = owner, id = request.GET['parkingId'])
+		now = datetime.now()
+		queryset = Reservation.objects.all().filter(parking = parking,endTime__lte = now)
 
 		page = self.paginate_queryset(queryset)
 		if page is not None:

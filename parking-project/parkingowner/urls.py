@@ -1,6 +1,6 @@
 from django.urls import path , include
 
-from .views import ReservationListParking,ManualEnterOrExit,ParkingDetail,ParkingCreate,ParkingDelete,ParkingList,ParkingDetail,ParkingOwnerDetail,ParkingOwnerUpdate,ParkingOwnerList,ParkingUpdate, PeriodsList,Validator
+from .views import PassedReservationListParking, ReservationListParking,ManualEnterOrExit,ParkingDetail,ParkingCreate,ParkingDelete,ParkingList,ParkingDetail,ParkingOwnerDetail,ParkingOwnerUpdate,ParkingOwnerList,ParkingUpdate, PeriodsList,Validator
 
 
 urlpatterns = [
@@ -26,4 +26,7 @@ urlpatterns = [
     path('manualexitorenter/', ManualEnterOrExit.as_view()),
     #Reservation list for parking owner
     path('reservelist/', ReservationListParking.as_view()),
+    #Passed reservation list for parking owner
+    path('passedreservelist/', PassedReservationListParking.as_view()),
+
 ]

@@ -70,6 +70,7 @@ class Reservation(models.Model):
 	owner = models.ForeignKey(CarOwner, on_delete=models.CASCADE)
 	parking = models.ForeignKey(Parking, on_delete=models.CASCADE)
 	car = models.ForeignKey(Car, on_delete=models.CASCADE)
+	trackingCode = models.IntegerField(default=0)
 	startTime = models.DateTimeField()
 	endTime = models.DateTimeField()
 	cost = models.FloatField(default=0)

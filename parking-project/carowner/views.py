@@ -398,7 +398,7 @@ class ReservationCreate(generics.CreateAPIView):
 		else:
 			return filledPeriods
 
-#returns the list of reservations for the logged in carowner
+#returns the list of reservations for the logged in carowner from now on
 class ReservationListCarOwner(generics.ListAPIView):
 	queryset = Reservation.objects.all()
 	serializer_class = ReservationSerializer
@@ -406,7 +406,26 @@ class ReservationListCarOwner(generics.ListAPIView):
 	def get(self, request, *args, **kwargs):
 		owner = get_object_or_404(CarOwner, user = request.user)
 		now = datetime.now()
-		queryset = Reservation.objects.all().filter(owner = owner,startTime__gte = now)
+		queryset = Reservation.objects.all().filter(owner = owner,endTime__gte = now).order_by('startTime')
+
+		page = self.paginate_queryset(queryset)
+		if page is not None:
+			serializer = self.get_serializer(page, many=True)
+			return self.get_paginated_response(serializer.data)
+
+		serializer = self.get_serializer(queryset, many=True)
+		return Response(serializer.data)
+
+
+#returns the list of passed reservations for the logged in carowner
+class PassedReservationListCarOwner(generics.ListAPIView):
+	queryset = Reservation.objects.all()
+	serializer_class = ReservationSerializer
+
+	def get(self, request, *args, **kwargs):
+		owner = get_object_or_404(CarOwner, user = request.user)
+		now = datetime.now()
+		queryset = Reservation.objects.all().filter(owner = owner,endTime__lte = now).order_by('startTime')
 
 		page = self.paginate_queryset(queryset)
 		if page is not None:
