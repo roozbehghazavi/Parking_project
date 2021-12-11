@@ -99,12 +99,13 @@ class ReservationSerializer(serializers.ModelSerializer):
 	parking_name = serializers.CharField(source = "parking.parkingName",required = False)
 	car_name = serializers.CharField(source = "car.carName",required = False)
 	car_color = serializers.CharField(source = "car.color",required = False)
+	car_pelak = serializers.CharField(source = "car.pelak",required = False)
 	startTime = serializers.DateTimeField(required = False)
 	endTime = serializers.DateTimeField(required = False)
 
 
 	class Meta:
 		model = Reservation
-		fields = ('id','owner_email', 'parking_name', 'car_name','car_color','startTime', 'endTime', 'cost')
+		fields = ('id','owner_email', 'parking_name', 'car_name','car_color','car_pelak','startTime', 'endTime', 'cost')
 
 
