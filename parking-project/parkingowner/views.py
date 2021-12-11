@@ -54,16 +54,17 @@ class ParkingUpdate(generics.RetrieveUpdateAPIView):
 		instance = get_object_or_404(Parking, id=request.data['id'],owner=owner)
 		instance.isvalid=False
 
-		if(instance.validationStatus=='V' or instance.validationStatus=='P'):
-			Pname=request.data['parkingName']
-			
-			if(Pname.strip().casefold()==instance.parkingName.casefold()):
-				pass
-			
-			else:
-				instance.validationStatus='I'
-				instance.save()
-				validation=get_object_or_404(Validation,parking=instance).delete()
+		if request.data.get('parkingName') != None:
+			if(instance.validationStatus=='V' or instance.validationStatus=='P'):
+				Pname=request.data['parkingName']
+				
+				if(Pname.strip().casefold()==instance.parkingName.casefold()):
+					pass
+				
+				else:
+					instance.validationStatus='I'
+					instance.save()
+					validation=get_object_or_404(Validation,parking=instance).delete()
 
 		if request.data.get('openAt') != None:
 			#Updating template
