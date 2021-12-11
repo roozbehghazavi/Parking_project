@@ -296,3 +296,22 @@ class ManualEnterOrExit(generics.UpdateAPIView):
 		return Response(serializer.data)
 
 
+#returns the list of reservations of a parking for the logged in ParkingOwner
+class ReservationListParking(generics.ListAPIView):
+	queryset = Reservation.objects.all()
+	serializer_class = ReservationSerializer
+
+	def get(self, request, *args, **kwargs):
+		owner = get_object_or_404(ParkingOwner, user = request.user)
+		parking = get_object_or_404(Parking, owner = owner, id = request.GET['parkingId'])
+		now = datetime.now()
+		now = now.replace(hour=now.hour-1)
+		queryset = Reservation.objects.all().filter(parking = parking,startTime__gt = now)
+
+		page = self.paginate_queryset(queryset)
+		if page is not None:
+			serializer = self.get_serializer(page, many=True)
+			return self.get_paginated_response(serializer.data)
+
+		serializer = self.get_serializer(queryset, many=True)
+		return Response(serializer.data)
