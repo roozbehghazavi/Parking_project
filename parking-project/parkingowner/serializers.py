@@ -35,6 +35,7 @@ class ParkingSerializer(serializers.ModelSerializer):
 	parkingName = serializers.CharField(required = False)
 	location = serializers.CharField(required = False)
 	parkingPhoneNumber = serializers.CharField(required = False)
+	isPrivate = serializers.BooleanField(read_only=True)
 
 	class Meta:
 		model = Parking
