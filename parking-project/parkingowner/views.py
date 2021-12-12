@@ -54,11 +54,16 @@ class ParkingUpdate(generics.RetrieveUpdateAPIView):
 		instance = get_object_or_404(Parking, id=request.data['id'],owner=owner)
 		instance.isvalid=False
 
-		if request.data.get('parkingName') != None:
+		#if parking name or parking location changes then validation form will be deleted.
+		if(request.data.get('parkingName') != None or request.data.get('location') != None):
 			if(instance.validationStatus=='V' or instance.validationStatus=='P'):
+
 				Pname=request.data['parkingName']
-				
-				if(Pname.strip().casefold()==instance.parkingName.casefold()):
+				Ploc=request.data['location']
+
+				#if there is an extra space or Capital letter in update form, then validation will not expire.
+				if(Pname.strip().casefold()==instance.parkingName.casefold() or 
+				Ploc.strip().casefold()==instance.location.casefold()):
 					pass
 				
 				else:
@@ -149,8 +154,8 @@ class ParkingDetail(APIView):
 	
 	def get(self, request,*args, **kwargs):
 		owner = get_object_or_404(ParkingOwner, user = request.user)
-		instance = get_object_or_404(Parking, id = request.GET['id'], owner = owner)
-		serializer = ParkingSerializer(instance)
+		parking = get_object_or_404(Parking, id = request.GET['id'], owner = owner)
+		serializer = ParkingSerializer(parking)
 		return Response(serializer.data)
 
 #########################################################################
@@ -195,16 +200,30 @@ class Validator(generics.CreateAPIView):
 	queryset=Validation.objects.all()
 	serializer_class=ValidationSerializer
 
+	def _get_queryset(klass):
+		if hasattr(klass, '_default_manager'):
+			return klass._default_manager.all()
+		return klass
+
+	def get_object_or_404(klass, *args, **kwargs):
+		queryset = Validator._get_queryset(klass)
+		if not hasattr(queryset, 'get'):
+			klass__name = klass.__name__ if isinstance(klass, type) else klass.__class__.__name__
+			raise ValueError(
+				"First argument to get_object_or_404() must be a Model, Manager, "
+				"or QuerySet, not '%s'." % klass__name
+			)
+		try:
+			return queryset.get(*args, **kwargs)
+		except queryset.model.DoesNotExist:
+			return "Does not exist"
+
 	def post(self,request,*args, **kwargs):		
 		owner = get_object_or_404(ParkingOwner, user = request.user)
 		parking = get_object_or_404(Parking,id=request.data['id'],owner=owner)
-		nationalCode_blacklist=['0440833242','0228763243','01223454512']
+		
 		#Call serializer
 		serializer=ValidationSerializer(data=request.data)
-
-		
-		if(request.data['nationalCode'] in nationalCode_blacklist):
-			return Response({"message" : "This national code is restricted"})
 
 		#Save data if it's valid
 		if(serializer.is_valid()):
@@ -220,18 +239,37 @@ class Validator(generics.CreateAPIView):
 	def get(self, request, *args, **kwargs):
 		owner = get_object_or_404(ParkingOwner, user = request.user)
 		parking = get_object_or_404(Parking, id = request.GET['id'], owner = owner)
-		validation=get_object_or_404(Validation,parking=parking)
-		time=datetime.now(timezone.utc)-validation.time_Added
-		serializer = self.get_serializer(validation)
-		print(time.total_seconds())
-		
-		if(time.total_seconds()>30): 
-			parking.validationStatus="V"
-			parking.save()
-			return Response(serializer.data)
+		# validation=get_object_or_404(Validation,parking=parking)
+		# time=datetime.now(timezone.utc)-validation.time_Added
+		# serializer = self.get_serializer(validation)
+		nationalCode_blacklist=['0440833242','0228763243','01223454512','0333453823']
+		# print(time.total_seconds())
 
+		if(Validator.get_object_or_404(Validation,parking=parking)!="Does not exist"):
+			
+			validation=get_object_or_404(Validation,parking=parking)
+			serializer = ValidationSerializer(validation)
+			time=datetime.now(timezone.utc)-validation.time_Added
+			print(time.total_seconds())
+
+			if(time.total_seconds()>30):
+
+				if(validation.nationalCode in nationalCode_blacklist):
+					parking.validationStatus="I"
+					parking.save()
+					validation=get_object_or_404(Validation,parking=parking).delete()
+					return Response(serializer.data)
+				else:
+					parking.validationStatus="V"
+					parking.save()
+					return Response(serializer.data)
+
+			else:
+				return Response(serializer.data)
+		
 		else:
-			return Response(serializer.data)
+			serializer2=ParkingSerializer(parking)
+			return Response(serializer2.data)
 
 #shows and updates period list of a parking
 #it should be called every 30 minutes !

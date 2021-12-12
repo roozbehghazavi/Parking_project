@@ -364,7 +364,10 @@ class ReservationCreate(generics.CreateAPIView):
 			duration = ((endTime - startTime).total_seconds())/60
 			pricePerMin = parking.pricePerHour/60
 			cost = round(duration * pricePerMin,1)
-			serializer.save(owner = owner,parking=parking,startTime=startTime,endTime=endTime,cost = cost,car = car)
+			trackingCode = 0
+			if Reservation.objects.filter(parking=parking).count() > 0:
+				trackingCode = Reservation.objects.filter(parking=parking).count()
+			serializer.save(owner = owner,parking=parking,startTime=startTime,endTime=endTime,cost = cost,car = car,trackingCode=trackingCode)
 			headers = self.get_success_headers(serializer.data)
 			return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
 
