@@ -54,11 +54,16 @@ class ParkingUpdate(generics.RetrieveUpdateAPIView):
 		instance = get_object_or_404(Parking, id=request.data['id'],owner=owner)
 		instance.isvalid=False
 
-		if request.data.get('parkingName') != None:
+		#if parking name or parking location changes then validation form will be deleted.
+		if(request.data.get('parkingName') != None or request.data.get('location') != None):
 			if(instance.validationStatus=='V' or instance.validationStatus=='P'):
+
 				Pname=request.data['parkingName']
-				
-				if(Pname.strip().casefold()==instance.parkingName.casefold()):
+				Ploc=request.data['location']
+
+				#if there is an extra space or Capital letter in update form, then validation will not expire.
+				if(Pname.strip().casefold()==instance.parkingName.casefold() or 
+				Ploc.strip().casefold()==instance.location.casefold()):
 					pass
 				
 				else:
