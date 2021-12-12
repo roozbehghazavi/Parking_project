@@ -106,6 +106,6 @@ class ReservationSerializer(serializers.ModelSerializer):
 
 	class Meta:
 		model = Reservation
-		fields = ('id','owner_email', 'parking_name', 'car_name','car_color','car_pelak','startTime', 'endTime', 'cost')
+		fields = ('id','trackingCode','owner_email', 'parking_name', 'car_name','car_color','car_pelak','startTime', 'endTime', 'cost')
 
 
