@@ -39,7 +39,7 @@ class ParkingSerializer(serializers.ModelSerializer):
 
 	class Meta:
 		model = Parking
-		fields = ['id','owner','isPrivate','parkingName','location','parkingPhoneNumber','capacity','parkingPicture','rating','validationStatus']
+		fields = ['id','owner','isPrivate','parkingName','location','parkingPhoneNumber','capacity','parkingPicture','rating','validationStatus','pricePerHour']
 
 	def create(self, validated_data):
 		parking = super().create(validated_data)
