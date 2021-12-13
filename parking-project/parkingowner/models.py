@@ -66,6 +66,6 @@ class Period(models.Model):
 	endTime = models.DateTimeField()
 	weekDay = models.IntegerField(default=0)
 
-	is_active = models.BooleanField(default=False)
+	is_active = models.BooleanField(default=True)
 
 
