@@ -62,14 +62,15 @@ class ParkingUpdate(generics.RetrieveUpdateAPIView):
 				Ploc=request.data['location']
 
 				#if there is an extra space or Capital letter in update form, then validation will not expire.
-				if(Pname.strip().casefold()==instance.parkingName.casefold() or 
-				Ploc.strip().casefold()==instance.location.casefold()):
-					pass
-				
-				else:
+				if(Pname.strip().casefold()!=instance.parkingName.casefold() or 
+				Ploc.strip().casefold()!=instance.location.casefold()):
 					instance.validationStatus='I'
 					instance.save()
 					validation=get_object_or_404(Validation,parking=instance).delete()
+				
+				else:
+					pass
+
 
 		if request.data.get('openAt') != None:
 			#Updating template
