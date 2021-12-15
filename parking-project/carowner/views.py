@@ -444,6 +444,7 @@ class PassedReservationListCarOwner(generics.ListAPIView):
 class ParkingSearch(generics.ListAPIView):
 	queryset = Parking.objects.all()
 	serializer_class = ParkingSerializer
+	pagination_class = CarOwnerPagination
 	filter_backends = [filters.SearchFilter,filters.OrderingFilter]
 	search_fields = ['parkingName', 'location']
 	ordering_fields = '__all__'
