@@ -18,6 +18,7 @@ import json
 import requests
 from datetime import date, datetime
 from rest_framework.views import APIView
+from rest_framework import filters
 # Create your views here.
 
 
@@ -126,15 +127,15 @@ class CarList(generics.ListAPIView):
 
 #Returns Detail of a Car by id owned by the logged in CarOwner
 class CarDetail(generics.RetrieveAPIView):
-    # API endpoint that returns a single customer by pk.
-    queryset = Car.objects.all()
-    serializer_class = CarSerializer
+	# API endpoint that returns a single customer by pk.
+	queryset = Car.objects.all()
+	serializer_class = CarSerializer
 
-    def get(self, request, *args, **kwargs):
-        owner = get_object_or_404(CarOwner, user = request.user)
-        instance = get_object_or_404(Car, id = request.GET['id'], owner = owner)
-        serializer = self.get_serializer(instance)
-        return Response(serializer.data)
+	def get(self, request, *args, **kwargs):
+		owner = get_object_or_404(CarOwner, user = request.user)
+		instance = get_object_or_404(Car, id = request.GET['id'], owner = owner)
+		serializer = self.get_serializer(instance)
+		return Response(serializer.data)
 
 
 #Update a Car by id owned by the logged in CarOwner
@@ -437,3 +438,12 @@ class PassedReservationListCarOwner(generics.ListAPIView):
 
 		serializer = self.get_serializer(queryset, many=True)
 		return Response(serializer.data)
+
+
+#Search through parkings by parkingName and location using query params search 
+class ParkingSearch(generics.ListAPIView):
+	queryset = Parking.objects.all()
+	serializer_class = ParkingSerializer
+	filter_backends = [filters.SearchFilter,filters.OrderingFilter]
+	search_fields = ['parkingName', 'location']
+	ordering_fields = '__all__'
