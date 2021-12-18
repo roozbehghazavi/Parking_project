@@ -1,0 +1,52 @@
+.soheil-table-head {
+    margin: 10px;
+    background-color: aliceblue;
+  }
+  .soheil-table {
+    margin-top: 20%;
+    margin-right: 3%;
+    margin-left: 22px;
+  }
+  
+  .reserve-table {
+    min-height: 100vh;
+    min-width: 100vw;
+    background-position: center;
+    background-size: cover;
+    justify-content: center; 
+    background-repeat: no-repeat;
+    background: linear-gradient(-45deg,#9970ceac,#bf8ffd92,#84a1f9ab,#e7eaf9c7);
+    -webkit-background-size: cover;
+    -moz-background-size: cover;
+    -o-background-size: cover;
+  }
+  
+  @media screen and (min-width: 900px) {
+    .soheil-table {
+      margin-right: 28%;
+      margin-left: 10%;
+      margin-top: 10%;
+    }
+    .reserve-table {
+      min-height: 100vh;
+      min-width: 100vw;
+      background-position: center;
+      background-size: cover;
+      display: flex;
+      justify-content: center; 
+      background-repeat: no-repeat;
+      background: linear-gradient(-45deg,#9970ceac,#bf8ffd92,#84a1f9ab,#e7eaf9c7);
+      -webkit-background-size: cover;
+      -moz-background-size: cover;
+      -o-background-size: cover;
+    }
+  }
+  
+  @font-face {
+    font-family: 'iransans';
+    src: url(./../fonts/IRANSansWeb.ttf) format('truetype');
+  }
+  
+  * {
+    font-family:'iransans';
+  }

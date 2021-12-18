@@ -1,0 +1,129 @@
+/**********************************************************************************************/
+/*------------------------------------------- General ----------------------------------------*/
+/**********************************************************************************************/
+
+.c-regpar {
+    background: linear-gradient(-45deg,#9970ceac,#bf8ffd92,#84a1f9ab,#e7eaf9c7);
+    min-width: 100%;
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    background-repeat: no-repeat;
+    background-size: cover;
+    background-position: center;
+  }
+
+.two_main_cols2{
+    padding: 2% !important;
+    border-radius: 1%;
+    box-shadow: 0 3px 20px 0px rgba(0, 0, 0, 0.1);
+    -moz-box-shadow: 0 3px 20px 0px rgba(0, 0, 0, 0.1);
+    -webkit-box-shadow: 0 3px 20px 0px rgba(0, 0, 0, 0.1);
+    -o-box-shadow: 0 3px 20px 0px rgba(0, 0, 0, 0.1);
+    -ms-box-shadow: 0 3px 20px 0px rgba(0, 0, 0, 0.1);
+  }
+
+.newAlignMent{
+    margin-top: 22%;   
+}
+
+
+/**********************************************************************************************/
+/*------------------------------------------- Image ------------------------------------------*/
+/**********************************************************************************************/
+
+.pic_class2{
+    border-radius: 6%;
+    width: 100vw;
+    height: 35vh;
+    padding: 2%!important;
+}
+
+/**********************************************************************************************/
+/*------------------------------------------ Button ------------------------------------------*/
+/**********************************************************************************************/
+
+.bton_class2{
+    margin-top: -25% !important;
+    margin-left: 55% !important;
+ 
+
+    align-items: center;
+    padding: 0 20px;
+    min-width: 120px;
+    height: 30px;
+    background-color: #6d6d6e;
+    border-radius: 10px;
+  
+    font-family: 'iransans';
+    font-size: 14px;
+    color: #fff;
+    line-height: 1.2;
+
+    -webkit-transition: all 0.4s;
+    -o-transition: all 0.4s;
+    -moz-transition: all 0.4s;
+    transition: all 0.4s;
+    opacity: 70%;
+
+    z-index: 1000;
+}
+
+.bton_class2:hover{
+    color: white !important;
+    background-color: grey !important;
+}
+
+/**********************************************************************************************/
+/*------------------------------- Media Query for Big Screens --------------------------------*/
+/**********************************************************************************************/
+
+@media screen and (min-width:600px) {
+    .pic_class2 {
+        width: 40vw;
+        height: 40vh;
+        padding: 2% !important;
+    }
+
+    .two_main_cols2{
+        padding: 0% !important;
+        border-radius: 1%;
+        box-shadow: 0 3px 20px 0px rgba(0, 0, 0, 0.1);
+        -moz-box-shadow: 0 3px 20px 0px rgba(0, 0, 0, 0.1);
+        -webkit-box-shadow: 0 3px 20px 0px rgba(0, 0, 0, 0.1);
+        -o-box-shadow: 0 3px 20px 0px rgba(0, 0, 0, 0.1);
+        -ms-box-shadow: 0 3px 20px 0px rgba(0, 0, 0, 0.1);
+    }
+
+    .bton_class2{
+        margin-top: -18% !important;
+        margin-left: 68% !important;
+     
+    
+        align-items: center;
+        padding: 0 20px;
+        min-width: 120px;
+        height: 30px;
+        background-color: #6d6d6e;
+        border-radius: 10px;
+      
+        font-family: 'iransans';
+        font-size: 14px;
+        color: #fff;
+        line-height: 1.2;
+    
+        -webkit-transition: all 0.4s;
+        -o-transition: all 0.4s;
+        -moz-transition: all 0.4s;
+        transition: all 0.4s;
+        opacity: 70%;
+    
+        z-index: 1000;
+    }
+
+    .newAlignMent{
+        margin-top: 8%;
+        margin-right: 17%;
+        
+    }
+  }

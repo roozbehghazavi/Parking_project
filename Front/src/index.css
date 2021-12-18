@@ -1,0 +1,61 @@
+/* * {
+  margin: 0 !important;
+  padding: 0 !important;
+  font-size: 16px;
+  box-sizing: border-box !important;
+  direction: rtl;
+} */
+/* body,
+html {
+  height: 100% !important;
+} */
+
+/* ----------------SWEET ALERT STYLES------------ */
+
+.swal-modal {
+  background-color: rgb(255, 255, 255);
+  border: 15px solid white;
+  height: 220px;
+  text-align: center;
+  justify-content: center;
+  align-items: center;
+}
+.swal-footer {
+  text-align: center;
+  justify-content: center;
+}
+.swal-header {
+  text-align: center;
+  justify-content: center;
+}
+.swal-button {
+  padding: 7px 19px;
+  border-radius: 2px;
+  background-color: #695ce3;
+  font-size: 12px;
+  border-radius: 10px;
+  border: 1px solid #695ce3;
+  text-shadow: 0px -1px 0px rgba(0, 0, 0, 0.3);
+  width: 100px;
+  margin: -19px;
+}
+.swal-title {
+  margin: 0px;
+  font-size: 38px;
+  box-shadow: 0px 1px 1px rgba(0, 0, 0, 0.21);
+  margin-bottom: 28px;
+}
+.swal-text {
+  font-size: 16px;
+  text-align: right;
+  direction: rtl;
+}
+/* ----------------SWEET ALERT STYLES------------ */
+@font-face {
+  font-family: "iransans";
+  src: url(./fonts/IRANSansWeb.ttf) format("truetype");
+}
+@font-face {
+  font-family: "titrzebr";
+  src: url(./fonts/TitrZebr.ttf) format("truetype");
+}

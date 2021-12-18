@@ -1,0 +1,90 @@
+.flex-container {
+  display: flex;
+  background: none;
+  float: center;
+}
+.wrapper {
+  width: 100%;
+  margin: 0 auto;
+}
+.box {
+  justify-content: center;
+  background: none;
+}
+.F1 {
+  background: none;
+  flex-grow: 1;
+}
+.F2 {
+  background: none;
+  flex-grow: 5;
+}
+.F3 {
+  background: none;
+  flex-grow: 1;
+}
+.F5 {
+  background: none;
+  flex-grow: 1;
+}
+.F4 {
+  background: none;
+  flex-grow: 1;
+}
+.firstName {
+  flex-grow: 2;
+}
+
+.LastName {
+  flex-grow: 2;
+}
+.space {
+  width: 100px;
+  background: black;
+}
+.EditTitle {
+  color: black;
+}
+
+.inputdata {
+  border-radius: 100px;
+  /* width: 300px; */
+  font-family: 'iransans';
+  font-size: 14px;
+}
+.InfoTitle {
+  font-family: 'iransans';
+  font-size: 50px;
+  color: black;
+}
+.T2 {
+  font-family: 'iransans';
+}
+.container-EditInfo {
+  width: 100%;
+  height: 100%;
+  min-height: 100vh;
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: -moz-box;
+  display: -ms-flexbox;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: center;
+  padding: auto;
+  background-image: url(../images/back5.png);
+  background-repeat: no-repeat;
+  background-size: cover;
+  background-position: center;
+  position: relative;
+  z-index: 1;
+}
+.SubmitBtn {
+  background: none;
+}
+.SB {
+  background: none;
+}
+
+/* --------------------------------2-------------------------------- */

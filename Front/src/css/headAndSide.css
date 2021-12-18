@@ -1,0 +1,17 @@
+.headergradient {
+  background: #706bec;
+}
+
+.activetab {
+  background-color: #e7eaf9c7 !important;
+  color: white !important;
+}
+.activenestedtab {
+  background: linear-gradient(
+    -45deg,
+    #9970ceac,
+    #bf8ffd92,
+    #84a1f9ab,
+    #e7eaf9c7
+  );
+}

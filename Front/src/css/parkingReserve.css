@@ -1,0 +1,14 @@
+.reserve-po {
+  background: linear-gradient(
+    -45deg,
+    #9970ceac,
+    #bf8ffd92,
+    #84a1f9ab,
+    #e7eaf9c7
+  );
+
+  font-family: "iransans";
+  height: 100vh;
+  min-height: 800px;
+  overflow-y: hidden;
+}

@@ -1,0 +1,138 @@
+/* 
+.nargesmaindiv{
+    background-color: black;
+    background: #fff;
+    border-radius: 10px;
+    overflow: hidden;
+    position: relative;
+    box-shadow: 20px 20px 20px 20px rgba(109, 96, 96, 0.1);
+  }
+    .nargesbt2nvalidation {
+      padding: 0 25px;
+      min-width: 130px;
+      height: 30px;
+      background-color: #dcdf55;
+      border-radius: 25px;
+    
+      font-family: 'iransans';
+      font-size: 14px;
+      color: #fff;
+      line-height: 1.2;
+      text-transform: uppercase;
+    
+      -webkit-transition: all 0.4s;
+      -o-transition: all 0.4s;
+      -moz-transition: all 0.4s;
+      transition: all 0.4s;
+    
+      box-shadow: 0 10px 30px 0px rgba(133, 151, 52, 0.5);
+      -moz-box-shadow: 0 10px 30px 0px rgba(133, 151, 52, 0.5);
+      -webkit-box-shadow: 0 10px 30px 0px rgba(133, 151, 52, 0.5);
+      -o-box-shadow: 0 10px 30px 0px rgba(133, 151, 52, 0.5);
+      -ms-box-shadow: 0 10px 30px 0px rgba(133, 151, 52, 0.5);
+    }
+    .nargesbt3nvalidation {
+      padding: 0 20px;
+      min-width: 130px;
+      height: 30px;
+      background-color: #36b33c;
+      border-radius: 25px;
+    
+      font-family: 'iransans';
+      font-size: 14px;
+      color: #fff;
+      line-height: 1.2;
+      text-transform: uppercase;
+    
+      -webkit-transition: all 0.4s;
+      -o-transition: all 0.4s;
+      -moz-transition: all 0.4s;
+      transition: all 0.4s;
+    
+      box-shadow: 0 10px 30px 0px rgba(70, 138, 44, 0.5);
+      -moz-box-shadow: 0 10px 30px 0px rgba(70, 138, 44, 0.5);
+      -webkit-box-shadow: 0 10px 30px 0px rgba(70, 138, 44, 0.5);
+      -o-box-shadow: 0 10px 30px 0px rgba(70, 138, 44, 0.5);
+      -ms-box-shadow: 0 10px 30px 0px rgba(70, 138, 44, 0.5);
+    }
+    .nargesbt4nvalidation {
+      padding: 0 25px;
+      min-width: 130px;
+      height: 30px;
+      background-color: #a82c2c;
+      border-radius: 25px;
+    
+      font-family: 'iransans';
+      font-size: 14px;
+      color: #fff;
+      line-height: 1.2;
+      text-transform: uppercase;
+    
+      -webkit-transition: all 0.4s;
+      -o-transition: all 0.4s;
+      -moz-transition: all 0.4s;
+      transition: all 0.4s;
+    
+      box-shadow: 0 10px 30px 0px rgb(73, 17, 17);
+      -moz-box-shadow: 0 10px 30px 0px rgba(73, 17, 17);
+      -webkit-box-shadow: 0 10px 30px 0px rgba(73, 17, 17);
+      -o-box-shadow: 0 10px 30px 0px rgba(73, 17, 17);
+      -ms-box-shadow: 0 10px 30px 0px rgba(73, 17, 17);
+    }
+
+  .cardvalidation {
+    overflow: hidden;
+    -webkit-border-radius: 3px;
+    -moz-border-radius: 3px;
+    border-radius: 3px;
+    background: #fff;
+  }
+  
+  .card-2-narges {
+    -webkit-box-shadow: 0px 8px 20px 0px rgba(0, 0, 0, 0.15);
+    -moz-box-shadow: 0px 8px 20px 0px rgba(0, 0, 0, 0.15);
+    box-shadow: 0px 8px 20px 0px rgba(0, 0, 0, 0.15);
+    -webkit-border-radius: 10px;
+    -moz-border-radius: 10px;
+    border-radius: 10px;
+    width: 100%;
+    min-width: 600px;
+    min-height: 400px;
+    display: table;
+  }
+  
+  .card-2-narges .card-heading-validation-narges {
+    background: url("../images/bg-heading-02.jpg") top left/cover no-repeat;
+    width: 40%;
+    display: table-cell;
+  }
+  
+  .card-2-narges .card-body-validation-narges {
+    display: table-cell;
+  } */
+/*   
+  @media (max-width: 767px) {
+    .card-2-narges {
+      display: block;
+    }
+    .card-2-narges .card-heading-validation-narges {
+      width: 100%;
+      display: block;
+      background-position: left center;
+    }
+    .card-2-narges .card-body-validation-narges {
+      display: block;
+    }
+  }
+   */
+.input-validation-narges {
+  font-family: "iransans";
+  border-radius: 30%;
+}
+
+/* comment : for validation2 */
+.SecondDiv {
+  background-color: rgba(255, 255, 255, 0.543);
+  border-radius: 5px;
+  min-width: 400px;
+}

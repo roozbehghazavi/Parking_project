@@ -1,0 +1,207 @@
+/**********************************************************************************************/
+/*------------------------------------------- General ----------------------------------------*/
+/**********************************************************************************************/
+
+.c-regcar {
+  background: linear-gradient(-45deg,#9970ceac,#bf8ffd92,#84a1f9ab,#e7eaf9c7);
+  min-width: 100%;
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  background-repeat: no-repeat;
+  background-size: cover;
+  background-position: center;
+  }
+
+  .newAlignMent{
+    margin-top: 22%;   
+  }
+
+  /* .soheilFormStyle{
+    background-color: rgba(255, 255, 255, 0.543);
+    border-radius: 5px;
+    min-width: 400px;
+  } */
+  
+  /**********************************************************************************************/
+  /*------------------------------------------- Button -----------------------------------------*/
+  /**********************************************************************************************/
+  
+  .cntr-regCar-frm-bton {
+    width: 100%;
+    display: -webkit-box;
+    display: -webkit-flex;
+    display: -moz-box;
+    display: -ms-flexbox;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+  
+  .regCar-frm-bton {
+    display: -webkit-box;
+    display: -webkit-flex;
+    display: -moz-box;
+    display: -ms-flexbox;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 0 20px;
+    min-width: 160px;
+    height: 50px;
+    background-color: #bd59d4;
+    border-radius: 25px;
+  
+    font-family: 'iransans';
+    font-size: 14px;
+    color: #fff;
+    line-height: 1.2;
+    text-transform: uppercase;
+  
+    -webkit-transition: all 0.4s;
+    -o-transition: all 0.4s;
+    -moz-transition: all 0.4s;
+    transition: all 0.4s;
+  
+    box-shadow: 0 10px 30px 0px rgba(189, 89, 212, 0.5);
+    -moz-box-shadow: 0 10px 30px 0px rgba(189, 89, 212, 0.5);
+    -webkit-box-shadow: 0 10px 30px 0px rgba(189, 89, 212, 0.5);
+    -o-box-shadow: 0 10px 30px 0px rgba(189, 89, 212, 0.5);
+    -ms-box-shadow: 0 10px 30px 0px rgba(189, 89, 212, 0.5);
+  }
+  
+  .regCar-frm-bton:hover {
+    background-color: #4b2354;
+    box-shadow: 0 10px 30px 0px rgba(189, 89, 212, 0.8);
+    -moz-box-shadow: 0 10px 30px 0px rgba(189, 89, 212, 0.8);
+    -webkit-box-shadow: 0 10px 30px 0px rgba(189, 89, 212, 0.8);
+    -o-box-shadow: 0 10px 30px 0px rgba(189, 89, 212, 0.8);
+    -ms-box-shadow: 0 10px 30px 0px rgba(189, 89, 212, 0.8);
+  }
+  
+  /**********************************************************************************************/
+  /*------------------------------------------- Input ------------------------------------------*/
+  /**********************************************************************************************/
+  
+  .wrap-inpt-regcar {
+    width: 100%;
+    height: 100%;
+    position: relative;
+    background-color: #fff;
+    border-radius: 20px;
+    margin: 5% 2% 5% 2% !important;
+    padding-right: 15px !important;
+  }
+  
+  .plate_class {
+    width: 100%;
+    height: 100%;
+    position: relative;
+    background-color: #fff;
+    border-radius: 20px;
+  
+    margin-top: 8% !important;
+    margin-right: 5% !important;
+    margin-bottom: 8% !important;
+    margin-left: 5% !important;
+  
+    padding-left: 0% !important;
+    padding-right: 1% !important;
+    padding-top: 1% !important;
+    padding-bottom: 1% !important;
+  }
+
+  /**********************************************************************************************/
+  /*------------------------------------------- Image ------------------------------------------*/
+  /**********************************************************************************************/
+  
+  .two_main_cols1 {
+    padding: 2% !important;
+    border-radius: 1%;
+    box-shadow: 0 3px 20px 0px rgba(0, 0, 0, 0.1);
+    -moz-box-shadow: 0 3px 20px 0px rgba(0, 0, 0, 0.1);
+    -webkit-box-shadow: 0 3px 20px 0px rgba(0, 0, 0, 0.1);
+    -o-box-shadow: 0 3px 20px 0px rgba(0, 0, 0, 0.1);
+    -ms-box-shadow: 0 3px 20px 0px rgba(0, 0, 0, 0.1);
+  }
+  
+  .profile-pic {
+    text-align: center;
+    height: 100% !important;
+    width: 100% !important;
+    padding: 0.1% !important;
+  }
+  
+  .profile-pic .f {
+    position: relative;
+    overflow: hidden;
+    margin-top: -11%;
+    width: 30%;
+    border: none;
+    border-radius: 0;
+    font-size: 15px;
+    background: #2b2e31b8;
+  }
+  
+  .profile-pic .f:hover {
+    background: #002447b8;
+  }
+  
+  .profile-pic .f input {
+    position: absolute;
+    opacity: 0;
+    right: 0;
+    top: 0;
+  }
+  
+  .pic_class1 {
+    border-radius: 6%;
+    width: 100vw;
+    height: 30vh;
+    padding: 2% !important;
+  }
+
+  /**********************************************************************************************/
+  /*------------------------------------------- Text -------------------------------------------*/
+  /**********************************************************************************************/
+  .login-frm-title {
+    display: block;
+    font-family: 'iransans';
+    font-size: 30px;
+    color: #000000;
+    line-height: 1.2;
+    text-align: center;
+  }
+  
+  .myTitle {
+    text-align: center;
+  }
+  
+  /**********************************************************************************************/
+  /*------------------------------- Media Query for Big Screens --------------------------------*/
+  /**********************************************************************************************/
+  
+  @media screen and (min-width: 600px) {
+    .pic_class1 {
+      width: 40vw;
+      height: 40vh;
+      padding: 2% !important;
+    }
+  
+    .two_main_cols1 {
+      padding: 0% !important;
+      border-radius: 1%;
+      box-shadow: 0 3px 20px 0px rgba(0, 0, 0, 0.1);
+      -moz-box-shadow: 0 3px 20px 0px rgba(0, 0, 0, 0.1);
+      -webkit-box-shadow: 0 3px 20px 0px rgba(0, 0, 0, 0.1);
+      -o-box-shadow: 0 3px 20px 0px rgba(0, 0, 0, 0.1);
+      -ms-box-shadow: 0 3px 20px 0px rgba(0, 0, 0, 0.1);
+    }
+    
+    .newAlignMent{
+      margin-top: 8%;
+      margin-right: 17%;
+      
+  }
+  }
+  

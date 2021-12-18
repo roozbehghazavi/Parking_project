@@ -1,0 +1,61 @@
+.bg-c-white {
+  /* background: linear-gradient(45deg,#e4e5ea,#d2dce9); */
+  background-color: rgba(255, 255, 255, 0.341);
+  border-radius: 5px;
+}
+.bg-c-purple {
+  /* background: linear-gradient(45deg,#5d6164,#929aa0); */
+  /* background-color:#526bb7a4 ; */
+  background-color: #7567f3ba;
+}
+.nargescard {
+  border-radius: 5px;
+  -webkit-box-shadow: 30px 30px 30px 30px rgba(4, 26, 55, 0.16);
+  box-shadow: 0px 20px 20px 0px rgba(4, 26, 55, 0.16);
+  border: none;
+  margin-bottom: 30px;
+  -webkit-transition: all 0.3s ease-in-out;
+  transition: all 0.3s ease-in-out;
+}
+.nargescardhover:hover {
+  text-shadow: none !important;
+  box-sizing: border-box !important;
+  cursor: pointer !important;
+  transition: all 0.3s ease !important;
+  -webkit-transform: scale(1.1) !important;
+  -ms-transform: scale(1.1) !important;
+  transform: scale(1.1) !important;
+  z-index: 2;
+}
+.MainDivPanel {
+  width: 100%;
+  min-height: 150vh;
+  min-width: 150vh;
+  height: 100%;
+  background: linear-gradient(
+    -45deg,
+    #9970ceac,
+    #bf8ffd92,
+    #84a1f9ab,
+    #e7eaf9c7
+  );
+}
+.CardDivPanel {
+  background-color: rgba(255, 255, 255, 0.252);
+  border-radius: 10px;
+  margin-right: 10%;
+}
+
+.ResponsiveContainer {
+  margin-top: 20%;
+  margin-right: 3%;
+  margin-left: 22px;
+}
+
+@media screen and (min-width: 900px) {
+  .ResponsiveContainer {
+    margin-right: 28%;
+    margin-left: 10%;
+    margin-top: 10%;
+  }
+}

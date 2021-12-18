@@ -1,0 +1,9 @@
+.flex-container{
+    display: flex;
+}
+.EncreaseCapacity{
+background-color: black;
+}
+.DecreaseCapacity{
+    background-color: brown;
+}

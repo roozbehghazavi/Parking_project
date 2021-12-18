@@ -1,0 +1,17 @@
+.table-header-mmd {
+  margin: 10px;
+  background-color: aliceblue;
+}
+.table-mmd {
+  margin-top: 10%;
+  margin-right: 3%;
+  margin-left: 22px;
+}
+
+@media screen and (min-width: 900px) {
+  .table-mmd {
+    margin-right: 28%;
+    margin-left: 10%;
+    margin-top: 10%;
+  }
+}
