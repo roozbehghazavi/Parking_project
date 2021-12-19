@@ -64,3 +64,4 @@ class MyCustomUserRegistrationSerializer(RegisterSerializer):
 			carOwner.save()
 		user.save()
 		return user
+	

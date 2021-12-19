@@ -208,7 +208,7 @@ class CommentParentCreate(generics.CreateAPIView):
 	serializer_class = CommentSerializer
 
 	def create(self, request, *args, **kwargs):
-		author = get_object_or_404(CarOwner, user = request.user)
+		author = get_object_or_404(CustomUser, email = request.user.email)
 		parking = get_object_or_404(Parking, id = request.data['parkingId'])
 		serializer = CommentSerializer(data=request.data)
 		serializer.is_valid(raise_exception=True)
@@ -224,7 +224,7 @@ class CommentUpdate(generics.RetrieveUpdateAPIView):
 
 	def put(self, request, *args, **kwargs):
 		partial = kwargs.pop('partial', False)
-		author = get_object_or_404(CarOwner, user = request.user)
+		author = get_object_or_404(CustomUser, email = request.user.email)
 		instance = get_object_or_404(Comment, id = request.data['id'], author = author)
 		serializer = self.get_serializer(instance, data=request.data, partial=partial)
 		serializer.is_valid(raise_exception=True)
@@ -245,7 +245,7 @@ class CommentDelete(generics.DestroyAPIView):
 	serializer_class = CommentSerializer
 
 	def delete(self, request, *args, **kwargs):
-		author = get_object_or_404(CarOwner, user = request.user)
+		author = get_object_or_404(CustomUser, email = request.user.email)
 		instance = get_object_or_404(Comment, id = request.data['id'], author = author)
 		self.perform_destroy(instance)
 		return Response({"message" : "Comment deleted successfully"},status=status.HTTP_204_NO_CONTENT)
@@ -258,7 +258,7 @@ class CommentChildCreate(generics.CreateAPIView):
 	serializer_class = CommentChildSerializer
 
 	def create(self, request, *args, **kwargs):
-		author = get_object_or_404(CarOwner, user = request.user)
+		author = get_object_or_404(CustomUser, email = request.user.email)
 		parent = get_object_or_404(Comment, id = request.data['parentId'])
 		parking = get_object_or_404(Parking, id = parent.parking.id)
 		serializer = CommentChildSerializer(data=request.data)

@@ -69,3 +69,10 @@ class Period(models.Model):
 	is_active = models.BooleanField(default=True)
 
 
+class Template(models.Model):
+	parking = models.ForeignKey(Parking, on_delete=models.CASCADE)
+	openAt = models.DateTimeField()
+	closeAt = models.DateTimeField()
+	weekDay = models.IntegerField(default=0)
+
+
