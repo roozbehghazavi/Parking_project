@@ -61,7 +61,7 @@ class CarSerializer(serializers.ModelSerializer):
 class CommentSerializer(serializers.ModelSerializer):
 	reply_count = SerializerMethodField()
 	# replies = SerializerMethodField()
-	author = serializers.EmailField(source = 'author.user.email',required = False)
+	author = serializers.EmailField(source = 'author.email',required = False)
 	parkingName = serializers.CharField(source = 'parking.ParkingName',required = False)
 
 
@@ -88,7 +88,7 @@ class CommentChildSerializer(serializers.ModelSerializer):
         fields = ('author', 'content', 'id','parent')
 
     def get_author(self, obj):
-        return obj.author.user.email
+        return obj.author.email
 
 
 

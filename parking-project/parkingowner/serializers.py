@@ -1,6 +1,9 @@
 from datetime import date, datetime, timedelta
+from django.db.models import fields
+from django.shortcuts import get_object_or_404
 from rest_framework import serializers
-from .models import ParkingOwner,Parking, Period,Validation
+from rest_framework.fields import SerializerMethodField
+from .models import ParkingOwner,Parking, Period, Template,Validation
 import pytz
 
 
@@ -47,17 +50,22 @@ class ParkingSerializer(serializers.ModelSerializer):
 		today = datetime.today().weekday()
 
 		if now.minute < 30:
-			startTime = datetime(year=now.year,month=now.month,day=now.day,hour=now.hour,minute=0)
+			startTime = datetime(year=now.year,month=now.month,day=now.day,hour=now.hour,minute=0,tzinfo=None)
 		else:
-			startTime = datetime(year=now.year,month=now.month,day=now.day,hour=now.hour,minute=30)
+			startTime = datetime(year=now.year,month=now.month,day=now.day,hour=now.hour,minute=30,tzinfo=None)
 
 		endTime = startTime + timedelta(minutes=30)
 		Period.objects.create(capacity = parking.capacity,parking=parking,startTime = startTime,endTime = endTime,weekDay = today).save()
 
 		for i in range(335):
-				startTime = startTime + timedelta(minutes=30)
-				endTime = startTime + timedelta(minutes=30)
-				Period.objects.create(capacity = parking.capacity,parking=parking,startTime = startTime,endTime = endTime,weekDay = startTime.weekday()).save()
+			startTime = startTime + timedelta(minutes=30)
+			endTime = startTime + timedelta(minutes=30)
+			Period.objects.create(capacity = parking.capacity,parking=parking,startTime = startTime,endTime = endTime,weekDay = startTime.weekday()).save()
+
+		for i in range(7):
+			date = datetime(year=now.year,month=now.month,day=now.day,hour=0,minute=0,tzinfo=None)
+			Template.objects.create(parking=parking,weekDay = i,openAt = date,closeAt = date).save()
+
 		return parking
 
 class ValidationSerializer(serializers.ModelSerializer):
@@ -73,10 +81,26 @@ class ValidationSerializer(serializers.ModelSerializer):
 
 class PeriodSerializer(serializers.ModelSerializer):
 	capacity = serializers.IntegerField(required = False)
+	filledCapacity = SerializerMethodField()
+	totalCapacity = SerializerMethodField()
 	parking_id = serializers.IntegerField(source = "parking.id",required = False)
 	startTime = serializers.DateTimeField(required = False)
 	endTime = serializers.DateTimeField(required = False)
 
 	class Meta:
 		model = Period
-		fields = ('id','capacity','parking_id','duration','startTime','endTime','is_active','weekDay')
+		fields = ('id','capacity','filledCapacity','totalCapacity','parking_id','duration','startTime','endTime','is_active','weekDay')
+	
+	def get_filledCapacity(self,obj):
+		return obj.parking.capacity - obj.capacity
+	
+	def get_totalCapacity(self,obj):
+		return obj.parking.capacity
+
+
+
+class TemplateSerializer(serializers.ModelSerializer):
+
+	class Meta:
+		model = Template
+		fields = ('id','parking','openAt','closeAt','weekDay')

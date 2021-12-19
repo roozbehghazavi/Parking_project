@@ -35,7 +35,7 @@ class Car(models.Model):
 
 class Comment(models.Model):
 	parking = models.ForeignKey(Parking, on_delete=models.CASCADE)
-	author = models.ForeignKey(CarOwner, on_delete=models.CASCADE)
+	author = models.ForeignKey(CustomUser, on_delete=models.CASCADE)
 	content = models.TextField()
 	dateAdded = models.DateTimeField(auto_now_add=True)
 	parent = models.ForeignKey('self', on_delete=models.CASCADE, blank=True, null=True, related_name='+')

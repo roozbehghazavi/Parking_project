@@ -1,3 +1,4 @@
+from os import close
 from django.shortcuts import render
 import pytz
 from rest_framework.views import APIView
@@ -6,8 +7,8 @@ from carowner.serializers import ReservationSerializer
 
 import parking
 from users.models import CustomUser
-from .models import ParkingOwner,Parking, Period,Validation
-from .serializers import ParkingOwnerSerializer, ParkingSerializer, PeriodSerializer,ValidationSerializer
+from .models import ParkingOwner,Parking, Period, Template,Validation
+from .serializers import ParkingOwnerSerializer, ParkingSerializer, PeriodSerializer, TemplateSerializer,ValidationSerializer
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
 from rest_framework import generics,status
@@ -15,6 +16,7 @@ from django.shortcuts import get_object_or_404,get_list_or_404
 from .pagination import ParkingListPagination
 from django.utils import timezone
 from datetime import date, datetime, timedelta
+from dateutil import parser
 from django.db.models import F, Q
 from rest_framework import viewsets
 
@@ -72,39 +74,6 @@ class ParkingUpdate(generics.RetrieveUpdateAPIView):
 					pass
 
 
-		if request.data.get('openAt') != None:
-			#Updating template
-			weekDay = request.data['date']
-			startTime = datetime.strptime(request.data['openAt'],"%H:%M:%S")
-			endTime = datetime.strptime(request.data['closeAt'],"%H:%M:%S")
-			if startTime.minute >= 30:
-				startPeriod = get_object_or_404(Period, parking = instance,startTime__hour = startTime.hour, startTime__minute = 30,weekDay = weekDay)
-			else:
-				startPeriod = get_object_or_404(Period, parking = instance,startTime__hour = startTime.hour, startTime__minute = 0,weekDay = weekDay)
-
-			endPeriod = get_object_or_404(Period, parking = instance,endTime__hour = endTime.hour, endTime__minute = endTime.minute,weekDay = weekDay)
-
-			startPeriod.is_active = True
-			startPeriod.save()
-			periods = Period.objects.all().filter(parking=instance,weekDay=weekDay)
-			for period in periods:
-				if period.startTime.hour >= startPeriod.endTime.hour and period.startTime.hour <= endPeriod.startTime.hour:
-					if period.startTime.hour == endPeriod.startTime.hour:
-						if period.startTime.minute > endPeriod.startTime.minute:
-							period.is_active = False
-							period.save()
-						else:
-							period.is_active = True
-							period.save()
-					else:
-						period.is_active = True
-						period.save()
-				else:
-					if not period == startPeriod:
-						period.is_active = False
-						period.save()
-
-
 		serializer = self.get_serializer(instance, data=request.data, partial=partial)
 		serializer.is_valid(raise_exception=True)
 		self.perform_update(serializer)
@@ -115,6 +84,72 @@ class ParkingUpdate(generics.RetrieveUpdateAPIView):
 			instance._prefetched_objects_cache = {}
 
 		return Response(serializer.data)
+
+
+#Edit template of a parking by its id
+class EditParkingTemplate(generics.UpdateAPIView):
+	queryset = Template.objects.all()
+	serializer_class = TemplateSerializer
+
+	def update(self, request, *args, **kwargs):
+		owner = get_object_or_404(ParkingOwner, user = request.user)
+		partial = kwargs.pop('partial', True)
+		parking = get_object_or_404(Parking, id=request.data['id'],owner=owner)
+
+		#Updating template
+
+		weekDay = request.data['date']
+		startTime = parser.parse(request.data['openAt'])
+		endTime = parser.parse(request.data['closeAt'])
+
+		periods = Period.objects.all().filter(parking=parking,weekDay=weekDay)
+
+		template = get_object_or_404(Template, parking=parking, weekDay=weekDay)
+		template.openAt = startTime
+		template.closeAt = endTime
+		template.save()
+
+		if self.reserveExists(parking,periods):
+			return Response({"message" : "dar baze haye entekhabi shoma reserve vojud darad. taghirate shoma az hafte ayande emal khahad shod."},status=status.HTTP_200_OK)
+		else:
+			for period in periods.order_by('startTime'):
+
+				if template.closeAt.hour == 0:
+					closeAt = 24 * 60
+				else:
+					closeAt = template.closeAt.hour * 60 + template.closeAt.minute
+
+				openAt = template.openAt.hour * 60 + template.openAt.minute
+				periodStartTime = period.startTime.hour * 60 + period.startTime.minute
+
+				if period.endTime.hour == 0:
+					periodEndTime = 24 * 60
+				else:
+					periodEndTime = period.endTime.hour * 60 + period.endTime.minute
+				
+
+				if periodStartTime >= openAt and periodEndTime <= closeAt:
+					period.is_active = True
+				else:
+					period.is_active = False
+				period.save()
+
+
+		serializer = self.get_serializer(template)
+		return Response(serializer.data)
+
+
+
+	def reserveExists(self,parking,periods):
+		orderedperiods = periods.order_by('startTime')
+		startPeriod = orderedperiods.first()
+		endPeriod = orderedperiods.last()
+		reserves = Reservation.objects.all().filter(parking=parking).filter(~Q(Q(endTime__lt = startPeriod.startTime) | Q(startTime__gt=endPeriod.endTime)))
+		if reserves.exists():
+			return True
+		return False
+
+
 
 #This view delete a parking by its id(in body)
 class ParkingDelete(generics.RetrieveDestroyAPIView):
@@ -291,7 +326,21 @@ class PeriodsList(generics.ListAPIView):
 			currentPeriod = get_object_or_404(Period, parking = parking,startTime__hour = now.hour, startTime__minute = 0,weekDay=today)
 		
 		passedPeriods = periods.filter(endTime__lte = currentPeriod.startTime)
-		passedPeriods.update(capacity = currentPeriod.capacity,startTime = F('startTime') + timedelta(days=7),endTime = F('endTime') + timedelta(days=7))
+
+		for period in passedPeriods:
+			template = get_object_or_404(Template, parking=parking, weekDay=period.weekDay)
+			openAt = template.openAt.hour * 60 + template.openAt.minute
+			closeAt = template.closeAt.hour * 60 + template.closeAt.minute
+			periodStartTime = period.startTime.hour * 60 + period.startTime.minute
+			periodEndTime = period.endTime.hour * 60 + period.endTime.minute
+
+			if periodStartTime >= openAt or periodEndTime <= closeAt:
+				period.is_active = True
+			else:
+				period.is_active = False
+			period.save()
+
+		passedPeriods.update(capacity = parking.capacity,startTime = F('startTime') + timedelta(days=7),endTime = F('endTime') + timedelta(days=7))
 
 		queryset = periods.filter(is_active = True, startTime__gte = currentPeriod.startTime).order_by('startTime')[:48]
 
@@ -303,6 +352,24 @@ class PeriodsList(generics.ListAPIView):
 		serializer = self.get_serializer(queryset, many=True)
 		return Response(serializer.data)
 
+
+#Gets the current period of a parking
+class CurrentPeriod(generics.RetrieveAPIView):
+	queryset = Period.objects.all()
+	serializer_class = PeriodSerializer
+
+	def get(self, request, *args, **kwargs):
+		parking = get_object_or_404(Parking, id = request.GET['parkingId'])
+		today = datetime.today().weekday()
+		now = datetime.now()
+
+		if now.minute >= 30:
+			currentPeriod = get_object_or_404(Period, parking = parking,startTime__hour = now.hour, startTime__minute = 30,weekDay=today)
+		else:
+			currentPeriod = get_object_or_404(Period, parking = parking,startTime__hour = now.hour, startTime__minute = 0,weekDay=today)
+
+		serializer = self.get_serializer(currentPeriod)
+		return Response(serializer.data)
 
 
 #changes the capacity of a parking manually with status in body
@@ -348,7 +415,7 @@ class ReservationListParking(generics.ListAPIView):
 		owner = get_object_or_404(ParkingOwner, user = request.user)
 		parking = get_object_or_404(Parking, owner = owner, id = request.GET['parkingId'])
 		now = datetime.now()
-		now = now.replace(hour=now.hour-1)
+		now = now + timedelta(hours=-1)
 		queryset = Reservation.objects.all().filter(parking = parking,startTime__gte = now)
 
 		page = self.paginate_queryset(queryset)
