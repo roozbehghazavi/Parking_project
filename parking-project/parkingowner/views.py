@@ -8,6 +8,8 @@ from carowner.serializers import ReservationSerializer
 import parking
 from users.models import CustomUser
 from .models import ParkingOwner,Parking, Period, Template,Validation
+from carowner.models import Comment
+from carowner.serializers import CommentSerializer
 from .serializers import ParkingOwnerSerializer, ParkingSerializer, PeriodSerializer, TemplateSerializer,ValidationSerializer
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
@@ -285,7 +287,7 @@ class Validator(generics.CreateAPIView):
 			
 			validation=get_object_or_404(Validation,parking=parking)
 			serializer = ValidationSerializer(validation)
-			time=datetime.now(timezone.utc)-validation.time_Added
+			time=datetime.now()-validation.time_Added
 			print(time.total_seconds())
 
 			if(time.total_seconds()>30):
@@ -445,3 +447,5 @@ class PassedReservationListParking(generics.ListAPIView):
 
 		serializer = self.get_serializer(queryset, many=True)
 		return Response(serializer.data)
+
+

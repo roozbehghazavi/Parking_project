@@ -33,4 +33,6 @@ urlpatterns = [
     #Passed reservation list for parking owner
     path('passedreservelist/', PassedReservationListParking.as_view()),
 
+    # path('combinedlist/',CombinedList.as_view()),
+
 ]
