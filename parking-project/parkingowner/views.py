@@ -151,6 +151,19 @@ class EditParkingTemplate(generics.UpdateAPIView):
 			return True
 		return False
 
+#Get Template of a parking owned by the logged in user by id
+class TemplateDetail(generics.ListAPIView):
+	queryset = Template.objects.all()
+	serializer_class = TemplateSerializer
+
+	def get(self, request, *args, **kwargs):
+		owner = get_object_or_404(ParkingOwner, user = request.user)
+		parking = get_object_or_404(Parking, id = request.query_params['parking_id'],owner = owner)
+		queryset = Template.objects.filter(parking = parking).order_by('weekDay')
+
+		serializer = self.get_serializer(queryset, many=True)
+		return Response(serializer.data)
+
 
 
 #This view delete a parking by its id(in body)
