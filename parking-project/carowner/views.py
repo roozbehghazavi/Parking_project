@@ -1,6 +1,3 @@
-from django.db.models import query
-from django.db.models import F
-from django.db.models.query import QuerySet
 from django.shortcuts import get_object_or_404, render
 from django.http import HttpResponse
 import pytz
@@ -13,7 +10,7 @@ from users.models import CustomUser
 from .pagination import CarOwnerPagination
 from rest_framework import generics, pagination, serializers, status
 from .serializers import CarOwnerSerializer, CarSerializer, CommentChildSerializer, CommentSerializer, ReservationSerializer
-from django.db.models import Avg
+from django.db.models import Avg, F, Q
 import json
 import requests
 from datetime import date, datetime
@@ -357,6 +354,11 @@ class ReservationCreate(generics.CreateAPIView):
 		endTime = datetime.strptime(request.data['exit'],"%Y/%m/%d %H:%M:%S")
 		periods = self.getPeriods(startTime,endTime,parking)
 		isValid = self.checkValidation(periods)
+
+		#returns true if the user has a reservation on this period
+		isReserved = Reservation.objects.filter(~Q(Q(endTime__lte = startTime) | Q(startTime__gte = endTime))).exists()
+		if isReserved:
+			return Response({'message' : 'You have a reservation on this period'})
 
 		if isValid == True: #creates the reservation if True
 			periods.update(capacity = F('capacity') - 1)
