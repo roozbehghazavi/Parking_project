@@ -356,7 +356,7 @@ class ReservationCreate(generics.CreateAPIView):
 		isValid = self.checkValidation(periods)
 
 		#returns true if the user has a reservation on this period
-		isReserved = Reservation.objects.filter(~Q(Q(endTime__lte = startTime) | Q(startTime__gte = endTime))).exists()
+		isReserved = Reservation.objects.filter(~Q(Q(endTime__lte = startTime) | Q(startTime__gte = endTime))).filter(car=car).exists()
 		if isReserved:
 			return Response({'message' : 'You have a reservation on this period'})
 
