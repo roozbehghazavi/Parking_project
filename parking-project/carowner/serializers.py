@@ -103,7 +103,6 @@ class ReservationSerializer(serializers.ModelSerializer):
 	startTime = serializers.DateTimeField(required = False)
 	endTime = serializers.DateTimeField(required = False)
 
-
 	class Meta:
 		model = Reservation
 		fields = ('id','trackingCode','owner_email', 'parking_name', 'car_name','car_color','car_pelak','startTime', 'endTime', 'cost')

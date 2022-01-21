@@ -2,14 +2,12 @@ from os import close
 from django.shortcuts import render
 import pytz
 from rest_framework.views import APIView
-from carowner.models import Reservation
-from carowner.serializers import ReservationSerializer
+from carowner.models import Comment, Reservation
+from carowner.serializers import CommentSerializer, ReservationSerializer
 
 import parking
 from users.models import CustomUser
 from .models import ParkingOwner,Parking, Period, Template,Validation
-from carowner.models import Comment
-from carowner.serializers import CommentSerializer
 from .serializers import ParkingOwnerSerializer, ParkingSerializer, PeriodSerializer, TemplateSerializer,ValidationSerializer
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
@@ -19,7 +17,7 @@ from .pagination import ParkingListPagination
 from django.utils import timezone
 from datetime import date, datetime, timedelta
 from dateutil import parser
-from django.db.models import F, Q
+from django.db.models import F, Q, Count
 from rest_framework import viewsets
 
 
@@ -300,7 +298,7 @@ class Validator(generics.CreateAPIView):
 			
 			validation=get_object_or_404(Validation,parking=parking)
 			serializer = ValidationSerializer(validation)
-			time=datetime.now()-validation.time_Added
+			time=datetime.now(timezone.utc)-validation.time_Added
 			print(time.total_seconds())
 
 			if(time.total_seconds()>30):
@@ -397,17 +395,24 @@ class ManualEnterOrExit(generics.UpdateAPIView):
 		parking = get_object_or_404(Parking, owner = owner,id = request.data['parkingId'])
 		today = datetime.today().weekday()
 
-		periods = Period.objects.all().filter(parking = parking)
-		if request.data['status'] == 'enter':
-			periods.update(capacity = F('capacity') - 1)
-		elif request.data['status'] == 'exit':
-			periods.update(capacity = F('capacity') + 1)
-
 		now = datetime.now()
 		if now.minute >= 30:
 			currentPeriod = get_object_or_404(Period, parking = parking,is_active=True,startTime__hour = now.hour, startTime__minute = 30,weekDay=today)
 		else:
 			currentPeriod = get_object_or_404(Period, parking = parking,is_active=True,startTime__hour = now.hour, startTime__minute = 0,weekDay=today)
+
+		periods = Period.objects.all().filter(parking = parking)
+		if request.data['status'] == 'enter':
+			if currentPeriod.capacity == 0:
+				return Response({'message' : 'Capacity cant be below 0'})
+			periods.update(capacity = F('capacity') - 1)
+		elif request.data['status'] == 'exit':
+			if currentPeriod.capacity >= parking.capacity:
+				return Response({'message' : 'capacity cant be greater than total capacity'})
+			periods.update(capacity = F('capacity') + 1)
+		
+		currentPeriod.refresh_from_db()
+
 		
 		partial = kwargs.pop('partial', True)
 		serializer = self.get_serializer(currentPeriod, data=request.data, partial=partial)
@@ -462,3 +467,19 @@ class PassedReservationListParking(generics.ListAPIView):
 		return Response(serializer.data)
 
 
+class CombinedReservesAndComments(generics.ListAPIView):
+	queryset = Reservation.objects.all()
+	serializer_class = ReservationSerializer
+
+	def get(self, request, *args, **kwargs):
+		reserve_queryset = Reservation.objects.all()
+		reserve_serializer = ReservationSerializer(reserve_queryset, many = True)
+
+		comment_queryset = Comment.objects.all()
+		comment_serializer = CommentSerializer(comment_queryset,many=True)
+
+		# page = self.paginate_queryset(queryset)
+		# if page is not None:
+		# 	serializer = self.get_serializer(page, many=True)
+		# 	return self.get_paginated_response(serializer.data)
+		return Response(reserve_serializer.data + comment_serializer.data, status=status.HTTP_200_OK)

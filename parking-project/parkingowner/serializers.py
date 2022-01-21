@@ -67,6 +67,14 @@ class ParkingSerializer(serializers.ModelSerializer):
 			Template.objects.create(parking=parking,weekDay = i,openAt = date,closeAt = date).save()
 
 		return parking
+	
+	def validate(self, attrs):
+		capacity = attrs.get('capacity')
+		if capacity != None and capacity<0:
+			raise serializers.ValidationError({'capacity':'capacity cant be below 0'})
+		
+		return attrs
+			
 
 class ValidationSerializer(serializers.ModelSerializer):
 	parkingId=serializers.CharField(source='parking.id',required=False,read_only=True)
@@ -96,6 +104,7 @@ class PeriodSerializer(serializers.ModelSerializer):
 	
 	def get_totalCapacity(self,obj):
 		return obj.parking.capacity
+	
 
 
 
