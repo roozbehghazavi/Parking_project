@@ -444,7 +444,7 @@ class PassedReservationListCarOwner(generics.ListAPIView):
 
 #Search through parkings by parkingName and location using query params search 
 class ParkingSearch(generics.ListAPIView):
-	queryset = Parking.objects.all()
+	queryset = Parking.objects.all().filter(validationStatus = "V")
 	serializer_class = ParkingSerializer
 	pagination_class = CarOwnerPagination
 	filter_backends = [filters.SearchFilter,filters.OrderingFilter]

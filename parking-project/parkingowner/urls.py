@@ -7,7 +7,7 @@ urlpatterns = [
     #Parking URLs
     path('createparking/', ParkingCreate.as_view()),
     path('updateparking/', ParkingUpdate.as_view()),
-    path('parkinglist', ParkingList.as_view()),
+    path('parkinglist/', ParkingList.as_view()),
     path('parkingdetail/', ParkingDetail.as_view()),
     path('deleteparking/', ParkingDelete.as_view()),
     #parking template url
@@ -17,7 +17,7 @@ urlpatterns = [
     
 
     #ParkingOwner URLs
-    path('parkingownerlist', ParkingOwnerList.as_view()),
+    path('parkingownerlist/', ParkingOwnerList.as_view()),
     path('<int:pk>/', ParkingOwnerDetail.as_view()),
     path('updateparkingowner/', ParkingOwnerUpdate.as_view()),
 
