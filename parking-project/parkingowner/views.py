@@ -169,13 +169,12 @@ class ParkingDelete(generics.RetrieveDestroyAPIView):
 	queryset = Parking.objects.all()
 	serializer_class = ParkingSerializer
 
-	def delete(self, request,format=None):
+	def delete(self, request,*args, **kwargs):
 		#Get object by it's id and destroy it.
 		owner = get_object_or_404(ParkingOwner, user = request.user)
-		instance = get_object_or_404(Parking, id=request.data['id'],owner=owner).delete()
-		
-		return Response({"message" : "Parking deleted successfully"},status=status.HTTP_204_NO_CONTENT)
-
+		instance = get_object_or_404(Parking, id=request.data['id'],owner=owner)
+		self.perform_destroy(instance)
+		return Response({"message" : "Parking deleted successfully"})
 
 
 #This view shows registered parking for a parking owner.
