@@ -297,7 +297,7 @@ class Validator(generics.CreateAPIView):
 			
 			validation=get_object_or_404(Validation,parking=parking)
 			serializer = ValidationSerializer(validation)
-			time=datetime.now(timezone.utc)-validation.time_Added
+			time=datetime.now()-validation.time_Added
 			print(time.total_seconds())
 
 			if(time.total_seconds()>30):
