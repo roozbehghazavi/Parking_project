@@ -26,7 +26,6 @@ class Parking(models.Model):
 		('P', 'Pending'),
 	)
 	owner = models.ForeignKey(ParkingOwner,on_delete=models.CASCADE,null=True)
-	#True=Private,False=Public
 	isPrivate=models.BooleanField(default=False)
 	parkingName = models.CharField(max_length=200)
 	location = models.CharField(max_length=100)
@@ -36,6 +35,7 @@ class Parking(models.Model):
 	rating = models.FloatField(default=0)
 	validationStatus = models.CharField(max_length=1, choices=CHOICES,default="I")
 	pricePerHour = models.IntegerField(default=0)
+	isAccessible=models.BooleanField(default=False)
 
 
 	def __str__(self):

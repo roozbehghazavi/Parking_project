@@ -10,7 +10,6 @@ import requests
 from rest_auth.views import LoginView
 from rest_framework.views import APIView
 from django.conf import settings
-
 # Create your views here.
 
 
