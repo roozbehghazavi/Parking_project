@@ -10,6 +10,9 @@ import requests
 from rest_auth.views import LoginView
 from rest_framework.views import APIView
 from django.conf import settings
+from allauth.socialaccount.providers.facebook.views import FacebookOAuth2Adapter
+from allauth.socialaccount.providers.google.views import GoogleOAuth2Adapter
+from rest_auth.registration.views import SocialLoginView
 # Create your views here.
 
 
@@ -48,3 +51,8 @@ class CustomLoginView(LoginView):
 		orginal_response = super().get_response()
 		orginal_response.data.update(data)
 		return orginal_response
+
+class FacebookLogin(SocialLoginView):
+    adapter_class = FacebookOAuth2Adapter
+class GoogleLogin(SocialLoginView):
+    adapter_class = GoogleOAuth2Adapter
