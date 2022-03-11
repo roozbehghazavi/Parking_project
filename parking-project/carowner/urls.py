@@ -1,5 +1,5 @@
 from django.urls import path , include
-from carowner.views import AddRate, CarCreate, CarDelete, CarList,CarUpdate,CarOwnerCreate, CarOwnerDetail, CarOwnerUpdate, CarOwnerDelete, CarOwnerList,CommentChildCreate, CommentDelete, CommentList, CommentParentCreate, CommentUpdate, IsRated, ParkingList, ParkingSearch, PassedReservationListCarOwner, ReservationCreate, ReservationListCarOwner
+from carowner.views import AddCredit, AddRate, CarCreate, CarDelete, CarList,CarUpdate,CarOwnerCreate, CarOwnerDetail, CarOwnerUpdate, CarOwnerDelete, CarOwnerList,CommentChildCreate, CommentDelete, CommentList, CommentParentCreate, CommentUpdate, IsRated, ParkingList, ParkingSearch, PassedReservationListCarOwner, ReservationCreate, ReservationListCarOwner
 
 
 urlpatterns = [
@@ -14,6 +14,8 @@ urlpatterns = [
     path('update/', CarOwnerUpdate.as_view()),
     #Delete logged in CarOwner
     path('delete/', CarOwnerDelete.as_view()),
+    #Add credit to carowner
+    path('add-credit/', AddCredit.as_view()),
 
     
 

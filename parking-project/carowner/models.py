@@ -2,6 +2,7 @@ from django.db import models
 from parkingowner.models import Parking
 from users.models import CustomUser
 from datetime import datetime, timedelta
+from rest_framework import serializers, status
 
 # Create your models here.
 
@@ -9,9 +10,20 @@ from datetime import datetime, timedelta
 #Car Owner Model
 
 class CarOwner(models.Model):
+
+	def validate_positive(value):
+		if value < 0:
+			raise serializers.ValidationError({'ValueError':'Credit cannot be negative'},code=status.HTTP_400_BAD_REQUEST)
+
 	user = models.OneToOneField(CustomUser,on_delete=models.CASCADE)
 	favoriteLocations = models.CharField(max_length=100,blank=True)
-	cash = models.IntegerField(default=0,blank=True)
+	credit = models.IntegerField(default=0,blank=True, validators=[validate_positive])
+
+	def save(self, *args, **kwargs) -> None:
+		super().save(*args, **kwargs)
+		self.refresh_from_db()
+		self.full_clean()
+		return None
 
 	def __str__(self):
 		return self.user.email
