@@ -17,7 +17,7 @@ class CarOwnerSerializer(serializers.ModelSerializer):
 
 	class Meta:
 		model = CarOwner
-		fields = ['id', 'role', 'firstName', 'lastName','email' , 'favoriteLocations', 'profilePhoto', 'cash']
+		fields = ['id', 'role', 'firstName', 'lastName','email' , 'favoriteLocations', 'profilePhoto', 'credit']
 
 	def update(self, instance, validated_data):
 
@@ -96,6 +96,7 @@ class CommentChildSerializer(serializers.ModelSerializer):
 class ReservationSerializer(serializers.ModelSerializer):
 
 	owner_email = serializers.CharField(source = "owner.user.email",required = False)
+	owner_credit = serializers.IntegerField(source = "owner.credit", required = False)
 	parking_name = serializers.CharField(source = "parking.parkingName",required = False)
 	car_name = serializers.CharField(source = "car.carName",required = False)
 	car_color = serializers.CharField(source = "car.color",required = False)
@@ -105,6 +106,6 @@ class ReservationSerializer(serializers.ModelSerializer):
 
 	class Meta:
 		model = Reservation
-		fields = ('id','trackingCode','owner_email', 'parking_name', 'car_name','car_color','car_pelak','startTime', 'endTime', 'cost')
+		fields = ('id','trackingCode','owner_email', 'parking_name', 'car_name','car_color','car_pelak','startTime', 'endTime', 'cost', 'owner_credit')
 
 

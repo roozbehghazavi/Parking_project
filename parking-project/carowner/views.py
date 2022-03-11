@@ -16,6 +16,7 @@ import requests
 from datetime import date, datetime
 from rest_framework.views import APIView
 from rest_framework import filters
+from django.db import transaction
 # Create your views here.
 
 
@@ -346,6 +347,7 @@ class ReservationCreate(generics.CreateAPIView):
 	queryset = Reservation.objects.all()
 	serializer_class = ReservationSerializer
 
+	@transaction.atomic
 	def create(self, request, *args, **kwargs):
 		owner = get_object_or_404(CarOwner, user = request.user)
 		parking = get_object_or_404(Parking, id = request.data['parking_id'])
@@ -354,11 +356,12 @@ class ReservationCreate(generics.CreateAPIView):
 		endTime = datetime.strptime(request.data['exit'],"%Y/%m/%d %H:%M:%S")
 		periods = self.getPeriods(startTime,endTime,parking)
 		isValid = self.checkValidation(periods)
+		pay_with_credit = request.data.get('pay_with_credit', False)
 
 		#returns true if the user has a reservation on this period
 		isReserved = Reservation.objects.filter(~Q(Q(endTime__lte = startTime) | Q(startTime__gte = endTime))).filter(car=car).exists()
 		if isReserved:
-			return Response({'message' : 'You have a reservation on this period'})
+			return Response({'message' : 'You have a reservation on this period'}, status=status.HTTP_400_BAD_REQUEST)
 
 		if isValid == True: #creates the reservation if True
 			periods.update(capacity = F('capacity') - 1)
@@ -367,6 +370,9 @@ class ReservationCreate(generics.CreateAPIView):
 			duration = ((endTime - startTime).total_seconds())/60
 			pricePerMin = parking.pricePerHour/60
 			cost = round(duration * pricePerMin,1)
+			if pay_with_credit:
+				owner.credit = F('credit') - cost
+				owner.save()
 			trackingCode = 0
 			if Reservation.objects.filter(parking=parking).count() > 0:
 				trackingCode = Reservation.objects.filter(parking=parking).count()
@@ -450,3 +456,33 @@ class ParkingSearch(generics.ListAPIView):
 	filter_backends = [filters.SearchFilter,filters.OrderingFilter]
 	search_fields = ['parkingName', 'location']
 	ordering_fields = '__all__'
+
+
+#Add credit to carowner
+class AddCredit(generics.UpdateAPIView):
+	queryset = CarOwner.objects.all()
+	serializer_class = CarOwnerSerializer
+	
+	def put(self, request, *args, **kwargs):
+		partial = kwargs.pop('partial', True)
+		instance = CarOwner.objects.get(user = request.user)
+
+		if instance is None:
+			return Response({'Error':'User was not found, token is incorrect'},status=status.HTTP_401_UNAUTHORIZED)
+
+		amount = request.data.get('amount')
+		if amount is None or amount < 0:
+			return Response({'Error':'Please enter a valid amount'},status=status.HTTP_400_BAD_REQUEST)
+
+		instance.credit = F('credit') + amount
+
+		serializer = self.get_serializer(instance, data=request.data, partial=partial)
+		serializer.is_valid(raise_exception=True)
+		self.perform_update(serializer)
+
+		if getattr(instance, '_prefetched_objects_cache', None):
+			# If 'prefetch_related' has been applied to a queryset, we need to
+			# forcibly invalidate the prefetch cache on the instance.
+			instance._prefetched_objects_cache = {}
+
+		return Response(serializer.data)
