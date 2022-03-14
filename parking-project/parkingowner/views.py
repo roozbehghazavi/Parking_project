@@ -96,30 +96,32 @@ class EditParkingTemplate(generics.UpdateAPIView):
 		partial = kwargs.pop('partial', True)
 		parking = get_object_or_404(Parking, id=request.data['id'],owner=owner)
 
+		weekDays = []
+		for i in request.data.get('days'):
+			if i.get('day') is not None and i.get('is_selected'):
+				weekDays.append(i.get('day')) 
+
 		#Updating template
 
-		weekDay = request.data['date']
 		startTime = parser.parse(request.data['openAt'])
 		endTime = parser.parse(request.data['closeAt'])
 
-		periods = Period.objects.all().filter(parking=parking,weekDay=weekDay)
+		periods = Period.objects.all().filter(parking=parking,weekDay__in = weekDays)
 
-		template = get_object_or_404(Template, parking=parking, weekDay=weekDay)
-		template.openAt = startTime
-		template.closeAt = endTime
-		template.save()
+		templates = Template.objects.all().filter(parking=parking, weekDay__in = weekDays)
+		templates.update(openAt = startTime, closeAt = endTime)
 
 		if self.reserveExists(parking,periods):
 			return Response({"message" : "dar baze haye entekhabi shoma reserve vojud darad. taghirate shoma az hafte ayande emal khahad shod."},status=status.HTTP_200_OK)
 		else:
 			for period in periods.order_by('startTime'):
 
-				if template.closeAt.hour == 0:
+				if templates[0].closeAt.hour == 0:
 					closeAt = 24 * 60
 				else:
-					closeAt = template.closeAt.hour * 60 + template.closeAt.minute
+					closeAt = templates[0].closeAt.hour * 60 + templates[0].closeAt.minute
 
-				openAt = template.openAt.hour * 60 + template.openAt.minute
+				openAt = templates[0].openAt.hour * 60 + templates[0].openAt.minute
 				periodStartTime = period.startTime.hour * 60 + period.startTime.minute
 
 				if period.endTime.hour == 0:
@@ -135,7 +137,7 @@ class EditParkingTemplate(generics.UpdateAPIView):
 				period.save()
 
 
-		serializer = self.get_serializer(template)
+		serializer = self.get_serializer(templates, many=True)
 		return Response(serializer.data)
 
 
