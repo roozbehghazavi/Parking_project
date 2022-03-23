@@ -16,9 +16,9 @@ class RegistrationTest(APITestCase):
 
 
 
-class CheckUserViewTest(APITestCase):
+class LoginTest(APITestCase):
 
     def test_check_user(self):
         self.client = APIClient()
-        user = CustomUser.objects.create_user('username', 'Pas$w0rd')
-        self.assertTrue(self.client.login(username='username', password='Pas$w0rd'))
+        self.client.post('/users/rest-auth/registration/', {'email':'mmdbfrst@gmail.com','password1':'affarin234','password2':'affarin234','role':'P'})
+        self.assertTrue(self.client.login(email='mmdbfrst@gmail.com',password='affarin234'))
