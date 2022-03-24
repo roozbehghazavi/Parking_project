@@ -30,8 +30,8 @@ jobs:
     - name: Run Tests
       run: |
         python ./parking-project/manage.py test users
-      env:
-        # The hostname used to communicate with the PostgreSQL service container
-        POSTGRES_HOST: postgres
-        # The default PostgreSQL port
-        POSTGRES_PORT: 5432
+#       env:
+#         # The hostname used to communicate with the PostgreSQL service container
+#         POSTGRES_HOST: postgres
+#         # The default PostgreSQL port
+#         POSTGRES_PORT: 5432
