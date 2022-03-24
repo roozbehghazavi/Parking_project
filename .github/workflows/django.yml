@@ -38,6 +38,12 @@ jobs:
         python -m pip install --upgrade pip
         pip install -r requirements.txt
         
+    - name: Make migrations
+      run: python ./parking-project/manage.py makemigrations
+      
+    - name: Run migrations
+      run: python ./parking-project/manage.py migrate
+      
     - name: Run Tests
       run: |
         python ./parking-project/manage.py test users
