@@ -95,9 +95,9 @@ WSGI_APPLICATION = 'parking.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'ParkingDB',
+        'NAME': 'postgres',
         'USER': 'postgres',
-        'PASSWORD': 'Xperianeo12',
+        'PASSWORD': 'postgres',
         'HOST': 'localhost',
         'PORT': 5432,
     }
