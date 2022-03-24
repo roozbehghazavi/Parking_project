@@ -28,14 +28,5 @@ jobs:
         pip install -r requirements.txt
         
     - name: Run Tests
-      env:
-        SECRET_KEY: 69tgugtg%^fgJO&*&
-        DB_NAME: mydb
-        DB_USER: userdb
-        DB_PASSWORD: password
-        DJANGO_ALLOWED_HOSTS: localhost 127.0.0.1 [::1]
-        DEBUG_MODE: False
-        TIME_ZONE: Africa/Bangui
-        CACHE_KEY_PREFIX: Halo
       run: |
         python ./parking-project/manage.py test
