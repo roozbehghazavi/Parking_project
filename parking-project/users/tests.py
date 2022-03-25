@@ -31,8 +31,10 @@ class EditProfileTest(APITestCase):
     def test_edit_profile(self):
         self.client = APIClient()
         response = self.client.post('/users/rest-auth/registration/', {'email':'mmdbfrst@gmail.com','password1':'affarin234','password2':'affarin234','role':'P'})
+        print(response)
         self.assertEqual(response.status_code, 201)
         token = response.data.get('key')
+        print(token)
 
         self.client.credentials(HTTP_AUTHORIZATION = 'token ' + token)
 
