@@ -5,6 +5,7 @@ from rest_framework.test import APIClient
 from rest_framework.test import APITestCase
 import users
 from users.models import CustomUser
+from rest_framework.authtoken.models import Token
 # Create your tests here.
 
 
@@ -32,7 +33,7 @@ class EditProfileTest(APITestCase):
         self.client = APIClient()
         response = self.client.post('/users/rest-auth/registration/', {'email':'mmdbfrst@gmail.com','password1':'affarin234','password2':'affarin234','role':'P'})
         self.assertEqual(response.status_code, 201)
-        token = response.data.get('key')
+        token = Token.objects.first().key
 
         self.client.credentials(HTTP_AUTHORIZATION = 'token ' + token)
 
