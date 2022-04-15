@@ -69,7 +69,7 @@ urlpatterns = [
     #reserve a parking
     path('reserve/', ReservationCreate.as_view()),
     #Delete a reservation
-    path('delete_reserve', ReservationDelete.as_view()),
+    path('delete_reserve/', ReservationDelete.as_view()),
     #reserve without endtime
     path('reserve_without_endtime/', ReservationWithoutEndtime.as_view()),
     #reserve list for carowner
