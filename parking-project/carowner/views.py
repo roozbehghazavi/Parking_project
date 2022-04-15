@@ -5,15 +5,16 @@ from rest_framework.response import Response
 import parking
 from parkingowner.models import Parking, ParkingOwner, Period
 from parkingowner.serializers import ParkingSerializer, PeriodSerializer
+from parkingowner.views import PeriodsList
 from .models import  Car, CarOwner, Comment, Rate, Reservation
 from users.models import CustomUser
 from .pagination import CarOwnerPagination
 from rest_framework import generics, pagination, serializers, status
 from .serializers import CarOwnerSerializer, CarSerializer, CommentChildSerializer, CommentSerializer, ReservationSerializer
-from django.db.models import Avg, F, Q
+from django.db.models import Avg, F, Q, Max
 import json
 import requests
-from datetime import date, datetime
+from datetime import date, datetime, timedelta
 from rest_framework.views import APIView
 from rest_framework import filters
 from django.db import transaction
@@ -183,7 +184,8 @@ class ParkingList(generics.ListAPIView):
 	pagination_class = CarOwnerPagination
 
 	def get(self, request, *args, **kwargs):
-		queryset = Parking.objects.all().filter(validationStatus = "V", isAccessible=True).order_by('parkingName')
+		PeriodsList.update_all_periods()
+		queryset = Parking.objects.all().filter(validationStatus = "V").order_by('parkingName')
 
 		page = self.paginate_queryset(queryset)
 		if page is not None:
@@ -410,6 +412,20 @@ class ReservationCreate(generics.CreateAPIView):
 		else:
 			return filledPeriods
 
+#Delete a reservation
+class ReservationDelete(generics.DestroyAPIView):
+	queryset = Reservation.objects.all()
+	serializer_class = ReservationSerializer
+
+	def destroy(self, request, *args, **kwargs):
+		instance = get_object_or_404(Reservation, id=request.data.get('id'))
+		if instance.startTime - timedelta(minutes=30) < datetime.now():
+			return Response({'message': 'امکان لغو رزرو در این بازه زمانی وجود ندارد'}, status=status.HTTP_400_BAD_REQUEST)
+		else:
+			self.perform_destroy(instance)
+			instance.owner.credit = F('credit') + instance.cost
+			return Response({'message': 'رزرو شما با موفقیت لغو شد و هزینه آن به کیف پول شما برگشت داده شد'}, status=status.HTTP_204_NO_CONTENT)
+
 #returns the list of reservations for the logged in carowner from now on
 class ReservationListCarOwner(generics.ListAPIView):
 	queryset = Reservation.objects.all()
@@ -457,6 +473,26 @@ class ParkingSearch(generics.ListAPIView):
 	search_fields = ['parkingName', 'location']
 	ordering_fields = '__all__'
 
+	def list(self, request, *args, **kwargs):
+		queryset = self.filter_queryset(self.get_queryset())
+		min_price = request.GET.get('min_price', 0)
+		max_price = request.GET.get('max_price', queryset.aggregate(max_price=Max('pricePerHour')).get('max_price'))
+		has_capacity = bool(int(request.GET.get('has_capacity', 0)))
+
+		queryset = queryset.filter(pricePerHour__gte=min_price, pricePerHour__lte=max_price)
+
+		if has_capacity:
+			current_period_ids = PeriodsList.get_current_period_ids_if_has_capacity()
+			queryset.filter(id__in=current_period_ids)
+
+		page = self.paginate_queryset(queryset)
+		if page is not None:
+			serializer = self.get_serializer(page, many=True)
+			return self.get_paginated_response(serializer.data)
+
+		serializer = self.get_serializer(queryset, many=True)
+		return Response(serializer.data)
+
 
 #Add credit to carowner
 class AddCredit(generics.UpdateAPIView):
@@ -484,5 +520,64 @@ class AddCredit(generics.UpdateAPIView):
 			# If 'prefetch_related' has been applied to a queryset, we need to
 			# forcibly invalidate the prefetch cache on the instance.
 			instance._prefetched_objects_cache = {}
+
+		return Response(serializer.data)
+
+
+class ReservationWithoutEndtime(generics.CreateAPIView):
+	queryset = Reservation.objects.all()
+	serializer_class = ReservationSerializer
+
+	@transaction.atomic
+	def create(self, request, *args, **kwargs):
+		owner = get_object_or_404(CarOwner, user=request.user)
+		parking = get_object_or_404(Parking, id=request.data['parkingId'])
+		car = get_object_or_404(Car, id=request.data['car_id'], owner=owner)
+		pay_with_credit = request.data.get('pay_with_credit', None)
+		enter = request.data.get('enter', None)
+		starting_period = None
+
+		periods = Period.objects.all().filter(parking=parking)
+		if enter:
+			startTime = datetime.strptime(enter, "%Y/%m/%d %H:%M:%S")
+
+			if startTime.minute >= 30:
+				starting_period = get_object_or_404(Period, parking=parking, is_active=True,
+													startTime__hour=startTime.hour, startTime__minute=30,
+													weekDay=startTime.weekday())
+			else:
+				starting_period = get_object_or_404(Period, parking=parking, is_active=True,
+													startTime__hour=startTime.hour, startTime__minute=0,
+													weekDay=startTime.weekday())
+
+			if starting_period.capacity == 0:
+				return Response({'message': 'Parking is full in this period, try to choose another time'})
+			periods.update(capacity=F('capacity') - 1)
+			# creates a reserve without endtime
+			tracking_code = Reservation.objects.filter(parking=parking).count()
+			reserve = Reservation.objects.create(owner=owner, parking=parking, startTime=startTime,
+												 trackingCode=tracking_code, car=car)
+		elif request.data.get('exit'):
+			periods.update(capacity=F('capacity') + 1)
+			# completes the reserve with endtime
+			reserve = Reservation.objects.get(id=request.data.get('reserve_id'))
+			endTime = datetime.now()
+			reserve.endTime = endTime
+			duration = ((endTime - reserve.startTime).total_seconds()) / 60
+			pricePerMin = parking.pricePerHour / 60
+			cost = round(duration * pricePerMin, 1)
+			if pay_with_credit:
+				owner.credit = F('credit') - cost
+				owner.save()
+			reserve.cost = cost
+
+			reserve.save()
+
+		if starting_period:
+			starting_period.refresh_from_db()
+
+		partial = kwargs.pop('partial', True)
+		serializer = self.get_serializer(reserve, data=request.data, partial=partial)
+		serializer.is_valid(raise_exception=True)
 
 		return Response(serializer.data)
