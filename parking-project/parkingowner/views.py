@@ -353,7 +353,12 @@ class PeriodsList(generics.ListAPIView):
 
 		queryset = periods.filter(is_active=True, startTime__gte=currentPeriod.startTime).order_by('startTime')[:48]
 
-		serializer = PeriodSerializer(queryset, many=True)
+		page = self.paginate_queryset(queryset)
+		if page is not None:
+			serializer = self.get_serializer(page, many=True)
+			return self.get_paginated_response(serializer.data)
+
+		serializer = self.get_serializer(queryset, many=True)
 		return Response(serializer.data)
 
 	@staticmethod
