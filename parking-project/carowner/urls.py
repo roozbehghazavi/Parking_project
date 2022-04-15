@@ -2,7 +2,7 @@ from django.urls import path , include
 from carowner.views import AddCredit, AddRate, CarCreate, CarDelete, CarList, CarUpdate, CarOwnerCreate, CarOwnerDetail, \
     CarOwnerUpdate, CarOwnerDelete, CarOwnerList, CommentChildCreate, CommentDelete, CommentList, CommentParentCreate, \
     CommentUpdate, IsRated, ParkingList, ParkingSearch, PassedReservationListCarOwner, ReservationCreate, \
-    ReservationListCarOwner, ReservationDelete
+    ReservationListCarOwner, ReservationDelete, ReservationWithoutEndtime
 
 urlpatterns = [
     ###CarOwner Urls
