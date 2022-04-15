@@ -5,6 +5,7 @@ from rest_framework.response import Response
 import parking
 from parkingowner.models import Parking, ParkingOwner, Period
 from parkingowner.serializers import ParkingSerializer, PeriodSerializer
+from parkingowner.views import PeriodsList
 from .models import  Car, CarOwner, Comment, Rate, Reservation
 from users.models import CustomUser
 from .pagination import CarOwnerPagination
@@ -183,7 +184,8 @@ class ParkingList(generics.ListAPIView):
 	pagination_class = CarOwnerPagination
 
 	def get(self, request, *args, **kwargs):
-		queryset = Parking.objects.all().filter(validationStatus = "V", isAccessible=True).order_by('parkingName')
+		PeriodsList.update_all_periods()
+		queryset = Parking.objects.all().filter(validationStatus = "V").order_by('parkingName')
 
 		page = self.paginate_queryset(queryset)
 		if page is not None:
@@ -450,12 +452,32 @@ class PassedReservationListCarOwner(generics.ListAPIView):
 
 #Search through parkings by parkingName and location using query params search 
 class ParkingSearch(generics.ListAPIView):
-	queryset = Parking.objects.all().filter(validationStatus = "V")
+	queryset = Parking.objects.all()
 	serializer_class = ParkingSerializer
 	pagination_class = CarOwnerPagination
 	filter_backends = [filters.SearchFilter,filters.OrderingFilter]
 	search_fields = ['parkingName', 'location']
 	ordering_fields = '__all__'
+
+	def list(self, request, *args, **kwargs):
+		queryset = self.filter_queryset(self.get_queryset())
+		min_price = request.GET.get('min_price', 0)
+		max_price = request.GET.get('max_price', queryset.aggregate(max_price=Max('pricePerHour')).get('max_price'))
+		has_capacity = bool(int(request.GET.get('has_capacity', 0)))
+
+		queryset = queryset.filter(pricePerHour__gte=min_price, pricePerHour__lte=max_price)
+
+		if has_capacity:
+			current_period_ids = PeriodsList.get_current_period_ids_if_has_capacity()
+			queryset.filter(id__in=current_period_ids)
+
+		page = self.paginate_queryset(queryset)
+		if page is not None:
+			serializer = self.get_serializer(page, many=True)
+			return self.get_paginated_response(serializer.data)
+
+		serializer = self.get_serializer(queryset, many=True)
+		return Response(serializer.data)
 
 
 #Add credit to carowner

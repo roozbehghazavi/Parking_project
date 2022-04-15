@@ -328,18 +328,12 @@ class PeriodsList(generics.ListAPIView):
 	serializer_class = PeriodSerializer
 
 	def get(self, request, *args, **kwargs):
-		parking = get_object_or_404(Parking, id = request.GET['parkingId'])
-		today = datetime.today().weekday()
-		periods = Period.objects.all().filter(parking = parking)
+		parking = get_object_or_404(Parking, id=request.GET['parkingId'])
+		periods = Period.objects.all().filter(parking=parking)
 
-		now = datetime.now()
+		currentPeriod = PeriodsList.get_current_period(parking)
 
-		if now.minute >= 30:
-			currentPeriod = get_object_or_404(Period, parking = parking,startTime__hour = now.hour, startTime__minute = 30,weekDay=today)
-		else:
-			currentPeriod = get_object_or_404(Period, parking = parking,startTime__hour = now.hour, startTime__minute = 0,weekDay=today)
-		
-		passedPeriods = periods.filter(endTime__lte = currentPeriod.startTime)
+		passedPeriods = periods.filter(endTime__lte=currentPeriod.startTime)
 
 		for period in passedPeriods:
 			template = get_object_or_404(Template, parking=parking, weekDay=period.weekDay)
@@ -354,17 +348,69 @@ class PeriodsList(generics.ListAPIView):
 				period.is_active = False
 			period.save()
 
-		passedPeriods.update(capacity = parking.capacity,startTime = F('startTime') + timedelta(days=7),endTime = F('endTime') + timedelta(days=7))
+		passedPeriods.update(capacity=parking.capacity, startTime=F('startTime') + timedelta(days=7),
+							 endTime=F('endTime') + timedelta(days=7))
 
-		queryset = periods.filter(is_active = True, startTime__gte = currentPeriod.startTime).order_by('startTime')[:48]
+		queryset = periods.filter(is_active=True, startTime__gte=currentPeriod.startTime).order_by('startTime')[:48]
 
-		page = self.paginate_queryset(queryset)
-		if page is not None:
-			serializer = self.get_serializer(page, many=True)
-			return self.get_paginated_response(serializer.data)
-
-		serializer = self.get_serializer(queryset, many=True)
+		serializer = PeriodSerializer(queryset, many=True)
 		return Response(serializer.data)
+
+	@staticmethod
+	def get_current_period(parking):
+		today = datetime.today().weekday()
+		now = datetime.now()
+
+		if now.minute >= 30:
+			currentPeriod = get_object_or_404(Period, parking=parking, startTime__hour=now.hour, startTime__minute=30,
+											  weekDay=today)
+		else:
+			currentPeriod = get_object_or_404(Period, parking=parking, startTime__hour=now.hour, startTime__minute=0,
+											  weekDay=today)
+
+		return currentPeriod
+
+	@staticmethod
+	def get_current_period_ids_if_has_capacity():
+		today = datetime.today().weekday()
+		now = datetime.now()
+
+		if now.minute >= 30:
+			current_periods = list(Period.objects.filter(
+				startTime__hour=now.hour, startTime__minute=30, weekDay=today, capacity__gt=0).values_list('id',
+																										   flat=True))
+		else:
+			current_periods = list(Period.objects.filter(
+				startTime__hour=now.hour, startTime__minute=0, weekDay=today, capacity__gt=0).values_list('id',
+																										  flat=True))
+
+		return current_periods
+
+	@staticmethod
+	def update_all_periods():
+		parkings = Parking.objects.all()
+		for parking in parkings:
+			periods = Period.objects.all().filter(parking=parking)
+
+			currentPeriod = PeriodsList.get_current_period(parking)
+
+			passedPeriods = periods.filter(endTime__lte=currentPeriod.startTime)
+
+			for period in passedPeriods:
+				template = get_object_or_404(Template, parking=parking, weekDay=period.weekDay)
+				openAt = template.openAt.hour * 60 + template.openAt.minute
+				closeAt = template.closeAt.hour * 60 + template.closeAt.minute
+				periodStartTime = period.startTime.hour * 60 + period.startTime.minute
+				periodEndTime = period.endTime.hour * 60 + period.endTime.minute
+
+				if periodStartTime >= openAt or periodEndTime <= closeAt:
+					period.is_active = True
+				else:
+					period.is_active = False
+				period.save()
+
+			passedPeriods.update(capacity=parking.capacity, startTime=F('startTime') + timedelta(days=7),
+								 endTime=F('endTime') + timedelta(days=7))
 
 
 #Gets the current period of a parking
