@@ -56,3 +56,13 @@ class FacebookLogin(SocialLoginView):
     adapter_class = FacebookOAuth2Adapter
 class GoogleLogin(SocialLoginView):
     adapter_class = GoogleOAuth2Adapter
+
+class SmsTestView(APIView):
+	authentication_classes = [] 
+	permission_classes = [] 
+
+	def post(self, request, *args, **kwargs):
+		number=request.data['number']
+		data = {'from': '50004001885294', 'to': number, 'text': 'پیام تست'}
+		response = requests.post('https://console.melipayamak.com/api/send/simple/7557787143184d838512628417a5001f', json=data)
+		return Response(response, status=status.HTTP_200_OK)

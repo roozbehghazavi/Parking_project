@@ -1,5 +1,5 @@
 from django.urls import path , include
-from .views import CustomUserUpdate,UserRole,CustomLoginView,GoogleLogin,FacebookLogin
+from .views import CustomUserUpdate,UserRole,CustomLoginView,GoogleLogin,FacebookLogin,SmsTestView
 
 urlpatterns = [
     path('rest-auth/', include('rest_auth.urls')),
@@ -10,4 +10,5 @@ urlpatterns = [
     path('update/', CustomUserUpdate.as_view(), name='edit-profile'),
     path('userrole/', UserRole.as_view()),
     path('custom/login/', CustomLoginView.as_view()),
+    path('smstest/', SmsTestView.as_view()),
 ]
