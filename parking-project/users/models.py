@@ -20,9 +20,11 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
 	email = models.EmailField(_('email address'), unique=True)
 	profilePhoto = models.ImageField(upload_to='userprofiles/',blank=True)
 	date_joined = models.DateTimeField(default=timezone.now)
+	phoneNumber = models.CharField(max_length=11,null=True,blank=True)
 	is_staff = models.BooleanField(default=False)
 	is_active = models.BooleanField(default=True)
-
+	is_verified =models.BooleanField(default=False)
+	
 	USERNAME_FIELD = 'email'
 	REQUIRED_FIELDS = []
 
@@ -32,3 +34,7 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
 	def __str__(self):
 		return self.email
 
+class OTPValidation(models.Model):
+	user=models.ForeignKey(CustomUser,on_delete=models.CASCADE,null=True)
+	token=models.CharField(max_length=5)
+	time_creation = models.DateTimeField(default=timezone.now)
