@@ -11,7 +11,7 @@ from users.models import CustomUser
 from .pagination import CarOwnerPagination
 from rest_framework import generics, pagination, serializers, status
 from .serializers import CarOwnerSerializer, CarSerializer, CommentChildSerializer, CommentSerializer, ReservationSerializer
-from django.db.models import Avg, F, Q, Max
+from django.db.models import Avg, F, Q, Max, Min
 import json
 import requests
 from datetime import date, datetime, timedelta
@@ -581,3 +581,13 @@ class ReservationWithoutEndtime(generics.CreateAPIView):
 		serializer.is_valid(raise_exception=True)
 
 		return Response(serializer.data)
+
+
+class GetMinMaxPrice(generics.RetrieveAPIView):
+	queryset = Parking.objects.all()
+
+	def retrieve(self, request, *args, **kwargs):
+		min_price = Parking.objects.filter(validationStatus="V").aggregate(min_price=Min('pricePerHour')).get('min_price')
+		max_price = Parking.objects.filter(validationStatus="V").aggregate(max_price=Max('pricePerHour')).get('max_price')
+
+		return Response({0: min_price, 1: max_price}, status=status.HTTP_200_OK)

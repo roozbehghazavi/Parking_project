@@ -2,7 +2,7 @@ from django.urls import path , include
 from carowner.views import AddCredit, AddRate, CarCreate, CarDelete, CarList, CarUpdate, CarOwnerCreate, CarOwnerDetail, \
     CarOwnerUpdate, CarOwnerDelete, CarOwnerList, CommentChildCreate, CommentDelete, CommentList, CommentParentCreate, \
     CommentUpdate, IsRated, ParkingList, ParkingSearch, PassedReservationListCarOwner, ReservationCreate, \
-    ReservationListCarOwner, ReservationDelete, ReservationWithoutEndtime
+    ReservationListCarOwner, ReservationDelete, ReservationWithoutEndtime, GetMinMaxPrice
 
 urlpatterns = [
     ###CarOwner Urls
@@ -80,5 +80,6 @@ urlpatterns = [
 
     ###Search parking
     path('parkingsearch/', ParkingSearch.as_view()),
+    path('get_min_max_price/', GetMinMaxPrice.as_view()),
 
 ]
