@@ -6,12 +6,12 @@ import parking
 from parkingowner.models import Parking, ParkingOwner, Period
 from parkingowner.serializers import ParkingSerializer, PeriodSerializer
 from parkingowner.views import PeriodsList
-from .models import  Car, CarOwner, Comment, Rate, Reservation
+from .models import Car, CarOwner, Comment, Rate, Reservation, ParkingMonitor
 from users.models import CustomUser
 from .pagination import CarOwnerPagination
 from rest_framework import generics, pagination, serializers, status
 from .serializers import CarOwnerSerializer, CarSerializer, CommentChildSerializer, CommentSerializer, ReservationSerializer
-from django.db.models import Avg, F, Q, Max, Min
+from django.db.models import Avg, F, Q, Max, Min, Count
 import json
 import requests
 from datetime import date, datetime, timedelta
@@ -591,3 +591,45 @@ class GetMinMaxPrice(generics.RetrieveAPIView):
 		max_price = Parking.objects.filter(validationStatus="V").aggregate(max_price=Max('pricePerHour')).get('max_price')
 
 		return Response({0: min_price, 1: max_price}, status=status.HTTP_200_OK)
+
+
+class AddParkingMonitor(generics.CreateAPIView):
+	queryset = ParkingMonitor.objects.all()
+
+	def create(self, request, *args, **kwargs):
+		car_owner = CarOwner.objects.filter(user=request.user).first()
+		if car_owner is None:
+			return Response({'error': 'token eshtebah ast'}, status=status.HTTP_400_BAD_REQUEST)
+
+		parking = Parking.objects.filter(id=request.data['parking_id']).first()
+		if parking is None:
+			return Response({'error': 'parking_id eshtebah ast'}, status=status.HTTP_400_BAD_REQUEST)
+
+		ParkingMonitor.objects.create(car_owner=car_owner, parking=parking)
+		return Response({'status': 'success'}, status=status.HTTP_201_CREATED)
+
+
+class RecentParkings(generics.ListAPIView):
+	queryset = Parking.objects.all()
+	serializer_class = ParkingSerializer
+
+	def list(self, request, *args, **kwargs):
+		car_owner = get_object_or_404(CarOwner, user=request.user)
+		recent_parking_ids = ParkingMonitor.objects.filter(car_owner=car_owner).order_by('created').values_list('parking', flat=True)[:5]
+		recent_parkings = Parking.objects.filter(id__in=recent_parking_ids)
+
+		serializer = self.get_serializer(recent_parkings, many=True)
+		return Response(serializer.data, status=status.HTTP_200_OK)
+
+
+class MostPopularParkings(generics.ListAPIView):
+	queryset = Parking.objects.all()
+	serializer_class = ParkingSerializer
+
+	def list(self, request, *args, **kwargs):
+		most_popular_parking_monitors = ParkingMonitor.objects.filter().values('parking').annotate(count=Count('parking')).order_by('-count')[:5]
+		most_popular_parkings = []
+		for query in most_popular_parking_monitors:
+			most_popular_parkings.append(Parking.objects.get(id=query.get('parking')))
+		serializer = self.get_serializer(most_popular_parkings, many=True)
+		return Response(serializer.data, status=status.HTTP_200_OK)
