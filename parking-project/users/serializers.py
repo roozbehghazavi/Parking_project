@@ -1,8 +1,9 @@
+from typing_extensions import Required
 from rest_framework import serializers
 
 from parkingowner.models import ParkingOwner
 from carowner.models import CarOwner
-from .models import CustomUser
+from .models import CustomUser,OTPValidation
 from rest_auth.registration.serializers import RegisterSerializer
 
 #Serializer for CustomUser Model
@@ -17,10 +18,12 @@ class CustomUserSerializer(serializers.ModelSerializer):
 	lastName = serializers.CharField(required = False)
 	email = serializers.EmailField(required = False)
 	profilePhoto = serializers.ImageField(required = False)
+	phoneNumber = serializers.CharField(required=False)
+	is_verified = serializers.BooleanField(read_only=False,required=False)
 
 	class Meta:
 		model = CustomUser
-		fields = ['id', 'role', 'firstName','lastName','email','profilePhoto']
+		fields = ['id', 'role', 'firstName','lastName','email','profilePhoto','phoneNumber','is_verified']
 
 
 
@@ -65,3 +68,9 @@ class MyCustomUserRegistrationSerializer(RegisterSerializer):
 		user.save()
 		return user
 	
+class OTPValidationSerializer(serializers.ModelSerializer):
+	token = serializers.CharField(read_only=True)
+	time_creation = serializers.DateTimeField(read_only=True)
+	class Meta:
+		model = OTPValidation
+		fields = ['token','time_creation']

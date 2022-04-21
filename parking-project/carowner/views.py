@@ -351,6 +351,7 @@ class ReservationCreate(generics.CreateAPIView):
 
 	@transaction.atomic
 	def create(self, request, *args, **kwargs):
+		instance = get_object_or_404(CustomUser, id = request.user.id)
 		owner = get_object_or_404(CarOwner, user = request.user)
 		parking = get_object_or_404(Parking, id = request.data['parking_id'])
 		car = get_object_or_404(Car,id = request.data['car_id'],owner = owner)
@@ -380,6 +381,9 @@ class ReservationCreate(generics.CreateAPIView):
 				trackingCode = Reservation.objects.filter(parking=parking).count()
 			serializer.save(owner = owner,parking=parking,startTime=startTime,endTime=endTime,cost = cost,car = car,trackingCode=trackingCode)
 			headers = self.get_success_headers(serializer.data)
+			text="رزرو شما با موفقیت انجام شد" + "\n" +"کد رهگیری شما" +"\n" + str(trackingCode)
+			data = {'from': '50004001885294', 'to': instance.phoneNumber , 'text': text}
+			response = requests.post('https://console.melipayamak.com/api/send/simple/7557787143184d838512628417a5001f', json=data)
 			return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
 
 		elif isValid == "Error, Closed Periods Found !": #returns the list of closed periods
@@ -418,12 +422,15 @@ class ReservationDelete(generics.DestroyAPIView):
 	serializer_class = ReservationSerializer
 
 	def destroy(self, request, *args, **kwargs):
+		usr = get_object_or_404(CustomUser, id = request.user.id)
 		instance = get_object_or_404(Reservation, id=request.data.get('id'))
 		if instance.startTime - timedelta(minutes=30) < datetime.now():
 			return Response({'message': 'امکان لغو رزرو در این بازه زمانی وجود ندارد'}, status=status.HTTP_400_BAD_REQUEST)
 		else:
 			self.perform_destroy(instance)
 			instance.owner.credit = F('credit') + instance.cost
+			text = 'رزرو شما با موفقیت لغو شد و هزینه آن به کیف پول شما برگشت داده شد'
+			data = {'from': '50004001885294', 'to': usr.phoneNumber , 'text': text}
 			return Response({'message': 'رزرو شما با موفقیت لغو شد و هزینه آن به کیف پول شما برگشت داده شد'}, status=status.HTTP_204_NO_CONTENT)
 
 #returns the list of reservations for the logged in carowner from now on
