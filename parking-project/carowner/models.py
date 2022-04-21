@@ -87,6 +87,6 @@ class Reservation(models.Model):
 
 
 class ParkingMonitor(models.Model):
-	car_owner = models.OneToOneField(CarOwner, on_delete=models.CASCADE)
+	car_owner = models.ForeignKey(CarOwner, on_delete=models.CASCADE)
 	parking = models.ForeignKey(Parking, on_delete=models.CASCADE)
 	created = models.DateTimeField(auto_now_add=True)
