@@ -1,4 +1,3 @@
-from typing_extensions import Required
 from rest_framework import serializers
 
 from parkingowner.models import ParkingOwner
