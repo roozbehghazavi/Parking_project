@@ -475,3 +475,6 @@ GitHub.sublime-settings
 settings.py
 **/settings.py
 /parking-project/parking/settings.py/
+
+
+.DS_Store
