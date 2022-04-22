@@ -46,4 +46,6 @@ jobs:
       
     - name: Run Tests
       run: |
-        python ./parking-project/manage.py test 
+        python ./parking-project/manage.py test users
+        python ./parking-project/manage.py test parkingowner
+        python ./parking-project/manage.py test carowner
