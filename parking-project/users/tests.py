@@ -58,7 +58,8 @@ class PhonenumberOtpTest(APITestCase):
         self.client.credentials(HTTP_AUTHORIZATION = 'token ' + token)
 
         #Put phoneNumber
-        self.client.put('users/edit-profile', {'phoneNumber' : '09123456789'})
+        url = reverse('edit-profile')
+        self.client.put(url, {'phoneNumber' : '09123456789'})
         self.assertEqual(CustomUser.objects.first().phoneNumber, '09123456789')
 
         #OTP test
