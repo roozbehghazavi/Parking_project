@@ -65,3 +65,7 @@ class PhonenumberOtpTest(APITestCase):
         #OTP test
         response = self.client.post('/users/otpvalidation/',{'phoneNumber':'09123456789'})
         self.assertEqual(response.status_code, 200)
+
+        #OTP Failed test case
+        response = self.client.post('/users/otpvalidation/',{'phoneNumber':'09123456782'})
+        self.assertEqual(response.status_code, 404)
