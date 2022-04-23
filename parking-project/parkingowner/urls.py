@@ -5,7 +5,7 @@ from .views import CurrentPeriod, EditParkingTemplate, PassedReservationListPark
 
 urlpatterns = [
     #Parking URLs
-    path('createparking/', ParkingCreate.as_view()),
+    path('createparking/', ParkingCreate.as_view(), name='add_parking'),
     path('updateparking/', ParkingUpdate.as_view()),
     path('parkinglist/', ParkingList.as_view()),
     path('parkingdetail/', ParkingDetail.as_view()),
