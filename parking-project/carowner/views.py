@@ -594,8 +594,8 @@ class GetMinMaxPrice(generics.RetrieveAPIView):
 	queryset = Parking.objects.all()
 
 	def retrieve(self, request, *args, **kwargs):
-		min_price = Parking.objects.filter(validationStatus="V").aggregate(min_price=Min('pricePerHour')).get('min_price')
-		max_price = Parking.objects.filter(validationStatus="V").aggregate(max_price=Max('pricePerHour')).get('max_price')
+		min_price = Parking.objects.filter(validationStatus="V").aggregate(min_price=Min('pricePerHour')).get('min_price') or 0
+		max_price = Parking.objects.filter(validationStatus="V").aggregate(max_price=Max('pricePerHour')).get('max_price') or 0
 
 		return Response({0: min_price, 1: max_price}, status=status.HTTP_200_OK)
 
@@ -622,10 +622,19 @@ class RecentParkings(generics.ListAPIView):
 
 	def list(self, request, *args, **kwargs):
 		car_owner = get_object_or_404(CarOwner, user=request.user)
-		recent_parking_ids = ParkingMonitor.objects.filter(car_owner=car_owner).order_by('created').values_list('parking', flat=True)[:5]
-		recent_parkings = Parking.objects.filter(id__in=recent_parking_ids)
+		parking_monitors = ParkingMonitor.objects.filter(car_owner=car_owner).order_by('-created')
+		recent_parkings = []
+		for parking_monitor in parking_monitors:
+			recent_parkings.append(parking_monitor.parking.id)
 
-		serializer = self.get_serializer(recent_parkings, many=True)
+		recent_parkings = list(set(recent_parkings))
+		recent_parkings.reverse()
+
+		parkings = []
+		for id in recent_parkings:
+			parkings.append(Parking.objects.get(id=id))
+
+		serializer = self.get_serializer(parkings, many=True)
 		return Response(serializer.data, status=status.HTTP_200_OK)
 
 

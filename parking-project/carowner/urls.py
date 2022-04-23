@@ -80,10 +80,9 @@ urlpatterns = [
 
 
     ###Search parking
-    path('parkingsearch/', ParkingSearch.as_view()),
-    path('get_min_max_price/', GetMinMaxPrice.as_view()),
-    path('get_recent_parkings/', RecentParkings.as_view()),
-    path('get_most_popular_parkings/', MostPopularParkings.as_view()),
-    path('search_click/', AddParkingMonitor.as_view()),
-
+    path('parkingsearch/', ParkingSearch.as_view(), name='parking_search'),
+    path('get_min_max_price/', GetMinMaxPrice.as_view(), name='get_min_max_price'),
+    path('get_recent_parkings/', RecentParkings.as_view(), name='get_recent_parkings'),
+    path('get_most_popular_parkings/', MostPopularParkings.as_view(), name='get_most_popular_parkings'),
+    path('search_click/', AddParkingMonitor.as_view(), name='search_click'),
 ]
