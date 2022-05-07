@@ -36,3 +36,19 @@ class ParkingList(generics.ListAPIView):
 
 		serializer = self.get_serializer(queryset, many=True)
 		return Response(serializer.data)
+
+class ReservationListParking(generics.ListAPIView):
+	queryset = Reservation.objects.all()
+	serializer_class = ReservationSerializer
+
+	def get(self, request, *args, **kwargs):
+		parking = get_object_or_404(Parking,id = request.GET['parkingId'])
+		queryset = Reservation.objects.all().filter(parking = parking)
+
+		page = self.paginate_queryset(queryset)
+		if page is not None:
+			serializer = self.get_serializer(page, many=True)
+			return self.get_paginated_response(serializer.data)
+
+		serializer = self.get_serializer(queryset, many=True)
+		return Response(serializer.data)
