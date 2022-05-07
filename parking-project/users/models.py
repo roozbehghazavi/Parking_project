@@ -13,6 +13,7 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
 	CHOICES = (
 		('C', 'CarOwner'),
 		('P', 'ParkingOwner'),
+		('S', 'Support'),
 	)
 	role = models.CharField(max_length=1, choices=CHOICES)
 	firstName = models.CharField(max_length=100,null=True,blank=True)

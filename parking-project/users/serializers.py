@@ -2,6 +2,7 @@ from rest_framework import serializers
 
 from parkingowner.models import ParkingOwner
 from carowner.models import CarOwner
+from support.models import Support
 from .models import CustomUser,OTPValidation
 from rest_auth.registration.serializers import RegisterSerializer
 
@@ -11,6 +12,7 @@ class CustomUserSerializer(serializers.ModelSerializer):
 	CHOICES = (
 		('C', 'CarOwner'),
 		('P', 'ParkingOwner'),
+		('S', 'Support'),
 	)
 	role = serializers.ChoiceField(choices=CHOICES,required = False)
 	firstName = serializers.CharField(required = False)
@@ -32,6 +34,7 @@ class MyCustomUserRegistrationSerializer(RegisterSerializer):
 	CHOICES = (
 		('C', 'CarOwner'),
 		('P', 'ParkingOwner'),
+		('S', 'Support'),
 	)
 	role = serializers.ChoiceField(choices=CHOICES)
 	firstName = serializers.CharField(required = False)
@@ -58,12 +61,19 @@ class MyCustomUserRegistrationSerializer(RegisterSerializer):
 		user.lastName = self.data.get('lastName')
 		user.email = self.data.get('email')
 		user.profilePhoto = self.data.get('profilePhoto')
+		
 		if user.role == "P":
 			parkingOwner = ParkingOwner.objects.create(user = user)
 			parkingOwner.save()
+
 		elif user.role == "C":
 			carOwner = CarOwner.objects.create(user = user)
 			carOwner.save()
+
+		elif user.role == "S":
+			support=Support.objects.create(user = user)
+			support.save()
+
 		user.save()
 		return user
 	
