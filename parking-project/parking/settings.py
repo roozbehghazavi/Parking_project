@@ -46,6 +46,7 @@ INSTALLED_APPS = [
     'users',
     'parkingowner',
     'carowner',
+    'support',
     'allauth.socialaccount',
     'allauth.socialaccount.providers.google',
     'allauth.socialaccount.providers.facebook',
