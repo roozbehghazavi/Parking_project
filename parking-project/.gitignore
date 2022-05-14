@@ -1,0 +1,11 @@
+# Only for Development only
+**/migrations/**
+!**/migrations
+!**/migrations/__init__.py
+!**/settings.py
+settings.py
+**/settings.py
+/parking-project/parking/settings.py/
+
+
+.DS_Store
