@@ -22,7 +22,12 @@ Install the requirements:
   pip install -r requirements.txt
 ```
 
-Connect the project to your postgresql database in settings.py:
+If you encounter errors during installation of psycopg2 package try:
+```bash
+  pip install psycopg2-binary
+```
+
+Connect the project to your desired postgresql database in settings.py:
 ```bash
   DATABASES = {
     'default': {
@@ -35,7 +40,7 @@ Connect the project to your postgresql database in settings.py:
     }
 }
 ```
-Create database tables:
+Create database tables and migrations:
 ```bash
   python manage.py makemigrations
   python manage.py migrate
