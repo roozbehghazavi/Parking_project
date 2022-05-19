@@ -18,6 +18,7 @@ class CarOwner(models.Model):
 	user = models.OneToOneField(CustomUser,on_delete=models.CASCADE)
 	favoriteLocations = models.CharField(max_length=100,blank=True)
 	credit = models.IntegerField(default=0,blank=True, validators=[validate_positive])
+	reserveCount=models.IntegerField(default=0)
 
 	def save(self, *args, **kwargs) -> None:
 		super().save(*args, **kwargs)

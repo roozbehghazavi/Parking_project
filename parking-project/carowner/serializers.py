@@ -17,7 +17,7 @@ class CarOwnerSerializer(serializers.ModelSerializer):
 
 	class Meta:
 		model = CarOwner
-		fields = ['id', 'role', 'firstName', 'lastName','email' , 'favoriteLocations', 'profilePhoto', 'credit']
+		fields = ['id', 'role', 'firstName', 'lastName','email' , 'favoriteLocations', 'profilePhoto', 'credit','reserveCount']
 
 	def update(self, instance, validated_data):
 

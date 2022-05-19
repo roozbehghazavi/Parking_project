@@ -381,9 +381,11 @@ class ReservationCreate(generics.CreateAPIView):
 				trackingCode = Reservation.objects.filter(parking=parking).count()
 			serializer.save(owner = owner,parking=parking,startTime=startTime,endTime=endTime,cost = cost,car = car,trackingCode=trackingCode)
 			headers = self.get_success_headers(serializer.data)
-			text="رزرو شما با موفقیت انجام شد" + "\n" +"کد رهگیری شما" +"\n" + str(trackingCode)
-			data = {'from': '50004001885294', 'to': instance.phoneNumber , 'text': text}
-			response = requests.post('https://console.melipayamak.com/api/send/simple/7557787143184d838512628417a5001f', json=data)
+			# text="رزرو شما با موفقیت انجام شد" + "\n" +"کد رهگیری شما" +"\n" + str(trackingCode)
+			# data = {'from': '50004001885294', 'to': instance.phoneNumber , 'text': text}
+			# response = requests.post('https://console.melipayamak.com/api/send/simple/7557787143184d838512628417a5001f', json=data)
+			owner.reserveCount+=1
+			owner.save()
 			return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
 
 		elif isValid == "Error, Closed Periods Found !": #returns the list of closed periods
