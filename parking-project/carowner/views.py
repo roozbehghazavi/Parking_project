@@ -435,6 +435,25 @@ class ReservationDelete(generics.DestroyAPIView):
 			data = {'from': '50004001885294', 'to': usr.phoneNumber , 'text': text}
 			return Response({'message': 'رزرو شما با موفقیت لغو شد و هزینه آن به کیف پول شما برگشت داده شد'}, status=status.HTTP_204_NO_CONTENT)
 
+class ReservationUpdate(generics.RetrieveUpdateAPIView):
+	queryset = Reservation.objects.all()
+	serializer_class = ReservationSerializer
+
+	def update(self, request, *args, **kwargs):
+		partial = kwargs.pop('partial', True)
+		usr = get_object_or_404(CustomUser, id = request.user.id)
+		instance = get_object_or_404(Reservation, id=request.data.get('id'))
+		serializer = self.get_serializer(instance, data=request.data, partial=partial)
+		serializer.is_valid(raise_exception=True)
+		self.perform_update(serializer)
+
+		if getattr(instance, '_prefetched_objects_cache', None):
+			# If 'prefetch_related' has been applied to a queryset, we need to
+			# forcibly invalidate the prefetch cache on the instance.
+			instance._prefetched_objects_cache = {}
+
+		return Response(serializer.data)
+
 #returns the list of reservations for the logged in carowner from now on
 class ReservationListCarOwner(generics.ListAPIView):
 	queryset = Reservation.objects.all()

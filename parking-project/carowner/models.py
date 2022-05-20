@@ -78,6 +78,12 @@ class Rate(models.Model):
 
 #Reservation Model
 class Reservation(models.Model):
+	CHOICES = (
+		('1', 'Invalid time'),
+		('2', 'Change in plans'),
+		('3', 'Parking is closed'),
+		('4', 'others'),
+	)
 	owner = models.ForeignKey(CarOwner, on_delete=models.CASCADE)
 	parking = models.ForeignKey(Parking, on_delete=models.CASCADE)
 	car = models.ForeignKey(Car, on_delete=models.CASCADE)
@@ -85,6 +91,7 @@ class Reservation(models.Model):
 	startTime = models.DateTimeField()
 	endTime = models.DateTimeField()
 	cost = models.FloatField(default=0)
+	cancellationReason = models.CharField(max_length=1, choices=CHOICES,default=' ')
 
 
 class ParkingMonitor(models.Model):
