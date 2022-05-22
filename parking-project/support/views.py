@@ -6,6 +6,8 @@ from carowner.models import Comment, Reservation
 from carowner.serializers import CommentSerializer, ReservationSerializer
 
 import parking
+from support.models import Support
+from support.serializers import SupportSerializer
 from users.models import CustomUser
 from parkingowner.models import ParkingOwner,Parking, Period, Template,Validation
 from parkingowner.serializers import ParkingOwnerSerializer, ParkingSerializer
@@ -51,4 +53,15 @@ class ReservationListParking(generics.ListAPIView):
 			return self.get_paginated_response(serializer.data)
 
 		serializer = self.get_serializer(queryset, many=True)
+		return Response(serializer.data)
+
+
+class SupportDetail(generics.RetrieveAPIView):
+	# API endpoint that returns a single customer by pk.
+	queryset = Support.objects.all()
+	serializer_class = SupportSerializer
+
+	def get(self, request, *args, **kwargs):
+		instance = get_object_or_404(Support, user=request.user)
+		serializer = self.get_serializer(instance)
 		return Response(serializer.data)
