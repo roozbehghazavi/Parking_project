@@ -535,3 +535,27 @@ class CombinedReservesAndComments(generics.ListAPIView):
 		# 	serializer = self.get_serializer(page, many=True)
 		# 	return self.get_paginated_response(serializer.data)
 		return Response(reserve_serializer.data + comment_serializer.data, status=status.HTTP_200_OK)
+
+#Overall income
+class OverallIncome(generics.RetrieveAPIView):
+	queryset = Reservation.objects.all()
+	serializer_class = ReservationSerializer
+
+	def get(self, request,*args, **kwargs):
+		values=list()
+		start=request.GET['start']
+		end = request.GET['end']
+		queryset = Reservation.objects.all().filter(startTime__gt=start+"T00:00:00", endTime__lt=end+"T23:59:00")
+
+		page = self.paginate_queryset(queryset)
+		if page is not None:
+			serializer = self.get_serializer(page, many=True)
+			return self.get_paginated_response(serializer.data)
+
+		serializer = self.get_serializer(queryset, many=True)
+
+		for i in serializer.data:
+			values.append(float(i['cost']))
+
+		return Response(sum(values))
+		
