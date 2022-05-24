@@ -454,6 +454,14 @@ class ReservationUpdate(generics.RetrieveUpdateAPIView):
 
 		return Response(serializer.data)
 
+class CancellationCount(generics.RetrieveAPIView):
+	queryset = Reservation.objects.all()
+	serializer_class = ReservationSerializer
+
+	def get(self, request,*args, **kwargs):
+		queryset = Reservation.objects.all().filter(cancellationReason = request.GET['id'])
+		return Response(queryset.count())
+
 #returns the list of reservations for the logged in carowner from now on
 class ReservationListCarOwner(generics.ListAPIView):
 	queryset = Reservation.objects.all()
