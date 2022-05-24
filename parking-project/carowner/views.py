@@ -1,5 +1,6 @@
 from django.shortcuts import get_object_or_404, render
 from django.http import HttpResponse
+from numpy import true_divide, vstack
 import pytz
 from rest_framework.response import Response
 import parking
@@ -454,6 +455,7 @@ class ReservationUpdate(generics.RetrieveUpdateAPIView):
 
 		return Response(serializer.data)
 
+#Cancellation Count
 class CancellationCount(generics.RetrieveAPIView):
 	queryset = Reservation.objects.all()
 	serializer_class = ReservationSerializer
@@ -461,6 +463,8 @@ class CancellationCount(generics.RetrieveAPIView):
 	def get(self, request,*args, **kwargs):
 		queryset = Reservation.objects.all().filter(cancellationReason = request.GET['id'])
 		return Response(queryset.count())
+		
+
 
 #returns the list of reservations for the logged in carowner from now on
 class ReservationListCarOwner(generics.ListAPIView):

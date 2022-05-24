@@ -84,6 +84,7 @@ urlpatterns = [
 
 
 
+
     ###Search parking
     path('parkingsearch/', ParkingSearch.as_view(), name='parking_search'),
     path('get_min_max_price/', GetMinMaxPrice.as_view(), name='get_min_max_price'),
