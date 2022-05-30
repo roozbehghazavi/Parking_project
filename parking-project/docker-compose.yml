@@ -11,7 +11,11 @@ services:
       - POSTGRES_PASSWORD=postgres
   web:
     build: .
-    command: python manage.py runserver 0.0.0.0:8000
+    command: bash -c "
+      python manage.py makemigrations
+      && python manage.py migrate
+      && python manage.py runserver 0.0.0.0:8000
+      "
     volumes:
       - .:/code
     ports:
@@ -22,3 +26,7 @@ services:
       - POSTGRES_PASSWORD=postgres
     depends_on:
       - db
+  redis:
+    image: redis:alpine
+    ports:
+      - "6379:6379"

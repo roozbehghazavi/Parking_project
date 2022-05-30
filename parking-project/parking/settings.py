@@ -54,7 +54,7 @@ INSTALLED_APPS = [
     'channels',
     'chat',
 ]
-
+ALLOWED_HOSTS = ['0.0.0.0', '127.0.0.1']
 MIDDLEWARE = [
     'corsheaders.middleware.CorsMiddleware',
     'django.middleware.security.SecurityMiddleware',
@@ -97,7 +97,7 @@ CHANNEL_LAYERS = {
     'default': {
         'BACKEND': 'channels_redis.core.RedisChannelLayer',
         'CONFIG': {
-            "hosts": [('127.0.0.1', 6379)],
+            "hosts": [('redis', 6379)],
         },
     },
 }
