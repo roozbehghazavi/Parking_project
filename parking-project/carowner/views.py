@@ -503,7 +503,21 @@ class PassedReservationListCarOwner(generics.ListAPIView):
 		serializer = self.get_serializer(queryset, many=True)
 		return Response(serializer.data)
 
+class PassedReservationList(generics.ListAPIView):
+	queryset = Reservation.objects.all()
+	serializer_class = ReservationSerializer
 
+	def get(self, request, *args, **kwargs):
+		now = datetime.now()
+		queryset = Reservation.objects.all().filter(endTime__lte = now).order_by('startTime')
+
+		page = self.paginate_queryset(queryset)
+		if page is not None:
+			serializer = self.get_serializer(page, many=True)
+			return self.get_paginated_response(serializer.data)
+
+		serializer = self.get_serializer(queryset, many=True)
+		return Response(serializer.data)
 #Search through parkings by parkingName and location using query params search 
 class ParkingSearch(generics.ListAPIView):
 	queryset = Parking.objects.all().filter(validationStatus = "V")
