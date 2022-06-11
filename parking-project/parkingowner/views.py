@@ -1,10 +1,11 @@
 from os import close
 from django.shortcuts import render
+from numpy import true_divide
 import pytz
 from rest_framework.views import APIView
 from carowner.models import Comment, Reservation
 from carowner.serializers import CommentSerializer, ReservationSerializer
-
+from rest_framework.reverse import reverse
 import parking
 from users.models import CustomUser
 from .models import ParkingOwner,Parking, Period, Template,Validation
@@ -558,4 +559,39 @@ class OverallIncome(generics.RetrieveAPIView):
 			values.append(float(i['cost']))
 
 		return Response(sum(values))
+		
+class OverallCustomers(generics.RetrieveAPIView):
+	queryset = Reservation.objects.all()
+	serializer_class = ReservationSerializer
+
+	def get(self, request,*args, **kwargs):
+		values=list()
+		today=str(datetime.now().date())
+		last_week =str(datetime.now().date() - timedelta(days=7))
+
+		interval=request.GET['interval']
+
+		if(interval=="day"):
+			queryset = Reservation.objects.all().filter(startTime__gt=today+"T00:00:00",endTime__lt=today+"T23:59:00").order_by('startTime')
+
+		elif(interval=="week"):
+			queryset = Reservation.objects.all().filter(startTime__gt=last_week+"T00:00:00",endTime__lt=today+"T23:59:00").order_by('startTime')
+
+		elif(interval=="month"):
+			queryset = Reservation.objects.all().filter(startTime__gt=str(datetime.now().date().replace(day=1))+"T00:00:00",endTime__lt=str(datetime.now().date().replace(day=30))+"T23:59:00").order_by('startTime')
+
+		elif(interval=="year"):
+			queryset = Reservation.objects.all().filter(startTime__gt=str(datetime.now().date().replace(day=1,month=1))+"T00:00:00",endTime__lt=str(datetime.now().date().replace(day=31,month=12))+"T23:59:00").order_by('startTime')
+			
+		else:
+			return Response({"message" : "Invalid interval"})
+
+		page = self.paginate_queryset(queryset)
+		if page is not None:
+			serializer = self.get_serializer(page, many=True)
+			return self.get_paginated_response(serializer.data)
+		
+		serializer = self.get_serializer(queryset, many=True)
+
+		return Response(serializer.data)
 		

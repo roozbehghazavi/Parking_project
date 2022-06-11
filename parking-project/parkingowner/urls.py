@@ -1,7 +1,7 @@
 from django.urls import path , include
 
-from .views import CurrentPeriod, EditParkingTemplate, PassedReservationListParking, ReservationListParking,ManualEnterOrExit,ParkingDetail,ParkingCreate,ParkingDelete,ParkingList,ParkingDetail,ParkingOwnerDetail,ParkingOwnerUpdate,ParkingOwnerList,ParkingUpdate, PeriodsList, TemplateDetail,Validator,OverallIncome
-
+from .views import CurrentPeriod, EditParkingTemplate, OverallCustomers, PassedReservationListParking, ReservationListParking,ManualEnterOrExit,ParkingDetail,ParkingCreate,ParkingDelete,ParkingList,ParkingDetail,ParkingOwnerDetail,ParkingOwnerUpdate,ParkingOwnerList,ParkingUpdate, PeriodsList, TemplateDetail,Validator,OverallIncome
+OverallCustomers,
 
 urlpatterns = [
     #Parking URLs
@@ -36,6 +36,7 @@ urlpatterns = [
     path('passedreservelist/', PassedReservationListParking.as_view()),
     #Overall income by date
     path('income/', OverallIncome.as_view()),
+    path('allcustomers/',OverallCustomers.as_view()),
     # path('combinedlist/',CombinedList.as_view()),
 
 ]
