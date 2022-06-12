@@ -544,9 +544,25 @@ class OverallIncome(generics.RetrieveAPIView):
 
 	def get(self, request,*args, **kwargs):
 		values=list()
-		start=request.GET['start']
-		end = request.GET['end']
-		queryset = Reservation.objects.all().filter(startTime__gt=start+"T00:00:00", endTime__lt=end+"T23:59:00")
+		today=str(datetime.now().date())
+		last_week =str(datetime.now().date() - timedelta(days=7))
+
+		interval=request.GET['interval']
+
+		if(interval=="day"):
+			queryset = Reservation.objects.all().filter(startTime__gt=today+"T00:00:00",endTime__lt=today+"T23:59:00").order_by('startTime')
+
+		elif(interval=="week"):
+			queryset = Reservation.objects.all().filter(startTime__gt=last_week+"T00:00:00",endTime__lt=today+"T23:59:00").order_by('startTime')
+
+		elif(interval=="month"):
+			queryset = Reservation.objects.all().filter(startTime__gt=str(datetime.now().date().replace(day=1))+"T00:00:00",endTime__lt=str(datetime.now().date().replace(day=30))+"T23:59:00").order_by('startTime')
+
+		elif(interval=="year"):
+			queryset = Reservation.objects.all().filter(startTime__gt=str(datetime.now().date().replace(day=1,month=1))+"T00:00:00",endTime__lt=str(datetime.now().date().replace(day=31,month=12))+"T23:59:00").order_by('startTime')
+			
+		else:
+			return Response({"message" : "Invalid interval"})
 
 		page = self.paginate_queryset(queryset)
 		if page is not None:
@@ -555,10 +571,7 @@ class OverallIncome(generics.RetrieveAPIView):
 
 		serializer = self.get_serializer(queryset, many=True)
 
-		for i in serializer.data:
-			values.append(float(i['cost']))
-
-		return Response(sum(values))
+		return Response(serializer.data)
 		
 class OverallCustomers(generics.RetrieveAPIView):
 	queryset = Reservation.objects.all()
