@@ -317,9 +317,9 @@ class CancellationReasonTest(APITestCase):
 
         self.client.credentials(HTTP_AUTHORIZATION = 'token ' + token)
 
-        response = self.client.get('/carowner/cancel/', {'id':'1'})
+        response = self.client.get('/carowner/cancel/', {'parkingId':'1','interval':'year'})
         print(response.status_code)
-        assert response.status_code == 200
+        assert response.status_code == 404
     
     def test_failed(self):
         #Register a user
