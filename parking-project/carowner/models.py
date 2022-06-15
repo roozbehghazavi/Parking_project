@@ -79,6 +79,7 @@ class Rate(models.Model):
 #Reservation Model
 class Reservation(models.Model):
 	CHOICES = (
+		('0', 'Not canceled'),
 		('1', 'Invalid time'),
 		('2', 'Change in plans'),
 		('3', 'Parking is closed'),
@@ -91,7 +92,7 @@ class Reservation(models.Model):
 	startTime = models.DateTimeField()
 	endTime = models.DateTimeField()
 	cost = models.FloatField(default=0)
-	cancellationReason = models.CharField(max_length=1, choices=CHOICES,default=' ')
+	cancellationReason = models.CharField(max_length=1, choices=CHOICES,default='0')
 
 
 class ParkingMonitor(models.Model):
