@@ -1,6 +1,7 @@
 from re import search
 from django.db.models import fields
 from django.http import request
+from pkg_resources import require
 from rest_framework import serializers
 from rest_framework.fields import SerializerMethodField
 from .models import Car, CarOwner, Comment, Reservation
@@ -103,6 +104,7 @@ class ReservationSerializer(serializers.ModelSerializer):
 	car_pelak = serializers.CharField(source = "car.pelak",required = False)
 	startTime = serializers.DateTimeField(required = False)
 	endTime = serializers.DateTimeField(required = False)
+	cancellationReason = serializers.CharField(required = False)
 
 	class Meta:
 		model = Reservation

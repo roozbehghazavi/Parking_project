@@ -1,5 +1,5 @@
 from django.shortcuts import get_object_or_404, render
-from django.http import HttpResponse
+from django.http import HttpResponse, JsonResponse
 from numpy import true_divide, vstack
 import pytz
 from rest_framework.response import Response
@@ -461,23 +461,26 @@ class CancellationCount(generics.RetrieveAPIView):
 	serializer_class = ReservationSerializer
 
 	def get(self, request,*args, **kwargs):
+		parking = get_object_or_404(Parking, id = request.GET['parkingId'])
 		values=list()
+		dic={}
 		today=str(datetime.now().date())
 		last_week =str(datetime.now().date() - timedelta(days=7))
 
 		interval=request.GET['interval']
 
 		if(interval=="day"):
-			queryset = Reservation.objects.all().filter(startTime__gt=today+"T00:00:00",endTime__lt=today+"T23:59:00").order_by('startTime')
+			queryset = Reservation.objects.all().filter(parking=parking,startTime__gt=today+"T00:00:00",endTime__lt=today+"T23:59:00").order_by('startTime')
 
 		elif(interval=="week"):
-			queryset = Reservation.objects.all().filter(startTime__gt=last_week+"T00:00:00",endTime__lt=today+"T23:59:00").order_by('startTime')
+			queryset = Reservation.objects.all().filter(parking=parking,startTime__gt=last_week+"T00:00:00",endTime__lt=today+"T23:59:00").order_by('startTime')
 
 		elif(interval=="month"):
-			queryset = Reservation.objects.all().filter(startTime__gt=str(datetime.now().date().replace(day=1))+"T00:00:00",endTime__lt=str(datetime.now().date().replace(day=30))+"T23:59:00").order_by('startTime')
+			queryset = Reservation.objects.all().filter(parking=parking,startTime__gt=str(datetime.now().date().replace(day=1))+"T00:00:00",endTime__lt=str(datetime.now().date().replace(day=30))+"T23:59:00").order_by('startTime')
 
 		elif(interval=="year"):
-			queryset = Reservation.objects.all().filter(startTime__gt=str(datetime.now().date().replace(day=1,month=1))+"T00:00:00",endTime__lt=str(datetime.now().date().replace(day=31,month=12))+"T23:59:00").order_by('startTime')
+			queryset = Reservation.objects.all().filter(parking=parking,startTime__gt=str(datetime.now().date().replace(day=1,month=1))+"T00:00:00",endTime__lt=str(datetime.now().date().replace(day=31,month=12))+"T23:59:00").order_by('startTime')
+			
 			
 		else:
 			return Response({"message" : "Invalid interval"})
@@ -489,8 +492,15 @@ class CancellationCount(generics.RetrieveAPIView):
 
 		serializer = self.get_serializer(queryset, many=True)
 
-		return Response(serializer.data)
-		
+		for i in serializer.data:
+			values.append(int(i['cancellationReason']))
+
+		for j in range(1,5):
+			if(len(values)!=0):
+				reason_percentage=(values.count(j)/len(values))*100
+				dic[str(j)]=reason_percentage   
+
+		return Response(dic)	         	
 
 
 #returns the list of reservations for the logged in carowner from now on
