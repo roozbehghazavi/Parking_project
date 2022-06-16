@@ -599,15 +599,28 @@ class OverallCustomers(generics.RetrieveAPIView):
 		if(len(serializer.data)==0):
 			return Response("No Customer found in this interval")
 
-		for i in range(len(serializer.data)):
-			values.append(serializer.data[i]["startTime"][:10])
+		elif(interval=="year"):
+			for i in range(len(serializer.data)):
+				values.append(serializer.data[i]["startTime"][:7])
 
-		for item in values:
-			if (item in dic):
-				dic[item] += 1
-			else:
-				dic[item] = 1
+			for item in values:
+				if (item in dic):
+					dic[item] += 1
+				else:
+					dic[item] = 1
  
-		return Response(dic)   
+			return Response(dic) 
+		
+		else:  
+			for i in range(len(serializer.data)):
+				values.append(serializer.data[i]["startTime"][:10])
+
+			for item in values:
+				if (item in dic):
+					dic[item] += 1
+				else:
+					dic[item] = 1
+	
+			return Response(dic)   
 
 		 
