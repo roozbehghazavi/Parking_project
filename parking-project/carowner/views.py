@@ -492,8 +492,14 @@ class CancellationCount(generics.RetrieveAPIView):
 
 		serializer = self.get_serializer(queryset, many=True)
 
+		if(len(serializer.data)==0):
+			for j in range(1,5):
+				dic[str(j)]=float(0)
+			return Response(dic)
+
 		for i in serializer.data:
-			values.append(int(i['cancellationReason']))
+			if(int(i['cancellationReason'])!=0):
+				values.append(int(i['cancellationReason']))
 
 		for j in range(1,5):
 			if(len(values)!=0):

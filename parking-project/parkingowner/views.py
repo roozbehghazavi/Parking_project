@@ -1,4 +1,5 @@
 from os import close
+from urllib import response
 from django.shortcuts import render
 from numpy import true_divide
 import pytz
@@ -565,23 +566,25 @@ class OverallCustomers(generics.RetrieveAPIView):
 	serializer_class = ReservationSerializer
 
 	def get(self, request,*args, **kwargs):
+		parking = get_object_or_404(Parking, id = request.GET['parkingId'])
 		values=list()
+		dic={}
 		today=str(datetime.now().date())
 		last_week =str(datetime.now().date() - timedelta(days=7))
 
 		interval=request.GET['interval']
 
 		if(interval=="day"):
-			queryset = Reservation.objects.all().filter(startTime__gt=today+"T00:00:00",endTime__lt=today+"T23:59:00").order_by('startTime')
+			queryset = Reservation.objects.all().filter(parking=parking,startTime__gt=today+"T00:00:00",endTime__lt=today+"T23:59:00").order_by('startTime')
 
 		elif(interval=="week"):
-			queryset = Reservation.objects.all().filter(startTime__gt=last_week+"T00:00:00",endTime__lt=today+"T23:59:00").order_by('startTime')
+			queryset = Reservation.objects.all().filter(parking=parking,startTime__gt=last_week+"T00:00:00",endTime__lt=today+"T23:59:00").order_by('startTime')
 
 		elif(interval=="month"):
-			queryset = Reservation.objects.all().filter(startTime__gt=str(datetime.now().date().replace(day=1))+"T00:00:00",endTime__lt=str(datetime.now().date().replace(day=30))+"T23:59:00").order_by('startTime')
+			queryset = Reservation.objects.all().filter(parking=parking,startTime__gt=str(datetime.now().date().replace(day=1))+"T00:00:00",endTime__lt=str(datetime.now().date().replace(day=30))+"T23:59:00").order_by('startTime')
 
 		elif(interval=="year"):
-			queryset = Reservation.objects.all().filter(startTime__gt=str(datetime.now().date().replace(day=1,month=1))+"T00:00:00",endTime__lt=str(datetime.now().date().replace(day=31,month=12))+"T23:59:00").order_by('startTime')
+			queryset = Reservation.objects.all().filter(parking=parking,startTime__gt=str(datetime.now().date().replace(day=1,month=1))+"T00:00:00",endTime__lt=str(datetime.now().date().replace(day=31,month=12))+"T23:59:00").order_by('startTime')
 			
 		else:
 			return Response({"message" : "Invalid interval"})
@@ -593,5 +596,18 @@ class OverallCustomers(generics.RetrieveAPIView):
 		
 		serializer = self.get_serializer(queryset, many=True)
 
-		return Response(serializer.data)
-		
+		if(len(serializer.data)==0):
+			return Response("No Customer found in this interval")
+
+		for i in range(len(serializer.data)):
+			values.append(serializer.data[i]["startTime"][:10])
+
+		for item in values:
+			if (item in dic):
+				dic[item] += 1
+			else:
+				dic[item] = 1
+ 
+		return Response(dic)   
+
+		 
