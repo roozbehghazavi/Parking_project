@@ -16,9 +16,7 @@
         const chatSocket = new WebSocket(
             'ws://'
             + window.location.host
-            + '/ws/chat/'
-            + roomName
-            + '/', ["protocol1", "protocol2"]
+            + '/ws/rooms/' , ["protocol1", "protocol2"]
         );
         chatSocket.onmessage = function(e) {
             const data = JSON.parse(e.data);
@@ -41,7 +39,7 @@
             const message = messageInputDom.value;
             chatSocket.send(JSON.stringify({
                 'message': message,
-                'user': "user"
+                'user': "mmd"
             }));
             messageInputDom.value = '';
         };
