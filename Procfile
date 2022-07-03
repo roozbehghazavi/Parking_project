@@ -1,2 +1,2 @@
 release: python manage.py migrate 
-web: gunicorn parking.wsgi
+web: gunicorn parking-project/parking.wsgi
