@@ -1,1 +1,1 @@
-web: gunicorn parking-project/parking.wsgi
+web: gunicorn parking.wsgi
