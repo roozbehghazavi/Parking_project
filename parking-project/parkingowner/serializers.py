@@ -40,10 +40,11 @@ class ParkingSerializer(serializers.ModelSerializer):
 	parkingPhoneNumber = serializers.CharField(required = False)
 	isAccessible=serializers.BooleanField(required=False)
 	isPrivate = serializers.BooleanField(read_only=True)
-
+	lat=serializers.FloatField(required=True)
+	lng=serializers.FloatField(required=True)
 	class Meta:
 		model = Parking
-		fields = ['id','owner','isAccessible','isPrivate','parkingName','location','parkingPhoneNumber','capacity','parkingPicture','rating','validationStatus','pricePerHour']
+		fields = ['id','owner','isAccessible','isPrivate','parkingName','location','parkingPhoneNumber','capacity','parkingPicture','rating','validationStatus','pricePerHour','lat','lng']
 
 	def create(self, validated_data):
 		parking = super().create(validated_data)

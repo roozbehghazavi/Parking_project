@@ -36,7 +36,8 @@ class Parking(models.Model):
 	validationStatus = models.CharField(max_length=1, choices=CHOICES,default="I")
 	pricePerHour = models.IntegerField(default=0)
 	isAccessible=models.BooleanField(default=False)
-
+	lat=models.FloatField(max_length=20)
+	lng=models.FloatField(max_length=20) 
 
 	def __str__(self):
 		return self.parkingName
