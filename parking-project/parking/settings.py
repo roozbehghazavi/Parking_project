@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/3.2/ref/settings/
 """
 from pathlib import Path
 import os
+import django_heroku
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -54,7 +55,7 @@ INSTALLED_APPS = [
     'channels',
     'chat',
 ]
-ALLOWED_HOSTS = ['0.0.0.0', '127.0.0.1', 'localhost']
+ALLOWED_HOSTS = ['0.0.0.0', '127.0.0.1', 'localhost','parkeshkon.herokuapp.com']
 MIDDLEWARE = [
     'corsheaders.middleware.CorsMiddleware',
     'django.middleware.security.SecurityMiddleware',
@@ -108,10 +109,10 @@ CHANNEL_LAYERS = {
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'postgres',
-        'USER': 'postgres',
-        'PASSWORD': 'postgres',
-        'HOST': 'localhost',
+        'NAME': 'd8b0c2gh0s87cs',
+        'USER': 'blulefpbxwcyvv',
+        'PASSWORD': '08bab55659d0c624cbbccdd2f96c0833016a0c769c5bd71e391cd1ea2fb3a0b0',
+        'HOST': 'ec2-44-206-11-200.compute-1.amazonaws.com',
         'PORT': 5432,
     }
 }
@@ -148,8 +149,10 @@ USE_TZ = False
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/3.2/howto/static-files/
 
-STATIC_URL = '/static/'
 
+STATIC_ROOT=os.path.join(BASE_DIR,'staticfiles')
+STATIC_URL ="/static/"
+django_heroku.settings(locals())
 # Default primary key field type
 # https://docs.djangoproject.com/en/3.2/ref/settings/#default-auto-field
 
