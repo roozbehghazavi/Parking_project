@@ -24,7 +24,7 @@ TIME_ZONE = 'Asia/Tehran'
 SECRET_KEY = 'django-insecure-@tq@yyp9-d9l@$v2%kzh1^9jwne988id2y8v85!b3_(&2qzh7('
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False
 
 
 # Application definition
@@ -77,7 +77,7 @@ ROOT_URLCONF = 'parking.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+        'DIRS': [os.path.join(BASE_DIR, 'templates')],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [

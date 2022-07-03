@@ -17,9 +17,11 @@ from django.contrib import admin
 from django.urls import path , include
 from django.conf.urls.static import static
 from django.conf import settings
-from parkingapp import views
+from parking import views
+from .views import page_not_found_view
 
 urlpatterns = [
+    path('', views.page_not_found_view),
     path('admin/', admin.site.urls),
     path('car/',include('parkingapp.urls')),
     path('users/',include('users.urls')),
