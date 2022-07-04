@@ -583,8 +583,6 @@ class OverallIncome(generics.RetrieveAPIView):
 				values.append(serializer.data[i]["startTime"][:7])
 				costs.append(serializer.data[i]["cost"])
 
-			print(values) 
-			print(costs)
 			cn=0
 			for item in values:
 				if (item in dic):
