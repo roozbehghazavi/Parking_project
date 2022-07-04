@@ -197,7 +197,14 @@ class ParkingList(generics.ListAPIView):
 		return Response(serializer.data)
 
 
-
+class ParkingDetail(APIView):
+	queryset = Parking.objects.all()
+	serializer_class = ParkingSerializer
+	
+	def get(self, request,*args, **kwargs):
+		parking = get_object_or_404(Parking, id = request.GET['id'])
+		serializer = ParkingSerializer(parking)
+		return Response(serializer.data)
 
 #Comment views for CarOwner
 

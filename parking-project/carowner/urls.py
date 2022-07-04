@@ -3,7 +3,7 @@ from carowner.views import AddCredit, AddRate, CarCreate, CarDelete, CarList, Ca
     CarOwnerUpdate, CarOwnerDelete, CarOwnerList, CommentChildCreate, CommentDelete, CommentList, CommentParentCreate, \
     CommentUpdate, IsRated, ParkingList, ParkingSearch, PassedReservationListCarOwner, ReservationCreate, \
     ReservationListCarOwner, ReservationDelete, ReservationWithoutEndtime, GetMinMaxPrice, RecentParkings, \
-    MostPopularParkings, AddParkingMonitor,ReservationUpdate,CancellationCount,PassedReservationList
+    MostPopularParkings, AddParkingMonitor,ReservationUpdate,CancellationCount,PassedReservationList,ParkingDetail
 
 urlpatterns = [
     ###CarOwner Urls
@@ -38,7 +38,7 @@ urlpatterns = [
 
     ###Parking Urls
 
-
+    path('parkingdetail/',ParkingDetail.as_view()),
     #list of all parkings
     path('parkinglist/',ParkingList.as_view()),
 
