@@ -544,10 +544,29 @@ class OverallIncome(generics.RetrieveAPIView):
 	serializer_class = ReservationSerializer
 
 	def get(self, request,*args, **kwargs):
+		parking = get_object_or_404(Parking, id = request.GET['parkingId'])
+		dic={}
+		costs=list()
 		values=list()
-		start=request.GET['start']
-		end = request.GET['end']
-		queryset = Reservation.objects.all().filter(startTime__gt=start+"T00:00:00", endTime__lt=end+"T23:59:00")
+		today=str(datetime.now().date())
+		last_week =str(datetime.now().date() - timedelta(days=7))
+
+		interval=request.GET['interval']
+
+		if(interval=="day"):
+			queryset = Reservation.objects.all().filter(parking=parking,startTime__gt=today+"T00:00:00",endTime__lt=today+"T23:59:00").order_by('startTime')
+
+		elif(interval=="week"):
+			queryset = Reservation.objects.all().filter(parking=parking,startTime__gt=last_week+"T00:00:00",endTime__lt=today+"T23:59:00").order_by('startTime')
+
+		elif(interval=="month"):
+			queryset = Reservation.objects.all().filter(parking=parking,startTime__gt=str(datetime.now().date().replace(day=1))+"T00:00:00",endTime__lt=str(datetime.now().date().replace(day=30))+"T23:59:00").order_by('startTime')
+
+		elif(interval=="year"):
+			queryset = Reservation.objects.all().filter(parking=parking,startTime__gt=str(datetime.now().date().replace(day=1,month=1))+"T00:00:00",endTime__lt=str(datetime.now().date().replace(day=31,month=12))+"T23:59:00").order_by('startTime')
+			
+		else:
+			return Response({"message" : "Invalid interval"})
 
 		page = self.paginate_queryset(queryset)
 		if page is not None:
@@ -556,10 +575,41 @@ class OverallIncome(generics.RetrieveAPIView):
 
 		serializer = self.get_serializer(queryset, many=True)
 
-		for i in serializer.data:
-			values.append(float(i['cost']))
+		if(len(serializer.data)==0):
+			return Response("0")
 
-		return Response(sum(values))
+		elif(interval=="year"):
+			for i in range(len(serializer.data)):
+				values.append(serializer.data[i]["startTime"][:7])
+				costs.append(serializer.data[i]["cost"])
+
+			print(values) 
+			print(costs)
+			cn=0
+			for item in values:
+				if (item in dic):
+					dic[item] += costs[cn]
+				else:
+					dic[item] = costs[cn]
+				cn+=1
+ 
+			return Response(dic) 
+		
+		else:  
+			for i in range(len(serializer.data)):
+				values.append(serializer.data[i]["startTime"][:10])
+				costs.append(serializer.data[i]["cost"])
+
+			cn=0
+			for item in values:
+				if (item in dic):
+					dic[item] += costs[cn]
+				else:
+					dic[item] = costs[cn]
+				cn+=1
+
+			return Response(dic)
+		
 		 
 class OverallCustomers(generics.RetrieveAPIView):
 	queryset = Reservation.objects.all()
@@ -621,6 +671,4 @@ class OverallCustomers(generics.RetrieveAPIView):
 				else:
 					dic[item] = 1
 	
-			return Response(dic)   
-
-		 
+			return Response(dic)

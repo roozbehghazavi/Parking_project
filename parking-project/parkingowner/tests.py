@@ -8,6 +8,22 @@ from users.models import CustomUser
 from support.models import Support
 from rest_framework.authtoken.models import Token
 # Create your tests here.
+class ParkingDetailsTest(APITestCase):
+    def test_success(self):
+        #Register a parkingowner
+        response = self.client.post('/users/rest-auth/registration/', {'email':'mmdbfrstP@gmail.com','password1':'affarin234','password2':'affarin234','role':'P'})
+        self.assertEqual(response.status_code, 201)
+        Ptoken = Token.objects.last().key
+
+        #Create a Parking
+        self.client.credentials(HTTP_AUTHORIZATION = 'token ' + Ptoken)
+        response = self.client.post('/parkingowner/createparking/', {'parkingName':'Lidoma','isPrivate':'False','location':'hemat highway','parkingPhoneNumber':'223478132','capacity':'1000','pricePerHour':'2000','lat':'23.234','lng':'42.345'})
+        assert response.status_code == 200 or 201
+
+        #Get parking details
+        response = self.client.get('/parkingowner/parkingdetail/', {'id':'1'})  
+        self.assertEqual(response.status_code,404)
+
 class ParkingCreateTest(APITestCase):
     def test_success(self):
         #Register a parkingowner
@@ -17,7 +33,7 @@ class ParkingCreateTest(APITestCase):
 
         #Create a Parking
         self.client.credentials(HTTP_AUTHORIZATION = 'token ' + Ptoken)
-        response = self.client.post('/parkingowner/createparking/', {'parkingName':'Lidoma','isPrivate':'False','location':'hemat highway','parkingPhoneNumber':'223478132','capacity':'1000','pricePerHour':'2000'})  
+        response = self.client.post('/parkingowner/createparking/', {'parkingName':'Lidoma','isPrivate':'False','location':'hemat highway','parkingPhoneNumber':'223478132','capacity':'1000','pricePerHour':'2000','lat':'23.234','lng':'42.345'})  
         
 
         self.assertEqual(Parking.objects.first().parkingName, 'Lidoma')
@@ -31,7 +47,7 @@ class ParkingCreateTest(APITestCase):
 
         #Create a Parking
         self.client.credentials(HTTP_AUTHORIZATION = 'token ' + Ptoken)
-        response = self.client.post('/parkingowner/createparking/', {'parkingName':'Lidoma','isPrivate':'False','location':'hemat highway','parkingPhoneNumber':'223478132','capacity':'1000','pricePerHour':'2000'})  
+        response = self.client.post('/parkingowner/createparking/', {'parkingName':'Lidoma','isPrivate':'False','location':'hemat highway','parkingPhoneNumber':'223478132','capacity':'1000','pricePerHour':'2000','lat':'23.234','lng':'42.345'})  
         
         self.assertNotEqual(Parking.objects.first().capacity,1001)
 
@@ -44,7 +60,7 @@ class ParkingValidationTest(APITestCase):
 
         #Create a Parking
         self.client.credentials(HTTP_AUTHORIZATION = 'token ' + Ptoken)
-        response = self.client.post('/parkingowner/createparking/', {'parkingName':'Lidoma','isPrivate':'False','location':'hemat highway','parkingPhoneNumber':'223478132','capacity':'1000','pricePerHour':'2000'})
+        response = self.client.post('/parkingowner/createparking/', {'parkingName':'Lidoma','isPrivate':'False','location':'hemat highway','parkingPhoneNumber':'223478132','capacity':'1000','pricePerHour':'2000','lat':'23.234','lng':'42.345'})
 
         #Validate a Parking  
         self.client.credentials(HTTP_AUTHORIZATION = 'token ' + Ptoken)
@@ -61,7 +77,7 @@ class ParkingValidationTest(APITestCase):
 
         #Create a Parking
         self.client.credentials(HTTP_AUTHORIZATION = 'token ' + Ptoken)
-        response = self.client.post('/parkingowner/createparking/', {'parkingName':'Lidoma','isPrivate':'False','location':'hemat highway','parkingPhoneNumber':'223478132','capacity':'1000','pricePerHour':'2000'})
+        response = self.client.post('/parkingowner/createparking/', {'parkingName':'Lidoma','isPrivate':'False','location':'hemat highway','parkingPhoneNumber':'223478132','capacity':'1000','pricePerHour':'2000','lat':'23.234','lng':'42.345'})
         #Validate a Parking  
         response = self.client.put('/parkingowner/updateparking/', {'id':'1','validationStatus':'V'})
 
@@ -76,7 +92,7 @@ class OverallIncomeTest(APITestCase):
 
         #Create a Parking
         self.client.credentials(HTTP_AUTHORIZATION = 'token ' + Ptoken)
-        response = self.client.post('/parkingowner/createparking/', {'parkingName':'Lidoma','isPrivate':'False','location':'hemat highway','parkingPhoneNumber':'223478132','capacity':'1000','pricePerHour':'2000'})
+        response = self.client.post('/parkingowner/createparking/', {'parkingName':'Lidoma','isPrivate':'False','location':'hemat highway','parkingPhoneNumber':'223478132','capacity':'1000','pricePerHour':'2000','lat':'23.234','lng':'42.345'})
         
         #Validate a Parking  
         response = self.client.put('/parkingowner/updateparking/', {'id':'1','validationStatus':'V'})
