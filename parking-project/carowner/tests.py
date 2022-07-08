@@ -31,15 +31,15 @@ class ParkingSearchTest(APITestCase):
         self.client.credentials(HTTP_AUTHORIZATION='token ' + token)
         add_parking_url = reverse('add_parking')
         self.client.post(add_parking_url,
-                         data={'parkingName': 'mmd', 'isPrivate': True, 'capacity': 5000, 'pricePerHour': 4500, 'validationStatus': 'V'})
+                         data={'parkingName': 'mmd', 'isPrivate': True, 'capacity': 5000, 'pricePerHour': 4500, 'validationStatus': 'V','lat':'23.234','lng':'245.345'})
         self.client.post(add_parking_url,
-                         data={'parkingName': 'saeed', 'isPrivate': True, 'capacity': 1000, 'pricePerHour': 6000, 'validationStatus': 'V'})
+                         data={'parkingName': 'saeed', 'isPrivate': True, 'capacity': 1000, 'pricePerHour': 6000, 'validationStatus': 'V','lat':'23.234','lng':'245.345'})
         self.client.post(add_parking_url,
-                         data={'parkingName': 'roozbeh', 'isPrivate': True, 'capacity': 8000, 'pricePerHour': 100, 'validationStatus': 'V'})
+                         data={'parkingName': 'roozbeh', 'isPrivate': True, 'capacity': 8000, 'pricePerHour': 100, 'validationStatus': 'V','lat':'23.234','lng':'245.345'})
         self.client.post(add_parking_url,
-                         data={'parkingName': 'bakh', 'isPrivate': True, 'capacity': 500, 'pricePerHour': 200, 'validationStatus': 'V'})
+                         data={'parkingName': 'bakh', 'isPrivate': True, 'capacity': 500, 'pricePerHour': 200, 'validationStatus': 'V','lat':'23.234','lng':'245.345'})
         self.client.post(add_parking_url,
-                         data={'parkingName': 'mmdbfrs', 'isPrivate': True, 'capacity': 7000, 'pricePerHour': 50, 'validationStatus': 'V'})
+                         data={'parkingName': 'mmdbfrs', 'isPrivate': True, 'capacity': 7000, 'pricePerHour': 50, 'validationStatus': 'V','lat':'23.234','lng':'245.345'})
 
         self.client.post('/users/rest-auth/registration/',
                          {'email': 'C@gmail.com', 'password1': 'affarin234',
@@ -157,7 +157,7 @@ class ReservationTest(APITestCase):
         #Create a Parking
         try:
             self.client.credentials(HTTP_AUTHORIZATION = 'token ' + Ptoken)
-            response = self.client.post('/parkingowner/createparking/', {'parkingName':'Lidoma','isPrivate':'False','location':'hemat highway','parkingPhoneNumber':'223478132','capacity':'1000','pricePerHour':'2000'})  
+            response = self.client.post('/parkingowner/createparking/', {'parkingName':'Lidoma','isPrivate':'False','location':'hemat highway','parkingPhoneNumber':'223478132','capacity':'1000','pricePerHour':'2000','lat':'23.234','lng':'245.345'})  
             
 
             self.assertEqual(Parking.objects.first().parkingName, 'Lidoma')
@@ -245,7 +245,7 @@ class ReservationCancelTest(APITestCase):
         #Create a Parking
         try:
             self.client.credentials(HTTP_AUTHORIZATION = 'token ' + Ptoken)
-            response = self.client.post('/parkingowner/createparking/', {'parkingName':'Lidoma','isPrivate':'False','location':'hemat highway','parkingPhoneNumber':'223478132','capacity':'1000','pricePerHour':'2000'})  
+            response = self.client.post('/parkingowner/createparking/', {'parkingName':'Lidoma','isPrivate':'False','location':'hemat highway','parkingPhoneNumber':'223478132','capacity':'1000','pricePerHour':'2000','lat':'23.234','lng':'245.345'})  
             
 
             self.assertEqual(Parking.objects.first().parkingName, 'Lidoma')

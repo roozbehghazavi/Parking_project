@@ -77,7 +77,7 @@ class PhonenumberOTP(APIView):
 			serializer.save(user=user,token=token)
 			text="کد احراز شما"+"\n"+"code: "+str(token) 
 			data = {'from': '50004001885294', 'to': request.data['phoneNumber'] , 'text': text}
-			response = requests.post('https://console.melipayamak.com/api/send/simple/7557787143184d838512628417a5001f', json=data)
+			# response = requests.post('https://console.melipayamak.com/api/send/simple/7557787143184d838512628417a5001f', json=data)
 
 			return Response({"message" : "Token is sent successfully"})
 
