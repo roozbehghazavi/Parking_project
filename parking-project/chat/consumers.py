@@ -3,12 +3,18 @@ import datetime
 import json
 from asgiref.sync import async_to_sync
 from channels.generic.websocket import WebsocketConsumer
+from rest_framework.authtoken.models import Token
+
+from chat.models import ChatMessage
 
 
 class ChatConsumer(WebsocketConsumer):
     def connect(self):
         self.room_name = self.scope['url_route']['kwargs']['room_name']
         self.room_group_name = 'chat_%s' % self.room_name
+        token = self.scope['subprotocols'][0]
+        self.user = Token.objects.get(key=token).user
+
 
         # Join room group
         async_to_sync(self.channel_layer.group_add)(
@@ -30,7 +36,8 @@ class ChatConsumer(WebsocketConsumer):
         text_data_json = json.loads(text_data)
         message = text_data_json['message']
         user = text_data_json['user']
-        print(self.scope['user'])
+        print(user)
+
 
         # Send message to room group
         async_to_sync(self.channel_layer.group_send)(
@@ -45,13 +52,12 @@ class ChatConsumer(WebsocketConsumer):
     # Receive message from room group
     def chat_message(self, event):
         message = event['message']
-        user = event['user']
-        print(user)
-
+        ChatMessage.objects.create(user=self.user, message=message, room_name=self.room_name)
+        print(f'chat_message : {self.user.email}')
         # Send message to WebSocket
         self.send(text_data=json.dumps({
             'message': message,
-            'user': user
+            'user': self.user.email
         }))
 
 
@@ -82,7 +88,6 @@ class RoomsConsumer(WebsocketConsumer):
         message = text_data_json['message']
         user = text_data_json['user']
         time = text_data_json['time']
-        print(self.scope['user'])
 
         # Send message to room group
         async_to_sync(self.channel_layer.group_send)(
