@@ -18,7 +18,7 @@
             + window.location.host
             + '/ws/chat/'
             + roomName
-            + '/', ["protocol1", "protocol2"]
+            + '/', ["960edfc8e2b7e64036a3957fdd1063e0e295e7bc", "protocol2"]
         );
         chatSocket.onmessage = function(e) {
             const data = JSON.parse(e.data);
