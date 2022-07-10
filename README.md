@@ -51,3 +51,12 @@ Run the project:
   python manage.py runserver
 ```
 
+To run using Docker:
+
+1 - Go to the root directory of the project
+
+2 - Run these two commands :
+```bash
+  docker-compose build
+  docker-compose up
+```
