@@ -49,3 +49,4 @@ jobs:
         python ./parking-project/manage.py test users
         python ./parking-project/manage.py test parkingowner
         python ./parking-project/manage.py test carowner
+        python ./parking-project/manage.py test support
