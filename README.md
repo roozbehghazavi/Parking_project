@@ -56,5 +56,7 @@ To run using Docker:
 1 - Go to the root directory of the project
 
 2 - Run these two commands :
-  $ docker-compose build
-  $ docker-compose up
+```bash
+  docker-compose build
+  docker-compose up
+```
