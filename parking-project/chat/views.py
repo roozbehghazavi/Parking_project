@@ -26,10 +26,9 @@ class GetChatMessages(generics.ListAPIView):
     serializer_class = ChatMessageSerializer
 
     def list(self, request, *args, **kwargs):
-        user = request.user
         room_name = request.GET['room_name']
 
-        chat_messages = ChatMessage.objects.filter(user=user, room_name=room_name)
+        chat_messages = ChatMessage.objects.filter(room_name=room_name)
         serializer = self.get_serializer(chat_messages, many=True)
 
         return Response(serializer.data, status=status.HTTP_200_OK)

@@ -19,6 +19,9 @@ from datetime import date, datetime, timedelta
 from rest_framework.views import APIView
 from rest_framework import filters
 from django.db import transaction
+import io
+from django.http import FileResponse
+from reportlab.pdfgen import canvas
 # Create your views here.
 
 
@@ -425,6 +428,30 @@ class ReservationCreate(generics.CreateAPIView):
 			return True
 		else:
 			return filledPeriods
+
+class ReservationPDF(generics.RetrieveAPIView):
+
+	def get(self, request, *args, **kwargs):
+		# Create a file-like buffer to receive PDF data.
+		buffer = io.BytesIO()
+
+		# Create the PDF object, using the buffer as its "file."
+		p = canvas.Canvas(buffer)
+
+		# Draw things on the PDF. Here's where the PDF generation happens.
+		# See the ReportLab documentation for the full list of functionality.
+		p.drawString(100, 100, "Hello world.")
+		p.drawString(5, 5, 'hi')
+
+		# Close the PDF object cleanly, and we're done.
+		p.showPage()
+		p.save()
+
+		# FileResponse sets the Content-Disposition header so that browsers
+		# present the option to save the file.
+		buffer.seek(0)
+		print(buffer)
+		return FileResponse(buffer, as_attachment=True, filename='hello.pdf')
 
 #Delete a reservation
 class ReservationDelete(generics.DestroyAPIView):
